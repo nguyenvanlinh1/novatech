@@ -22,7 +22,6 @@ import lombok.experimental.FieldDefaults;
 public class ProductCreationRequest {
     String name;
     String description;
-    String brand;
     double price;
     double discountedPrice;
     double discountPercent;

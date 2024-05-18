@@ -1,5 +1,9 @@
 package com.nvl.novatech.model;
 
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -18,13 +22,16 @@ public class Review {
     String content;
     String imageUrl;
     double rating;
+
+    LocalDateTime createAt;
     
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     User user;
 
-    @ManyToOne
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
     Product product;
 }

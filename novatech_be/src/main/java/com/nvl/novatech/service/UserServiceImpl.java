@@ -1,19 +1,24 @@
 package com.nvl.novatech.service;
 
 import com.nvl.novatech.config.JwtProvider;
+import com.nvl.novatech.dto.request.AuthenticationRequest;
 import com.nvl.novatech.dto.request.UserCreationRequest;
 import com.nvl.novatech.dto.request.UserUpdateRequest;
+import com.nvl.novatech.dto.response.AuthenticationResponse;
 import com.nvl.novatech.dto.response.UserResponse;
 import com.nvl.novatech.exception.AppException;
 import com.nvl.novatech.exception.ErrorCode;
 import com.nvl.novatech.mapper.UserMapper;
+import com.nvl.novatech.model.Cart;
 import com.nvl.novatech.model.User;
+import com.nvl.novatech.repository.CartRepository;
 import com.nvl.novatech.repository.RoleRepository;
 import com.nvl.novatech.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,13 +37,14 @@ public class UserServiceImpl implements UserService{
     CartService cartService;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
+    CartRepository cartRepository;
 
     @NonNull
     private JwtProvider jwtProvider;
 
 
     @Override
-    public UserResponse createUser(UserCreationRequest request) {
+    public AuthenticationResponse createUser(AuthenticationRequest request) {
         if(userRepository.existsByEmail(request.getEmail())) throw new AppException(ErrorCode.USER_EXISTED);
 
         User user = userMapper.toUser(request);
@@ -48,7 +54,7 @@ public class UserServiceImpl implements UserService{
         cartService.createCart(user);
         var role = new HashSet<String>();
         role.add(com.nvl.novatech.enums.Role.USER.name());
-        return userMapper.toUserResponse(user);
+        return userMapper.toAuthenticationResponse(user);
     }
 
     @Override
@@ -61,6 +67,8 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void deleteUser(Long userId) {
+        Cart cart = cartRepository.findCartbyUserId(userId);
+        cartRepository.delete(cart);
         userRepository.deleteById(userId);
     }
 
@@ -77,12 +85,8 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserResponse updateUser(Long userId, UserUpdateRequest request) {
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
         userMapper.updateUser(user, request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        var roles = roleRepository.findAllById(request.getRoles());
-        user.setRoles(new HashSet<>(roles));
 
         return userMapper.toUserResponse(userRepository.save(user));
     }

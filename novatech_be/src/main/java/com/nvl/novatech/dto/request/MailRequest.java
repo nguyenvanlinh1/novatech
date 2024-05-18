@@ -1,9 +1,5 @@
 package com.nvl.novatech.dto.request;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,16 +8,12 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserUpdateRequest {
-    
-    String firstName;
-    String lastName;
-    String avatarUrl;
-    String password;
-    LocalDate dob;
-    String phone;
+public class MailRequest {
+
+    String subject;
+    String message;
 }

@@ -65,14 +65,12 @@ public class AddressServiceImpl implements AddressService{
 
     @Override
     public void deleteAddress(Long addressId, User user) {
-        Optional<Address> address = addressRepository.findById(addressId);
+        Address address = addressRepository.findById(addressId).orElseThrow(() -> new AppException(ErrorCode.CAN_NOT_DELETE));
 
-        if(user.getUserId().equals(address.get().getUser().getUserId())){
+        if(user.getUserId().equals(address.getUser().getUserId())){
+            user.getAddresses().removeIf(addr -> addr.getAddressId().equals(addressId));
             addressRepository.deleteById(addressId);
-            return;
         }
-        throw new AppException(ErrorCode.CAN_NOT_DELETE);
-
     }
     
 }

@@ -2,12 +2,15 @@ package com.nvl.novatech.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
 import com.nvl.novatech.dto.request.AddressOrderRequest;
+import com.nvl.novatech.dto.response.OrderResponse;
 import com.nvl.novatech.exception.AppException;
 import com.nvl.novatech.exception.ErrorCode;
 import com.nvl.novatech.model.Address;
@@ -18,7 +21,6 @@ import com.nvl.novatech.model.OrderItem;
 import com.nvl.novatech.model.Product;
 import com.nvl.novatech.model.User;
 import com.nvl.novatech.repository.AddressRepository;
-import com.nvl.novatech.repository.CartItemRepository;
 import com.nvl.novatech.repository.CartRepository;
 import com.nvl.novatech.repository.OrderItemRepository;
 import com.nvl.novatech.repository.OrderRepository;
@@ -46,7 +48,7 @@ public class OrderServiceImpl implements OrderService{
     public Order createOrder(User user, AddressOrderRequest request) {
         Address shippAddress = addressRepository.findById(request.getAddressId()).orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_EXISTED));
         Cart cart = cartService.getCartbyUserId(user.getUserId());
-        List<OrderItem> orderItems = new ArrayList<>();
+        Set<OrderItem> orderItems = new HashSet<>();
         for(CartItem item : cart.getCartItems()){
             OrderItem orderItem = new OrderItem();
             orderItem.setPrice(item.getPrice());

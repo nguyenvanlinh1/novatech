@@ -22,6 +22,5 @@ public class ProductUpdateRequest {
     double discountedPrice;
     double discountPercent;
     int quantity;
-
     Specification specification;
 }

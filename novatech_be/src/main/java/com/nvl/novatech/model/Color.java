@@ -22,7 +22,7 @@ public class Color {
     @ManyToOne
     @JoinColumn(name = "product_id")
     Product product;
-    int quantity;
 
+    int quantity;
     String description;
 }

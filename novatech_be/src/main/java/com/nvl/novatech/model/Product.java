@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 @Entity
@@ -25,7 +24,6 @@ public class Product {
     Long productId;
     String name;
     String description;
-    String brand;
     double price;
     double discountedPrice;
     double discountPercent;
@@ -41,11 +39,11 @@ public class Product {
     @JoinColumn(name = "specification_id")
     Specification specification;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name = "category_id")
     Category category;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     List<Review> reviews = new ArrayList<>();
 
 }

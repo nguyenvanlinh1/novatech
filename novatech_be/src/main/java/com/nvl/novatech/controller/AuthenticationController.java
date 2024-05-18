@@ -8,10 +8,14 @@ import com.nvl.novatech.dto.request.ApiResponse;
 import com.nvl.novatech.dto.request.AuthenticationRequest;
 import com.nvl.novatech.dto.request.IntrospectTokenRequest;
 import com.nvl.novatech.dto.request.LogoutRequest;
+import com.nvl.novatech.dto.request.UserCreationRequest;
 import com.nvl.novatech.dto.response.AuthenticationResponse;
 import com.nvl.novatech.dto.response.IntrospectTokenResponse;
+import com.nvl.novatech.dto.response.UserResponse;
 import com.nvl.novatech.service.AuthenticationService;
+import com.nvl.novatech.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,9 +33,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class AuthenticationController {
     
     AuthenticationService authenticationService;
+    UserService userService;
 
 
-    @PostMapping("/token")
+    @PostMapping("/signin")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
         var result = authenticationService.authenticate(request);
 
@@ -55,6 +60,16 @@ public class AuthenticationController {
         authenticationService.logout(request);
 
         return ApiResponse.<Void>builder()
+            .build();
+    }
+
+
+    @PostMapping("/signup")
+    ApiResponse<AuthenticationResponse> createUser(@RequestBody @Valid AuthenticationRequest request){
+
+        userService.createUser(request);
+        return ApiResponse.<AuthenticationResponse>builder()
+            .result(authenticationService.authenticate(request))
             .build();
     }
     

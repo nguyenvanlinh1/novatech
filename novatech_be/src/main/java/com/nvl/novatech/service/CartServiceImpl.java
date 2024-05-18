@@ -64,9 +64,8 @@ public class CartServiceImpl implements CartService{
             CartItem cartItem = new CartItem();
             cartItem.setProduct(product);
             cartItem.setCart(cart);
-            cartItem.setQuantity(request.getQuantity());
             cartItem.setUserId(user.getUserId());
-            cartItem.setPrice(request.getQuantity() * product.getPrice());
+            cartItem.setPrice(product.getPrice());
             cartItem.setColor(request.getColor());
 
             CartItem createCartitem = cartItemService.createCartItem(cartItem);

@@ -9,6 +9,16 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  # mail:
+  #     host: smtp.gmail.com
+  #     port: 587
+  #     username: novatech.shopmobile1@gmail.com
+  #     password: zkitnqiojumktiev
+  #     properties:
+  #       mail:
+  #         smtp:
+  #           auth: true
+  #           starttls: true
 
 server:
   port: 6789
