@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Navbar, Collapse, Button } from "@material-tailwind/react";
 
 import InputBase from "@mui/material/InputBase";
@@ -7,6 +7,7 @@ import {
   Badge,
   Box,
   Divider,
+  Grid,
   ListItemIcon,
   Menu,
   MenuItem,
@@ -30,9 +31,15 @@ import LocalPhoneSharpIcon from "@mui/icons-material/LocalPhoneSharp";
 import "./nav.css";
 import { deepPurple } from "@mui/material/colors";
 import Logout from "@mui/icons-material/Logout";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getUser, logout } from "../../State/Auth/Action";
+import { getCart } from "../../State/User/Cart/Action";
+import { findProductByName } from "../../State/User/Product/Action";
 
 const Search = styled("div")(({ theme }) => ({
-  boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
+  boxShadow:
+    "rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px",
   position: "relative",
   borderRadius: theme.shape.borderRadius,
   backgroundColor: alpha(theme.palette.common.white, 0.15),
@@ -118,23 +125,114 @@ function NavList() {
 }
 
 export function Navigation() {
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen((cur) => !cur);
+  const [isDropdown, setIsDropdown] = useState(false);
+
+  const { auth } = useSelector((store) => store);
+  const { cart } = useSelector((store) => store);
+  const { uproduct } = useSelector((store) => store);
+  const jwt = localStorage.getItem("jwt");
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  console.log("Auth", auth);
+
+  // useEffect(() => {
+  //   if(jwt){
+  //     dispatch(getUser())
+  //   }
+  // }, [jwt])
+  // localStorage.clear();
+  const handleOne = (firstItem) => {
+    navigate(`/${firstItem.id}`);
+    setIsDropdown(false);
+  };
+
+  const handleTwo = (secondItem) => {
+    navigate(`/${secondItem.id}`);
+    setIsDropdown(false);
+  };
+
+  const handleThree = (thirdItem) => {
+    navigate(`/${thirdItem.id}`);
+    setIsDropdown(false);
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdown((prev) => !prev);
+  };
+
+  const [openAuthModal, setOpenAuthModal] = useState(false);
+
+  const handleOpenAuthModal = () => {
+    setOpenAuthModal(true);
+  };
+
+  const handleCloseAuthModal = () => {
+    setOpenAuthModal(false);
+  };
 
   const [anchorEl, setAnchorEl] = useState(null);
   const openAvatar = Boolean(anchorEl);
-  const handleUserClick = (event) => {
+
+  const handleOpenMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = () => {
+  const handleCloseMenu = () => {
     setAnchorEl(null);
   };
-  React.useEffect(() => {
-    window.addEventListener(
-      "resize",
-      () => window.innerWidth >= 960 && setOpen(false)
-    );
-  }, []);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    handleCloseMenu();
+  };
+  // Hàm kiểm tra và xóa localStorage sau 4 giờ
+  function clearLocalStorageAfter4Hours() {
+    const now = new Date().getTime();
+    console.log(now)
+    const storedTime = localStorage.getItem("startTime");
+    console.log(storedTime)
+
+    if (storedTime) {
+      const elapsedTime = now - storedTime;
+      const fourHours = 4 * 60 * 60 * 1000;
+
+      if (elapsedTime > fourHours) {
+        localStorage.clear();
+        localStorage.setItem("startTime", now);
+      }
+    } else {
+      localStorage.setItem("startTime", now);
+    }
+  }
+  // Gọi hàm khi trang được tải
+  clearLocalStorageAfter4Hours();
+
+  console.log(jwt);
+  useEffect(() => {
+    if (jwt) {
+      dispatch(getUser());
+      dispatch(getCart());
+    }
+  }, [jwt, auth.jwt]);
+
+  const [data, setData] = useState({
+    search: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  useEffect(() => {
+    const reqData = {
+      request: data.search,
+    };
+    dispatch(findProductByName(reqData));
+  }, [data]);
 
   return (
     <Navbar fullWidth className="p-2 fixed top-0 right-0 z-10">
@@ -152,44 +250,62 @@ export function Navigation() {
           <NavList />
         </div> */}
         <div className="dropdown">
-          <Button className="flex items-center p-2 justify-between bg-white text-black">
+          <Button
+            className="flex items-center p-2 justify-between bg-white text-black"
+            onClick={toggleDropdown}
+          >
             <CategorySharpIcon />
             <Typography variant="body2">Danh Mục</Typography>
             <ArrowDropDownIcon />
           </Button>
-          <ul
-            tabIndex={0}
-            className="dropdown-content menu shadow rounded-box w-52 mt-2 cursor-pointer bg-white gap-0"
-          >
-            {categoryData.map((item) => (
-              <li className="p-2 pr-0">
-                {" "}
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    color: "black",
-                  }}
-                >
-                  <Typography>{item.firstCategory}</Typography>
-                  <ArrowRightSharpIcon />
-                </Box>
-                <ul
-                  tabIndex={1}
-                  className="absolute left-full top-0 p-3 menu shadow cursor-pointer bg-white"
-                >
-                  {item.firstContent.map((subItem, index) => {
-                    return (
-                      <li key={index} className="text-black cursor-pointer">
-                        <Typography>{subItem}</Typography>
+          {isDropdown && (
+            <ul
+              tabIndex={0}
+              className="dropdown-content menu shadow rounded-box w-52 mt-2 cursor-pointer bg-white gap-0"
+            >
+              {categoryData.map((firstItem, index) => (
+                <li className="p-2 pr-0" key={index}>
+                  {" "}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      color: "black",
+                    }}
+                  >
+                    <Typography onClick={() => handleOne(firstItem)}>
+                      {firstItem.firstCategory}
+                    </Typography>
+                    <ArrowRightSharpIcon />
+                  </Box>
+                  <ul className="absolute left-full top-0 p-3 shadow cursor-pointer bg-white w-40">
+                    {firstItem.firstContent.map((secondItem) => (
+                      <li className="">
+                        <Box>
+                          <Typography onClick={() => handleTwo(secondItem)}>
+                            {secondItem.secondCategory}
+                          </Typography>
+                          <ArrowRightSharpIcon />
+                        </Box>
+                        <ul className="absolute left-full bg-white rounded-lg">
+                          {secondItem.secondContent.map((thirdItem) => (
+                            <li className="drop-third w-52 p-2">
+                              <Typography
+                                onClick={() => handleThree(thirdItem)}
+                              >
+                                {thirdItem.thirdCategory}
+                              </Typography>
+                            </li>
+                          ))}
+                        </ul>
                       </li>
-                    );
-                  })}
-                </ul>
-              </li>
-            ))}
-          </ul>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <Search>
@@ -199,7 +315,53 @@ export function Navigation() {
           <StyledInputBase
             placeholder="Search…"
             inputProps={{ "aria-label": "search" }}
+            className="relative rounded-lg"
+            name="search"
+            onChange={handleChange}
+            value={data.search}
           />
+          {data.search.trim() !== "" && (
+            <div className="w-[130%] p-2 bg-white absolute top-14 border-2 border-gray-500 rounded-lg">
+              <p className="opacity-80 m-2">Sản phẩm gợi ý</p>
+              {uproduct.searchproducts.result.length !== 0 ? (
+                uproduct.searchproducts.result.map((item) => (
+                  <Grid
+                    container
+                    spacing={2}
+                    alignItems={"center"}
+                    justifyContent={"center"}
+                    mt={"2px"}
+                    key={item.id} // Thêm key để tránh cảnh báo React
+                  >
+                    <Grid item xs={3}>
+                      <Avatar
+                        variant="rounded"
+                        src={
+                          item.imageUrl ||
+                          "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/1/2/12_3_8_2_8.jpg"
+                        } // Sử dụng URL ảnh thực tế của sản phẩm
+                      ></Avatar>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography variant="caption">{item.name}</Typography>
+                      <Typography variant="body2">
+                        <span className="text-[#DD5746] mr-5 line-clamp-1">
+                          {item.discountedPrice}đ
+                        </span>
+                        <span className="text-[#333] line-through">
+                          {item.price}đ
+                        </span>
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                ))
+              ) : (
+                <p className="text-[#DD5746]">
+                  Hiện tại không có sản phẩm 😢 😢 😢
+                </p>
+              )}
+            </div>
+          )}
         </Search>
 
         <div className="flex items-center gap-2">
@@ -217,10 +379,13 @@ export function Navigation() {
             </Badge>
             <Typography variant="body2">Thông Báo</Typography>
           </Box>
-          <Box sx={{ textAlign: "center", marginX: "16px" }}>
-            <Badge badgeContent={3} color="error">
+          <Box
+            sx={{ textAlign: "center", marginX: "16px", cursor: "pointer" }}
+            onClick={() => navigate("/cart")}
+          >
+            {/* <Badge badgeContent={cart.cart.result.cartItems.length} color="error">
               <ShoppingCartSharpIcon />
-            </Badge>
+            </Badge> */}
             <Typography variant="body2">Giỏ Hàng</Typography>
           </Box>
           <div className="dropdown dropdown-bottom">
@@ -265,91 +430,90 @@ export function Navigation() {
             </ul>
           </div>
         </div>
-        <Avatar
-          color="gray"
-          className="hidden lg:inline-block"
-          aria-controls={openAvatar ? "basic-menu" : undefined}
-          aria-haspopup="true"
-          aria-expanded={openAvatar ? "true" : undefined}
-          onClick={handleUserClick}
-          sx={{
-            bgcolor: deepPurple[500],
-            color: "white",
-            cursor: "pointer",
-          }}
-        >
-          L
-        </Avatar>
-        <Menu
-          anchorEl={anchorEl}
-          id="basic-menu"
-          open={openAvatar}
-          onClose={handleClose}
-          PaperProps={{
-            elevation: 0,
-            sx: {
-              overflow: "visible",
-              filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-              mt: 1.5,
-              "& .MuiAvatar-root": {
-                width: 32,
-                height: 32,
-                ml: -0.5,
-                mr: 1,
-              },
-              "&::before": {
-                content: '""',
-                display: "block",
-                position: "absolute",
-                top: 0,
-                right: 14,
-                width: 10,
-                height: 10,
-                bgcolor: "background.paper",
-                transform: "translateY(-50%) rotate(45deg)",
-                zIndex: 0,
-              },
-            },
-          }}
-          transformOrigin={{ horizontal: "right", vertical: "top" }}
-          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-        >
-          <MenuItem onClick={handleClose}>
-            <Avatar /> Profile
-          </MenuItem>
-          <MenuItem onClick={handleClose}>
-            <Avatar /> My orders
-          </MenuItem>
-          <Divider />
-          <MenuItem onClick={handleClose}>
-            <ListItemIcon>
-              <Logout fontSize="small" />
-            </ListItemIcon>
-            Logout
-          </MenuItem>
-        </Menu>
-        {/* <IconButton
-          size="sm"
-          variant="text"
-          color="blue-gray"
-          onClick={handleOpen}
-          className="ml-auto inline-block text-blue-gray-900 lg:hidden"
-        >
-          {open ? (
-            <XMarkIcon className="h-6 w-6" strokeWidth={2} />
-          ) : (
-            <Bars3Icon className="h-6 w-6" strokeWidth={2} />
-          )}
-        </IconButton> */}
+        {auth.user ? (
+          <div>
+            <Avatar
+              color="gray"
+              className="hidden lg:inline-block"
+              aria-controls={openAvatar ? "basic-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={openAvatar ? "true" : undefined}
+              onClick={handleOpenMenu}
+              sx={{
+                bgcolor: deepPurple[500],
+                color: "white",
+                cursor: "pointer",
+              }}
+            >
+              {auth.user.data.result.email[0].toUpperCase()}
+            </Avatar>
+            <Menu
+              anchorEl={anchorEl}
+              id="basic-menu"
+              open={openAvatar}
+              onClose={handleCloseMenu}
+              PaperProps={{
+                elevation: 0,
+                sx: {
+                  overflow: "visible",
+                  filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                  mt: 1.5,
+                  "& .MuiAvatar-root": {
+                    width: 32,
+                    height: 32,
+                    ml: -0.5,
+                    mr: 1,
+                  },
+                  "&::before": {
+                    content: '""',
+                    display: "block",
+                    position: "absolute",
+                    top: 0,
+                    right: 14,
+                    width: 10,
+                    height: 10,
+                    bgcolor: "background.paper",
+                    transform: "translateY(-50%) rotate(45deg)",
+                    zIndex: 0,
+                  },
+                },
+              }}
+              transformOrigin={{ horizontal: "right", vertical: "top" }}
+              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+            >
+              <MenuItem onClick={() => navigate("/user")}>
+                <Avatar /> Profile
+              </MenuItem>
+              <MenuItem onClick={() => navigate("/order")}>
+                <Avatar /> My orders
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={handleLogout}>
+                <ListItemIcon>
+                  <Logout fontSize="small" />
+                </ListItemIcon>
+                Logout
+              </MenuItem>
+            </Menu>
+          </div>
+        ) : (
+          <Button
+            variant="text"
+            onClick={() => navigate("/auth/signin")}
+            className="text-sm font-medium text-gray-700 hover:text-gray-800"
+          >
+            Signin
+          </Button>
+        )}
       </div>
-      <Collapse open={open}>
+      {/* <Collapse open={open}>
         <div className="mt-2 rounded-xl bg-white py-2">
           <NavList />
           <Button className="mb-2" fullWidth>
             Sign in
           </Button>
         </div>
-      </Collapse>
+      </Collapse> */}
     </Navbar>
   );
 }

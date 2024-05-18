@@ -9,8 +9,8 @@ import { Route, Routes } from "react-router-dom";
 import Home from "./Home.jsx";
 import ManageProduct from "./ManageProduct.jsx";
 import ManageOrder from "./ManageOrder.jsx";
-import ManageUser from "./ManageUser.jsx";
 import ManageInventor from "./ManageInventor.jsx";
+import { ManageUser } from "./ManageUser.jsx";
 
 export function DashboardAdmin() {
   const [controller, dispatch] = useMaterialTailwindController();

@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { StarIcon } from "@heroicons/react/20/solid";
+import { useEffect, useState } from "react";
 import { RadioGroup } from "@headlessui/react";
 import {
   Button,
@@ -10,12 +9,17 @@ import {
   TableCell,
   TableContainer,
   TableRow,
+  Tooltip,
   Typography,
 } from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
+import { findProductsById, findProduts } from "../../State/User/Product/Action";
+import { useDispatch, useSelector } from "react-redux";
+import { addItemToCart } from "../../State/User/Cart/Action";
 import ReviewProduct from "./ReviewProduct";
 import ProductCard from "./ProductCard";
 
-const product = {
+const products = {
   name: "Điện thoại iPhone 13 128GB",
   price: "25.000.000",
   href: "#",
@@ -85,17 +89,56 @@ function classNames(...classes) {
 }
 
 export default function DetailsProduct() {
-  const [selectedColor, setSelectedColor] = useState(product.colors[0])
-  const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
+  const dispatch = useDispatch();
+  const param = useParams();
+  const { uproduct } = useSelector((store) => store);
+  useEffect(() => {
+    const data = param.productId;
+    dispatch(findProductsById(data));
+  }, [param.prductId]);
+
+  useEffect(() => {
+    if (
+      uproduct.product &&
+      uproduct.product.data &&
+      uproduct.product.data.result
+    ) {
+      const category = uproduct.product.data.result.category.categoryName;
+      const data = {
+        categoryName: category,
+        color: "",
+        minPrice: 0,
+        maxPrice: 1000000000,
+        minDiscount: 0,
+        sort: "price_low",
+        pageNumber: 0,
+        pageSize: 10,
+      };
+
+      dispatch(findProduts(data));
+    }
+  }, [uproduct.product]);
+
+  console.log("Data product Id", uproduct);
+
+  const handleAddToCart = () => {
+    const data = { productId: param.productId, color: selectedColor.description };
+    dispatch(addItemToCart(data));
+    navigate("/cart");
+  };
+
+  const navigate = useNavigate();
+  const [selectedColor, setSelectedColor] = useState(products.colors[0]);
+  console.log("Color", selectedColor);
   return (
-    <div className="bg-white">
+    <div className="bg-white mt-16">
       <div className="pt-6">
         <nav aria-label="Breadcrumb">
           <ol
             role="list"
             className="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8"
           >
-            {product.breadcrumbs.map((breadcrumb) => (
+            {products.breadcrumbs.map((breadcrumb) => (
               <li key={breadcrumb.id}>
                 <div className="flex items-center">
                   <a
@@ -119,37 +162,45 @@ export default function DetailsProduct() {
             ))}
             <li className="text-sm">
               <a
-                href={product.href}
+                href={products.href}
                 aria-current="page"
                 className="font-medium text-gray-500 hover:text-gray-600"
               >
-                {product.name}
+                {products.name}
               </a>
             </li>
           </ol>
         </nav>
 
-        {/* Image gallery */}
         <Grid container spacing={5} sx={{ px: 20, pt: 2 }}>
           <Grid item xs={6} spacing={2}>
             <Grid container spacing={2}>
               <Grid item xs={10}>
                 <img
-                  src="https://cdn.tgdd.vn/Products/Images/42/223602/iphone-13-1-3.jpg"
+                  src={
+                    uproduct.product &&
+                    uproduct.product.data.result.images[0].imageUrl
+                  }
                   alt=""
                   className="h-full w-full object-cover object-center ml-12"
                 />
               </Grid>
               <Grid item xs={3}>
                 <img
-                  src="https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/s/a/samsung_s23_ultra_-_2.png"
+                  src={
+                    uproduct.product &&
+                    uproduct.product.data.result.images[1].imageUrl
+                  }
                   alt=""
                   className="h-full w-full object-cover object-center ml-5"
                 />
               </Grid>
               <Grid item xs={3}>
                 <img
-                  src="https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/s/2/s23-ultra-tim.png"
+                  src={
+                    uproduct.product &&
+                    uproduct.product.data.result.images[0].imageUrl
+                  }
                   alt=""
                   className="h-full w-full object-cover object-center"
                 />
@@ -173,106 +224,39 @@ export default function DetailsProduct() {
           <Grid item xs={6}>
             <Grid item xs={12}>
               <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
-                <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-                  {product.name}
+                <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl line-clamp-2">
+                  {uproduct.product && uproduct.product.data.result.name}
                 </h1>
               </div>
             </Grid>
 
-            {/* Options */}
             <Grid item xs={12}>
               <div className="mt-4 lg:row-span-3 lg:mt-0">
                 <p className="text-xl tracking-tight text-[#DD5746]">
-                  {product.price}
+                  {uproduct.product &&
+                    uproduct.product.data.result.discountedPrice}
                   <span className="underline">đ</span>
                 </p>
                 <p className="text-xl tracking-tight text-gray-900">
-                  <span className="line-through">36.990.000</span>
+                  <span className="line-through">
+                    {uproduct.product && uproduct.product.data.result.price}
+                  </span>
                   <span className="underline mr-5">đ</span>
                   <span>giảm giá </span>
-                  <span className="ml-2 line-through text-[#DD5746]">21%</span>
+                  <span className="ml-2 line-through text-[#DD5746]">
+                    {uproduct.product &&
+                      uproduct.product.data.result.discountPercent}
+                    %
+                  </span>
                 </p>
 
-                {/* Reviews */}
                 <Rating precision={2} value={5}></Rating>
                 <Typography variant="body2">
-                  {reviews.totalCount} Reviews
+                  {uproduct.product &&
+                    uproduct.product.data.result.reviews.length}{" "}
+                  Đánh giá
                 </Typography>
 
-                {/* Type */}
-                <div className="mt-10">
-                  <RadioGroup
-                    value={selectedSize}
-                    onChange={setSelectedSize}
-                    className="text-black"
-                  >
-                    <RadioGroup.Label style={{ marginBottom: 12 }}>
-                      Chọn loại sản phẩm
-                    </RadioGroup.Label>
-                    <div className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4">
-                      {product.sizes.map((size) => (
-                        <RadioGroup.Option
-                          key={size.name}
-                          value={size}
-                          disabled={!size.inStock}
-                          className={({ active }) =>
-                            classNames(
-                              size.inStock
-                                ? "cursor-pointer bg-white text-gray-900 shadow-sm"
-                                : "cursor-not-allowed bg-gray-50 text-gray-200",
-                              active ? "ring-2 ring-indigo-500" : "",
-                              "group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6"
-                            )
-                          }
-                        >
-                          {({ active, checked }) => (
-                            <>
-                              <RadioGroup.Label as="span">
-                                {size.name}
-                                <br />
-                                {size.price}
-                              </RadioGroup.Label>
-                              {size.inStock ? (
-                                <span
-                                  className={classNames(
-                                    active ? "border" : "border-2",
-                                    checked
-                                      ? "border-indigo-500"
-                                      : "border-transparent",
-                                    "pointer-events-none absolute -inset-px rounded-md"
-                                  )}
-                                  aria-hidden="true"
-                                />
-                              ) : (
-                                <span
-                                  aria-hidden="true"
-                                  className="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200"
-                                >
-                                  <svg
-                                    className="absolute inset-0 h-full w-full stroke-2 text-gray-200"
-                                    viewBox="0 0 100 100"
-                                    preserveAspectRatio="none"
-                                    stroke="currentColor"
-                                  >
-                                    <line
-                                      x1={0}
-                                      y1={100}
-                                      x2={100}
-                                      y2={0}
-                                      vectorEffect="non-scaling-stroke"
-                                    />
-                                  </svg>
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </RadioGroup.Option>
-                      ))}
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                {/* Colors */}
                 <div className="mt-10">
                   <RadioGroup
                     value={selectedColor}
@@ -280,34 +264,74 @@ export default function DetailsProduct() {
                     className="text-black"
                   >
                     <RadioGroup.Label style={{ marginBottom: 12 }}>
-                      Chọn màu sản phẩm
+                      Chọn loại sản phẩm
                     </RadioGroup.Label>
-                    <div className="flex items-center space-x-3">
-                      {product.colors.map((color) => (
-                        <RadioGroup.Option
-                          key={color.name}
-                          value={color}
-                          className={({ active, checked }) =>
-                            classNames(
-                              color.selectedClass,
-                              active && checked ? "ring ring-offset-1" : "",
-                              !active && checked ? "ring-2" : "",
-                              "relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none"
-                            )
-                          }
-                        >
-                          <RadioGroup.Label as="span" className="sr-only">
-                            {color.name}
-                          </RadioGroup.Label>
-                          <span
-                            aria-hidden="true"
-                            className={classNames(
-                              color.class,
-                              "h-8 w-8 rounded-full border border-black border-opacity-10"
+                    <div className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4">
+                      {uproduct.product &&
+                        uproduct.product.data &&
+                        uproduct.product.data.result &&
+                        uproduct.product.data.result.colors &&
+                        uproduct.product.data.result.colors.map((color) => (
+                          <RadioGroup.Option
+                            key={color.name}
+                            value={color}
+                            className={({ active }) =>
+                              classNames(
+                                true
+                                  ? "cursor-pointer bg-white text-gray-900 shadow-sm"
+                                  : "cursor-not-allowed bg-gray-50 text-gray-200",
+                                active ? "ring-2 ring-indigo-500" : "",
+                                "group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6"
+                              )
+                            }
+                          >
+                            {({ active, checked }) => (
+                              <>
+                                <RadioGroup.Label as="span">
+                                  <Tooltip
+                                    title={`Số lượng còn ${color.quantity}`}
+                                  >
+                                    <span className="text-[#DD5746]">
+                                      {color.description}
+                                    </span>
+                                  </Tooltip>
+                                </RadioGroup.Label>
+                                {true ? (
+                                  <span
+                                    className={classNames(
+                                      active ? "border" : "border-2",
+                                      checked
+                                        ? "border-indigo-500"
+                                        : "border-transparent",
+                                      "pointer-events-none absolute -inset-px rounded-md"
+                                    )}
+                                    aria-hidden="true"
+                                  />
+                                ) : (
+                                  <span
+                                    aria-hidden="true"
+                                    className="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200"
+                                  >
+                                    <svg
+                                      className="absolute inset-0 h-full w-full stroke-2 text-gray-200"
+                                      viewBox="0 0 100 100"
+                                      preserveAspectRatio="none"
+                                      stroke="currentColor"
+                                    >
+                                      <line
+                                        x1={0}
+                                        y1={100}
+                                        x2={100}
+                                        y2={0}
+                                        vectorEffect="non-scaling-stroke"
+                                      />
+                                    </svg>
+                                  </span>
+                                )}
+                              </>
                             )}
-                          />
-                        </RadioGroup.Option>
-                      ))}
+                          </RadioGroup.Option>
+                        ))}
                     </div>
                   </RadioGroup>
                 </div>
@@ -315,21 +339,21 @@ export default function DetailsProduct() {
                   <button
                     type="submit"
                     className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    onClick={() => handleAddToCart()}
                   >
-                    Add to bag
+                    Thêm vào giỏ hàng
                   </button>
                 </form>
               </div>
             </Grid>
 
             <div className="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pb-16 lg:pr-8 lg:pt-6">
-              {/* Description and details */}
               <div>
                 <h3 className="sr-only">Description</h3>
 
                 <div className="space-y-6">
                   <p className="text-base text-gray-900">
-                    {product.description}
+                    {products.description}
                   </p>
                 </div>
               </div>
@@ -341,7 +365,7 @@ export default function DetailsProduct() {
 
                 <div className="mt-4">
                   <ul role="list" className="list-disc space-y-2 pl-4 text-sm">
-                    {product.highlights.map((highlight) => (
+                    {products.highlights.map((highlight) => (
                       <li key={highlight} className="text-gray-400">
                         <span className="text-gray-600">{highlight}</span>
                       </li>
@@ -354,7 +378,7 @@ export default function DetailsProduct() {
                 <h2 className="text-sm font-medium text-gray-900">Details</h2>
 
                 <div className="mt-4 space-y-6">
-                  <p className="text-sm text-gray-600">{product.details}</p>
+                  <p className="text-sm text-gray-600">{products.details}</p>
                 </div>
               </div>
             </div>
@@ -406,21 +430,22 @@ export default function DetailsProduct() {
                 </h3>
               </Grid>
               <Grid item xs={12}>
-                <ReviewProduct />
+                <ReviewProduct productId={param.productId} />
               </Grid>
             </Grid>
           </Grid>
         </section>
 
-        {/* Product info */}
         <section className="p-32 mt-20">
           <Typography variant="h4" className="text-black">
             Sản phẩm tương tự
           </Typography>
           <div className="grid grid-cols-4 p-10">
-            {[1, 1, 1, 1].map(() => (
-              <ProductCard />
-            ))}
+            {uproduct.products &&
+              uproduct.products.result &&
+              uproduct.products.result.content.map((item) => (
+                <ProductCard product={item} />
+              ))}
           </div>
         </section>
       </div>

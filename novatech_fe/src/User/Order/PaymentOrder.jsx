@@ -1,10 +1,13 @@
 import { Breadcrumbs, Button, Grid, Link } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import EastIcon from "@mui/icons-material/East";
 import StepperOrder from "./StepperOrder";
+import { useDispatch, useSelector } from "react-redux";
 
 const PaymentOrder = () => {
+  const {uorder} = useSelector(store => store);
+  console.log("Order:", uorder)
   return (
     <>
       <Grid container spacing={5} color={"#333"}>
@@ -48,7 +51,7 @@ const PaymentOrder = () => {
             Kiểm tra lại các mục và lựa chọn phương thức thanh toán phù hợp.
           </p>
           <div className="mt-8 space-y-3 rounded-lg shadow-lg bg-white px-2 py-4 sm:px-6">
-            {[1, 1].map(() => (
+            {uorder.order && uorder.order.result && uorder.order.result.orderItems.map((item) => (
               <div className="flex flex-col rounded-lg bg-white sm:flex-row">
                 <img
                   className="m-2 h-24 w-28 rounded-md border object-cover object-center"
@@ -57,12 +60,11 @@ const PaymentOrder = () => {
                 />
                 <div className="flex w-full flex-col px-4 py-4">
                   <span className="font-semibold">
-                    Macbook Air M3 13 inch 2024 8GB - 256GB | Chính hãng Apple
-                    Việt Nam
+                    {item.product.name}
                   </span>
-                  <span className="float-right text-gray-400">Màu: Đen</span>
+                  <span className="float-right text-gray-400">Màu: {item.color}</span>
                   <p className="text-lg font-bold text-[#DD5746]">
-                    27.290.000đ
+                    {item.discountedPrice}đ
                   </p>
                 </div>
               </div>

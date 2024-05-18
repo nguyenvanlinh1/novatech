@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Fragment, useState } from "react";
 import { Dialog, Disclosure, Menu, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
@@ -9,18 +9,27 @@ import {
   PlusIcon,
   Squares2X2Icon,
 } from "@heroicons/react/20/solid";
-import { Box, Button, Checkbox, Pagination, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Pagination,
+  Radio,
+  TextField,
+  Typography,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import HomeCard from "../HomePage/HomeCard";
 import ProductCard from "./ProductCard";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { findProduts } from "../../State/User/Product/Action";
 
 const sortOptions = [
-  { name: "Most Popular", href: "#", current: true },
-  { name: "Best Rating", href: "#", current: false },
-  { name: "Price: Low to High", href: "#", current: false },
-  { name: "Price: High to Low", href: "#", current: false },
+  { name: "Price: Low to High", id: "price_low", current: false },
+  { name: "Price: High to Low", id: "price_high", current: false },
 ];
 const subCategories = [
   { name: "Totes", href: "#" },
@@ -31,15 +40,7 @@ const subCategories = [
 ];
 const filters = [
   {
-    id: "typephone",
-    name: "Loại Điện Thoại",
-    options: [
-      { value: "android", label: "Android", checked: false },
-      { value: "iphone", label: "Iphone(IOS", checked: false },
-    ],
-  },
-  {
-    id: "promotion",
+    id: "discount",
     name: "Khuyến Mãi",
     options: [
       { value: "5", label: "🔝 5%", checked: false },
@@ -49,18 +50,6 @@ const filters = [
       { value: "40", label: "🔝 40%", checked: false },
     ],
   },
-  {
-    id: "ram",
-    name: "RAM",
-    options: [
-      { value: "2GB", label: "2GB", checked: false },
-      { value: "3GB", label: "3GB", checked: false },
-      { value: "4GB", label: "4GB", checked: false },
-      { value: "6GB", label: "6GB", checked: false },
-      { value: "8GB", label: "8GB", checked: false },
-      { value: "12GB", label: "12GB", checked: false },
-    ],
-  },
 ];
 
 function classNames(...classes) {
@@ -68,14 +57,96 @@ function classNames(...classes) {
 }
 
 export default function FilterProduct() {
+  const { uproduct } = useSelector((store) => store);
+  console.log("Data", uproduct);
+  const param = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+
+  const decodedQueryString = decodeURIComponent(location.search);
+  const searchParams = new URLSearchParams(decodedQueryString);
+  const discount = searchParams.get("discount");
+  const sortValue = searchParams.get("sort");
+  const pageNumber = searchParams.get("page") || 1;
+
+  const handleTextFilter = (event, value) => {
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set("sort", value);
+    const query = searchParams.toString();
+    navigate({ search: `?${query}` });
+  };
+
+  const handleFilter = (value, sectionId) => {
+    const searchParams = new URLSearchParams(location.search);
+
+    let filterValue = searchParams.getAll(sectionId);
+
+    if (filterValue.length > 0 && filterValue[0].split(",").includes(value)) {
+      filterValue = filterValue[0].split(",").filter((item) => item !== value);
+
+      if (filterValue.length === 0) {
+        searchParams.delete(sectionId);
+      }
+    } else {
+      filterValue.push(value);
+    }
+
+    if (filterValue.length > 0) {
+      searchParams.set(sectionId, filterValue.join(","));
+    }
+    const query = searchParams.toString();
+    navigate({ search: `?${query}` });
+  };
+
+  const [productData, setProductData] = useState({
+    minPrice: "",
+    maxPrice: "",
+  });
+  const handleTextFieldChange = (e) => {
+    const { name, value } = e.target;
+    const priceValue = parseInt(value);
+    setProductData((prev) => ({
+      ...prev,
+      [name]: isNaN(priceValue) ? "" : priceValue,
+    }));
+  };
+
+  useEffect(() => {
+    const minPrice =
+      productData.minPrice === "" ? 0 : parseInt(productData.minPrice);
+    const maxPrice =
+      productData.maxPrice === "" ? 100000000 : parseInt(productData.maxPrice);
+    const data = {
+      categoryName: param.categoryName,
+      color: "",
+      minPrice: minPrice,
+      maxPrice: maxPrice,
+      minDiscount: discount || 0,
+      sort: sortValue || "price_low",
+      pageNumber: pageNumber - 1,
+      pageSize: 8,
+    };
+    dispatch(findProduts(data));
+  }, [
+    param.categoryName,
+    discount,
+    productData.minPrice,
+    productData.maxPrice,
+    sortValue,
+    pageNumber,
+  ]);
+
   return (
     <div className="bg-white">
       <div>
         <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-24">
             <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-              <FilterAltIcon sx={{fontSize:40, bottom:3, position:"relative"}}/>
-              Filter Product
+              <FilterAltIcon
+                sx={{ fontSize: 40, bottom: 3, position: "relative" }}
+              />
+              Lọc Sản Phẩm
             </h1>
 
             <div className="flex items-center">
@@ -102,7 +173,7 @@ export default function FilterProduct() {
                   <Menu.Items className="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <div className="py-1">
                       {sortOptions.map((option) => (
-                        <Menu.Item key={option.name}>
+                        <Menu.Item key={option.id}>
                           {({ active }) => (
                             <a
                               href={option.href}
@@ -111,8 +182,9 @@ export default function FilterProduct() {
                                   ? "font-medium text-gray-900"
                                   : "text-gray-500",
                                 active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm"
+                                "block px-4 py-2 text-sm cursor-pointer"
                               )}
+                              onClick={(e) => handleTextFilter(e, option.id)}
                             >
                               {option.name}
                             </a>
@@ -159,12 +231,18 @@ export default function FilterProduct() {
                       variant="outlined"
                       className="w-[40%]"
                       label="min"
+                      value={productData.minPrice}
+                      onChange={handleTextFieldChange}
+                      name="minPrice"
                     />
                     <span>:</span>
                     <TextField
                       variant="outlined"
                       className="w-[40%]"
                       label="max"
+                      value={productData.maxPrice}
+                      onChange={handleTextFieldChange}
+                      name="maxPrice"
                     />
                   </div>
                 </div>
@@ -180,7 +258,13 @@ export default function FilterProduct() {
                     <div className="grid grid-cols-2 gap-2 text-black">
                       {section.options.map((item) => (
                         <div className="flex items-center">
-                          <Checkbox />
+                          <Checkbox
+                            name={`${section.id}[]`}
+                            value={item.value}
+                            onChange={() =>
+                              handleFilter(item.value, section.id)
+                            }
+                          />
                           <Typography variant="body2">{item.label}</Typography>
                         </div>
                       ))}
@@ -189,20 +273,23 @@ export default function FilterProduct() {
                   </Box>
                 ))}
                 <div className="bg-blue-700 rounded-xl mt-5">
-                    <Button className="px-5 w-full" sx={{ color: "white" }}>
-                      <SearchIcon />
-                      Seach
-                    </Button>
+                  <Button className="px-5 w-full" sx={{ color: "white" }}>
+                    <SearchIcon />
+                    Seach
+                  </Button>
                 </div>
               </form>
 
               {/* Product grid */}
               <div className="lg:col-span-3">
                 <div className="grid grid-cols-4 gap-5">
-                    {[1, 1, 1, 1, 1, 1, 1, 1].map(() => <ProductCard/>)}
+                  {uproduct.products.result &&
+                    uproduct?.products?.result?.content.map((item) => (
+                      <ProductCard product={item} />
+                    ))}
                 </div>
                 <div className="flex justify-center p-5">
-                    <Pagination count={10} color="primary" />
+                  <Pagination count={10} color="primary" />
                 </div>
               </div>
             </div>

@@ -1,20 +1,140 @@
 export const categoryData = [
     {
+        id:"dienthoai",
         firstCategory:"Điện thoại",
         firstContent:[
-            "Iphone", "SamSung", "Oppo", "Realme", "Huawei", "Vivo", "Nokia", "Xiaome"
+            {
+                id:"samsung",
+                secondCategory:"SamSung",
+                secondContent:[
+                    {
+                        id:"galaxyS",
+                        thirdCategory:"Galaxy S"
+                    },
+                    {
+                        id:"galaxyS",
+                        thirdCategory:"Galaxy A"
+                    },
+                    {
+                        id:"galaxyS",
+                        thirdCategory:"Galaxy Y"
+                    },
+                ]
+            },
+            {
+                id:"samsung",
+                secondCategory:"Iphone",
+                secondContent:[
+                    "Iphone 15 Series",
+                    "Iphone 14 Series",
+                    "Iphone 13 Series",
+                ]
+            },
+            {
+                secondCategory:"Xiaomi",
+                secondContent:[
+                    "Xiaomi 13 Series",
+                    "Xiaomi 12 Series",
+                    "Note 13 Series",
+                    "Note 12 Series",
+                ]
+            }
         ]
     },
     {
-        firstCategory:"Laptop",
+        id:"dienthoai",
+        firstCategory:"Điện thoại",
         firstContent:[
-            "MAC", "ASUS", "Lenovo", "Dell", "HP", "Acer", "LG", "Huawei", "MSI", "Gigabyte"
+            {
+                id:"samsung",
+                secondCategory:"SamSung",
+                secondContent:[
+                    "Galaxy S",
+                    "Galaxy A",
+                    "Galaxy M"
+                ]
+            },
+            {
+                id:"samsung",
+                secondCategory:"Iphone",
+                secondContent:[
+                    "Iphone 15 Series",
+                    "Iphone 14 Series",
+                    "Iphone 13 Series",
+                ]
+            },
+            {
+                secondCategory:"Xiaomi",
+                secondContent:[
+                    "Xiaomi 13 Series",
+                    "Xiaomi 12 Series",
+                    "Note 13 Series",
+                    "Note 12 Series",
+                ]
+            }
         ]
     },
     {
-        firstCategory:"Đồng Hồ",
+        id:"thinkpad",
+        firstCategory:"ThinkPad",
         firstContent:[
-            "Apple Watch", "SamSung", "Xiaomi", "Huawei", "Coros", "Garmin", "Amazfit", "Oppo"
+            {
+                secondCategory:"SamSung",
+                secondContent:[
+                    "Galaxy S",
+                    "Galaxy A",
+                    "Galaxy M"
+                ]
+            },
+            {
+                secondCategory:"Iphone",
+                secondContent:[
+                    "Iphone 15 Series",
+                    "Iphone 14 Series",
+                    "Iphone 13 Series",
+                ]
+            },
+            {
+                secondCategory:"Xiaomi",
+                secondContent:[
+                    "Xiaomi 13 Series",
+                    "Xiaomi 12 Series",
+                    "Note 13 Series",
+                    "Note 12 Series",
+                ]
+            }
+        ]
+    },
+    {
+        id:"dienthoai",
+        firstCategory:"Điện thoại",
+        firstContent:[
+            {
+                id:"samsung",
+                secondCategory:"SamSung",
+                secondContent:[
+                    "Galaxy S",
+                    "Galaxy A",
+                    "Galaxy M"
+                ]
+            },
+            {
+                secondCategory:"Iphone",
+                secondContent:[
+                    "Iphone 15 Series",
+                    "Iphone 14 Series",
+                    "Iphone 13 Series",
+                ]
+            },
+            {
+                secondCategory:"Xiaomi",
+                secondContent:[
+                    "Xiaomi 13 Series",
+                    "Xiaomi 12 Series",
+                    "Note 13 Series",
+                    "Note 12 Series",
+                ]
+            }
         ]
     },
 ]

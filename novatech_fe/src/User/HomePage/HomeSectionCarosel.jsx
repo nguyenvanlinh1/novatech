@@ -19,7 +19,6 @@ const HomeSectionCarosel = () => {
     .slice(activeIndex, activeIndex + 10)
     .map((item, index) => <HomeCard key={index} />);
 
-console.log(activeIndex);
   return (
     <div>
       <Typography variant="h5" className="mx-24 text-black text-2xl">

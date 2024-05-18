@@ -1,7 +1,61 @@
 import { Input, Checkbox, Button, Typography } from "@material-tailwind/react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { getUser, login } from "../../State/Auth/Action";
+import { TextField } from "@mui/material";
 
 export function SignIn() {
+  const [isUserFetched, setIsUserFetched] = useState(false);
+  const { auth } = useSelector((store) => store);
+  const jwt = localStorage.getItem("jwt");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [data, setData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(login(data));
+  };
+
+  useEffect(() => {
+    if (jwt && !isUserFetched) {
+      dispatch(getUser())
+        .then(() => {
+          setIsUserFetched(true);
+          navigate("/");
+        });
+    }
+  }, [jwt, isUserFetched, dispatch, navigate]);
+
+  // localStorage.clear();
+  // console.log("SSS",jwt)
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   dispatch(login(data))
+  // };
+
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   dispatch(login(data));
+  //   if(jwt){
+  //     dispatch(getUser());
+  //     navigate("/")
+  //   }
+  // };
+
   return (
     <section className="m-8 flex gap-4">
       <div className="w-full lg:w-3/5 mt-24">
@@ -14,7 +68,7 @@ export function SignIn() {
             color="blue-gray"
             className="text-lg font-normal"
           >
-            Enter your email and password to Sign In.
+            Nhập email và mật khẩu của bạn để đăng nhập.
           </Typography>
         </div>
         <form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2">
@@ -24,7 +78,7 @@ export function SignIn() {
               color="blue-gray"
               className="-mb-3 font-medium"
             >
-              Your email
+              Email
             </Typography>
             <Input
               size="lg"
@@ -33,22 +87,27 @@ export function SignIn() {
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
+              name="email"
+              id="email"
+              onChange={handleChange}
             />
             <Typography
               variant="small"
               color="blue-gray"
               className="-mb-3 font-medium"
             >
-              Password
+              Mật khẩu
             </Typography>
             <Input
               type="password"
               size="lg"
-              placeholder="********"
               className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
+              name="password"
+              id="password"
+              onChange={handleChange}
             />
           </div>
           <Checkbox
@@ -69,10 +128,9 @@ export function SignIn() {
             }
             containerProps={{ className: "-ml-2.5" }}
           />
-          <Button className="mt-6" fullWidth>
-            Sign In
+          <Button className="mt-6" fullWidth onClick={handleSubmit}>
+            Đăng Nhập
           </Button>
-
           <div className="flex items-center justify-between gap-2 mt-6">
             <Checkbox
               label={
@@ -133,7 +191,7 @@ export function SignIn() {
                   </clipPath>
                 </defs>
               </svg>
-              <span>Sign in With Google</span>
+              <span>Đăng nhập bằng Google</span>
             </Button>
             <Button
               size="lg"
@@ -141,8 +199,13 @@ export function SignIn() {
               className="flex items-center gap-2 justify-center shadow-md"
               fullWidth
             >
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/GitHub_Invertocat_Logo.svg/1200px-GitHub_Invertocat_Logo.svg.png" height={24} width={24} alt="" />
-              <span>Sign in With GitHub</span>
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/GitHub_Invertocat_Logo.svg/1200px-GitHub_Invertocat_Logo.svg.png"
+                height={24}
+                width={24}
+                alt=""
+              />
+              <span>Đăng Nhập bằng GitHub</span>
             </Button>
           </div>
           <Typography
@@ -150,8 +213,11 @@ export function SignIn() {
             className="text-center text-blue-gray-500 font-medium mt-4"
           >
             Not registered?
-            <Link to="/sign-up" className="text-blue-500 ml-1 underline hover:text-[#DD5746]">
-              Create account
+            <Link
+              to="/auth/signup"
+              className="text-blue-500 ml-1 underline hover:text-[#DD5746]"
+            >
+              Tạo tài khoản
             </Link>
           </Typography>
         </form>
