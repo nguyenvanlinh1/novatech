@@ -16,5 +16,4 @@ public class CartItemRequest {
     
     Long productId;
     String color;
-    int quantity;
 }

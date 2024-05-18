@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.nvl.novatech.dto.request.ProductCreationRequest;
+import com.nvl.novatech.dto.request.ProductRequest;
 import com.nvl.novatech.dto.request.ProductUpdateRequest;
 import com.nvl.novatech.exception.AppException;
 import com.nvl.novatech.exception.ErrorCode;
@@ -18,7 +19,6 @@ import com.nvl.novatech.model.Product;
 import com.nvl.novatech.model.Specification;
 import com.nvl.novatech.repository.CategoryRepository;
 import com.nvl.novatech.repository.ProductRepository;
-import com.nvl.novatech.repository.SpecificationRepository;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -63,7 +63,6 @@ public class ProductServiceImpl implements ProductService{
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
-        product.setBrand(request.getBrand());
         product.setPrice(request.getPrice());
         product.setDiscountedPrice(request.getDiscountedPrice());
         product.setDiscountPercent(request.getDiscountPercent());
@@ -83,7 +82,6 @@ public class ProductServiceImpl implements ProductService{
         Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
         product.setName(request.getName());
         product.setDescription(request.getDescription());
-        product.setBrand(request.getBrand());
         product.setPrice(request.getPrice());
         product.setDiscountedPrice(request.getDiscountedPrice());
         product.setDiscountPercent(request.getDiscountPercent());
@@ -111,11 +109,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public Product findProductById(Long productId) {
-        Optional<Product> product = productRepository.findById(productId);
-        if(product.isPresent()){
-            return product.get();
-        }
-        throw new AppException(ErrorCode.PRODUCT_EXISTED);
+        return productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
     }
 
     @Override
@@ -138,9 +132,14 @@ public class ProductServiceImpl implements ProductService{
         int endIndex = Math.min(startIndex + pageable.getPageSize(), products.size());
         List<Product> pageContent = products.subList(startIndex, endIndex);
         Page<Product> filteredProducts = new PageImpl<>(pageContent, pageable, products.size());
-        if(filteredProducts.isEmpty()) 
-            throw new AppException(ErrorCode.PRODUCT_NOT_EXISTED);
+        // if(filteredProducts.isEmpty()) 
+        //     throw new AppException(ErrorCode.PRODUCT_NOT_EXISTED);
         return filteredProducts;
+    }
+
+    @Override
+    public List<Product> findProductByName(String request) {
+        return productRepository.findProductByName(request);
     }
     
 }

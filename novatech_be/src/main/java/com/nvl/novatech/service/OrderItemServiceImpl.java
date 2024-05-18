@@ -1,5 +1,7 @@
 package com.nvl.novatech.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.nvl.novatech.model.OrderItem;
@@ -20,5 +22,12 @@ public class OrderItemServiceImpl implements OrderItemService{
     public OrderItem createOrderItem(OrderItem orderItem) {
         return orderItemRepository.save(orderItem);
     }
+
+    @Override
+    public List<OrderItem> getOrderItem(Long orderId) {
+        return orderItemRepository.findOrderItemByOrderId(orderId);
+    }
+
+    
     
 }

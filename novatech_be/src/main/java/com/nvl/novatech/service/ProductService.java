@@ -19,4 +19,6 @@ public interface ProductService {
       Page<Product> findProductByCategory(String category, Integer pageNumber, Integer pageSize);
       
       Page<Product> filterProduct(String categoryName, List<String> colors, Integer minPrice, Integer maxPrice, Integer misDiscount, String sort, Integer pageNumber, Integer pageSize);
+
+      List<Product> findProductByName(String request);
 }

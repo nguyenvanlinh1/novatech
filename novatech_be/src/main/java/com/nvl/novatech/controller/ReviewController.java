@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nvl.novatech.dto.request.ApiResponse;
 import com.nvl.novatech.dto.request.ReviewRequest;
+import com.nvl.novatech.dto.request.ReviewUpdateRequest;
 import com.nvl.novatech.model.Review;
 import com.nvl.novatech.model.User;
 import com.nvl.novatech.service.ReviewService;
@@ -42,7 +43,7 @@ public class ReviewController {
     }
 
     @PutMapping("/{reviewId}")
-    ApiResponse<Review> updateReview(@PathVariable Long reviewId, @RequestBody ReviewRequest request, @RequestHeader("Authorization") String jwt){
+    ApiResponse<Review> updateReview(@PathVariable Long reviewId, @RequestBody ReviewUpdateRequest request, @RequestHeader("Authorization") String jwt){
         User user = userService.findUserProfileByJwt(jwt);
         return ApiResponse.<Review>builder()
             .result(reviewService.updateReview(reviewId, user, request))

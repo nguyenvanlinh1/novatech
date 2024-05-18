@@ -7,7 +7,9 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -27,11 +29,11 @@ public class Order {
     @JoinColumn(name = "user_id")
     User user;
 
-    @JsonIgnore
+    // @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL)
-    List<OrderItem> orderItems = new ArrayList<>();
+    Set<OrderItem> orderItems = new HashSet<>();
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "address_id")
     Address address;
 

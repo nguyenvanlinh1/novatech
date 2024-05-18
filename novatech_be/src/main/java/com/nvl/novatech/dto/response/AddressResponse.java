@@ -15,6 +15,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AddressResponse {
+
+    Long addressId;
     String firstName;
     String lastName;
     String streetAddress;

@@ -29,7 +29,8 @@ public class User {
     String password;
 
     LocalDate dob;
-
+    String phone;
+    
     @ManyToMany
     Set<Role> roles;
 

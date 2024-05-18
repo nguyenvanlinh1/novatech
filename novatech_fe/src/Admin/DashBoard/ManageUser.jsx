@@ -153,6 +153,3 @@ export default function ManageUser() {
     </div>
   );
 }
-
-
-

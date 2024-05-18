@@ -6,6 +6,8 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Getter
 @Setter
@@ -20,6 +22,7 @@ public class OrderItem {
     Long orderItemId;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "order_id")
     Order order;
 

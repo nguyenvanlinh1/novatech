@@ -26,6 +26,7 @@ public class CartItemServiceImpl implements CartItemService{
 
     @Override
     public CartItem createCartItem(CartItem cartItem) {
+        cartItem.setQuantity(1);
         cartItem.setPrice(cartItem.getQuantity() * cartItem.getProduct().getPrice());
         cartItem.setDiscountedPrice(cartItem.getQuantity() * cartItem.getProduct().getDiscountedPrice());
 
@@ -48,7 +49,6 @@ public class CartItemServiceImpl implements CartItemService{
         Optional<CartItem> cartitem = cartItemRepository.findById(cartItemId);
         if(user.getUserId().equals(cartitem.get().getUserId())){
             cartitem.get().setQuantity(request.getQuantity());
-            cartitem.get().setColor(request.getColor());
             cartitem.get().setPrice(request.getQuantity() * cartitem.get().getProduct().getPrice());
             cartitem.get().setDiscountedPrice(request.getQuantity() * cartitem.get().getProduct().getDiscountedPrice());
 
