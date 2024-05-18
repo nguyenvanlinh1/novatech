@@ -9,7 +9,7 @@ import {
     {
       color: "gray",
       icon: BanknotesIcon,
-      title: "Today's Money",
+      title: "Doanh số ngày hôm nay",
       value: "$53k",
       footer: {
         color: "text-green-500",

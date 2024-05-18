@@ -1,11 +1,26 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import TablePagination from "@mui/material/TablePagination";
 import { Card, CardBody, CardFooter, Chip } from "@material-tailwind/react";
 import { Avatar, Button, CardHeader, Tooltip, Typography } from "@mui/material";
 import userTable from "../Data/userTable";
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllUser } from "../../State/Auth/Action";
+import { deleteUser } from "../../State/Admin/User/Action";
 
-export default function ManageUser() {
+export const ManageUser = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    console.log("ABC")
+    dispatch(getAllUser());
+  }, []);
+
+  const auth = useSelector((store) => store.auth);
+  console.log(auth);
+
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -17,9 +32,11 @@ export default function ManageUser() {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+  const online = true;
 
-  console.log(page)
-  console.log(rowsPerPage)
+  const handleDeleteUser = (userId) => {
+    dispatch(deleteUser(userId))
+  }
 
   return (
     <div className="mt-5">
@@ -46,7 +63,7 @@ export default function ManageUser() {
                   ].map((el) => (
                     <th
                       key={el}
-                      className="border-b border-blue-gray-50 py-3 px-5 text-left"
+                      className="border-b border-blue-gray-50 py-3 px-5 text-center"
                     >
                       <Typography
                         variant="small"
@@ -59,64 +76,62 @@ export default function ManageUser() {
                 </tr>
               </thead>
               <tbody>
-                {userTable
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map(
-                  (
-                    { id, img, firstName, lastName, email, dob, status, roles },
-                    key
-                  ) => {
+                {auth.users && auth.users.data && auth.users.data.result
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((item, key) => {
                     const className = `py-3 px-5 ${
-                      key === userTable.length - 1
+                      key === item.length
                         ? ""
-                        : "border-b border-blue-gray-50"
+                        : "border-b border-blue-gray-50 text-center"
                     }`;
 
                     return (
-                      <tr key={id}>
+                      <tr key={item.userId || ""}>
                         <td className={className}>
                           <Typography className="text-md text-[#333]">
-                            {id}
+                            {item.userId || ""}
                           </Typography>
                         </td>
                         <td className={className}>
                           <Tooltip>
                             <Avatar
-                              src={img}
-                              alt={id}
+                              src={
+                                item.avatarUrl ||
+                                "https://avatar.iran.liara.run/public/21"
+                              }
+                              alt={key}
                               size="xs"
-                              className={`cursor-pointer border-2 border-white ${
-                                key === 0 ? "" : "-ml-2.5"
+                              className={`cursor-pointer border-2 border-white
                               }`}
                             />
                           </Tooltip>
                         </td>
                         <td className={className}>
                           <Typography className="text-md text-[#333]">
-                            {lastName} {firstName}
-                          </Typography>
-                        </td>
-                        <td>
-                          <Typography className="text-md text-[#333]">
-                            {email}
+                            {item.lastName || ""} {item.firstName || ""}
                           </Typography>
                         </td>
                         <td className={className}>
                           <Typography className="text-md text-[#333]">
-                            {dob}
+                            {item.email}
+                          </Typography>
+                        </td>
+                        <td className={className}>
+                          <Typography className="text-md text-[#333]">
+                            {item.dbo || ""}
                           </Typography>
                         </td>
                         <td className={className}>
                           <Chip
                             variant="gradient"
-                            color={status ? "green" : "blue-gray"}
-                            value={status ? "online" : "offline"}
-                            className="py-0.5 px-2 text-[11px] font-medium w-fit"
+                            color={online ? "green" : "blue-gray"}
+                            value={online ? "online" : "offline"}
+                            className="font-medium"
                           />
                         </td>
                         <td className={className}>
                           <Typography className="text-md text-[#333]">
-                            {roles}
+                            {item.roles || ""}
                           </Typography>
                         </td>
                         <td className={className}>
@@ -124,14 +139,14 @@ export default function ManageUser() {
                             variant="text"
                             startIcon={<DeleteIcon />}
                             sx={{ color: "red" }}
+                            onClick={() => handleDeleteUser(item.userId)}
                           >
                             Xóa
                           </Button>
                         </td>
                       </tr>
                     );
-                  }
-                )}
+                  })}
               </tbody>
             </table>
           </CardBody>
@@ -139,7 +154,8 @@ export default function ManageUser() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={userTable.length}
+              count={auth.users && auth.users.data && auth.users.data.result.length}
+              //count={2}
               rowsPerPage={rowsPerPage}
               labelRowsPerPage="Hàng trên mỗi trang"
               page={page}

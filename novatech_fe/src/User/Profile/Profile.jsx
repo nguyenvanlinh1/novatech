@@ -1,25 +1,62 @@
 import { Button, TextField } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Input, avatar } from "@material-tailwind/react";
+import { updateProfile } from "../../State/User/Profile/Action";
 
 const Profile = () => {
-  const [name, setName] = useState(true);
+  const dispatch = useDispatch();
+  const { auth } = useSelector((store) => store);
+  console.log("Auth", auth)
+  const [firstName, setFirstName] = useState(true);
 
-  const handleName = () => {
-    setName(false);
-  };
+  const handleFirstName = () => {
+    setFirstName(false);
+  }
+  const [lastName, setLastName] = useState(true);
+
+  const handleLastName = () => {
+    setLastName(false);
+  }
   const [dob, setDob] = useState(true);
 
   const handleDob = () => {
     setDob(false);
-  };
+  }
+
   const [phone, setPhone] = useState(true);
 
   const handlePhone = () => {
     setPhone(false);
-  };
+  }
+
+  const [data, setData] = useState({
+    firstName:auth.user.data.result.firstName,
+    lastName:auth.user.data.result.lastName,
+    avatarUrl:auth.user.data.result.avatarUrl,
+    password:auth.user.data.result.password,
+    dob:auth.user.data.result.dob,
+    phone:auth.user.data.result.phone,
+  })
+
+  const handleChange = (e) => {
+    const {name, value} = e.target;
+    setData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
+
+  console.log(data)
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(updateProfile(data));
+  }
+
   return (
     <div>
-      <div className="bg-white w-full flex flex-col gap-5 px-3 md:px-16 lg:px-28 md:flex-row text-[#161931]">
+      <div className="bg-white w-full flex flex-col gap-5 px-3 md:px-16 lg:px-28 md:flex-row text-[#161931] mt-20">
         <div className="py-4 md:w-1/3 lg:w-1/4 md:block mt-5">
           <div className="flex flex-col gap-2 p-4 text-sm border-r border-indigo-100 top-12 -z-10">
             <h2 className="pl-3 mb-4 text-2xl font-semibold">Cài đặt</h2>
@@ -66,12 +103,15 @@ const Profile = () => {
                   />
 
                   <div className="flex flex-col space-y-5 sm:ml-8">
-                    <button
-                      type="button"
+                    <Button
+                      id="avatarUrl"
+                      name="avatarUrl"
+                      type="file"
                       className="py-3.5 px-7 text-base font-medium text-indigo-100 focus:outline-none bg-[#202142] rounded-lg border border-indigo-200 hover:bg-indigo-900 focus:z-10 focus:ring-4 focus:ring-indigo-200 "
+                      onChange={handleChange}
                     >
                       Sửa avatar
-                    </button>
+                    </Button>
                     <button
                       type="button"
                       className="py-3.5 px-7 text-base font-medium text-indigo-900 focus:outline-none bg-white rounded-lg border border-indigo-200 hover:bg-indigo-100 hover:text-[#202142] focus:z-10 focus:ring-4 focus:ring-indigo-200 "
@@ -84,12 +124,47 @@ const Profile = () => {
                 <div className="items-center mt-8 sm:mt-14 text-[#202142]">
                   <div className="relative mb-2 space-x-0 space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0 sm:mb-6">
                     <TextField
-                      label="Họ Đệm / Tên"
-                      defaultValue="Nguyễn Văn Linh"
+                      label={"Họ Đệm"}
+                      defaultValue={`${auth.user.data.result.lastName || ""}`}
+                      //defaultValue="Linh"
                       variant="standard"
-                      disabled={name}
+                      disabled={lastName}
+                      id="lastName"
+                      name="lastName"
+                      onChange={handleChange}
                     />
-                    <Button variant="text" onClick={handleName} style={{position: "absolute", top: 15, textDecoration: "underline"}}>
+                    <Button
+                      variant="text"
+                      onClick={handleLastName}
+                      style={{
+                        position: "absolute",
+                        top: 15,
+                        textDecoration: "underline",
+                      }}
+                    >
+                      Thiết lập ngay
+                    </Button>
+                  </div>
+                  <div className="relative mb-2 space-x-0 space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0 sm:mb-6">
+                    <TextField
+                      label={"Tên"}
+                      defaultValue={`${auth.user.data.result.firstName || ""}`}
+                      //defaultValue="Linh"
+                      variant="standard"
+                      disabled={firstName}
+                      id="firstName"
+                      name="firstName"
+                      onChange={handleChange}
+                    />
+                    <Button
+                      variant="text"
+                      onClick={handleFirstName}
+                      style={{
+                        position: "absolute",
+                        top: 15,
+                        textDecoration: "underline",
+                      }}
+                    >
                       Thiết lập ngay
                     </Button>
                   </div>
@@ -98,11 +173,22 @@ const Profile = () => {
                     <TextField
                       id="dob"
                       label={"Ngày sinh"}
-                      defaultValue="14/06/2002"
+                      defaultValue={`${auth.user.data.result.dob || ""}`}
+                      //defaultValue={'14/06/2002'}
                       variant="standard"
                       disabled={dob}
+                      name="dob"
+                      onChange={handleChange}
                     />
-                    <Button variant="text" onClick={handleDob} style={{position: "absolute", top: 15, textDecoration: "underline"}}>
+                    <Button
+                      variant="text"
+                      onClick={handleDob}
+                      style={{
+                        position: "absolute",
+                        top: 15,
+                        textDecoration: "underline",
+                      }}
+                    >
                       Thiết lập ngay
                     </Button>
                   </div>
@@ -110,11 +196,23 @@ const Profile = () => {
                     <TextField
                       disabled={phone}
                       id="phone"
+                      name="phone"
                       label={"Số điện thoại"}
-                      defaultValue="0869526280"
+                      defaultValue={`${auth.user.data.result.phone || ""}`}
+                      //defaultValue={"0869526280"}
                       variant="standard"
+                      onChange={handleChange}
+                      
                     />
-                    <Button variant="text" onClick={handlePhone} style={{position: "absolute", top: 15, textDecoration: "underline"}}>
+                    <Button
+                      variant="text"
+                      onClick={handlePhone}
+                      style={{
+                        position: "absolute",
+                        top: 15,
+                        textDecoration: "underline",
+                      }}
+                    >
                       Thiết lập ngay
                     </Button>
                   </div>
@@ -122,7 +220,8 @@ const Profile = () => {
                     <TextField
                       id="email"
                       label="Email"
-                      defaultValue="nvanlinh1406@gmail.com"
+                      defaultValue={`${auth.user.data.result.email || ""}`}
+                      //defaultValue={"nvanlinh1406@gmail.com"}
                       variant="outlined"
                       fullWidth
                       InputProps={{
@@ -146,6 +245,7 @@ const Profile = () => {
                     <button
                       type="submit"
                       className="text-white bg-indigo-700  hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+                      onClick={handleSubmit}
                     >
                       Lưu lại
                     </button>

@@ -5,7 +5,6 @@ import {
 import Home from "../DashBoard/Home";
 import SignUp from "../../User/Auth/Signup";
 import ManageProduct from "../DashBoard/ManageProduct";
-import ManageUser from "../DashBoard/ManageUser";
 import ManageOrder from "../DashBoard/ManageOrder";
 import ManageInventor from "../DashBoard/ManageInventor";
 
@@ -13,6 +12,7 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CategoryIcon from '@mui/icons-material/Category';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import { ManageUser } from "../DashBoard/ManageUser";
 
 
 const icon = {

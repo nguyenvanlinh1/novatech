@@ -10,12 +10,18 @@ import {
   ListItemButton,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import StepperOrder from "./StepperOrder";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import EastIcon from "@mui/icons-material/East";
 import EditIcon from "@mui/icons-material/Edit";
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { createAddress, getAddress } from "../../State/User/Address/Action";
+import AddressCard from "./AddressCard";
+import { createOrder } from "../../State/User/Order/Action";
+// import { createOrder } from "../../State/User/Order/Action";
 
 const data = [
   {
@@ -67,6 +73,42 @@ SimpleDialog.PropTypes = {
 };
 
 const AddressOrder = () => {
+  const {address} = useSelector(store=>store);
+
+  const {uorder} = useSelector(store =>store);
+
+  console.log("Address",address);
+  console.log("Order", uorder);
+
+  const dispatch = useDispatch();
+
+  const [productData, setProductData] = useState({
+    firstName:"",
+    lastName:"",
+    streetAddress:"",
+    city:"",
+    state:"",
+    phone:""
+  })
+  console.log(productData)
+
+  const handleChange = (e) => {
+    const {name, value} = e.target;
+    setProductData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
+  
+  useEffect(() => {
+    dispatch(getAddress());
+  }, [])
+
+  const handleOrder = () => {
+    dispatch(createAddress(productData));
+    alert("Tạo địa chỉ thành công")
+  }
+
   const [open, setOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState(data[0].content);
 
@@ -78,6 +120,8 @@ const AddressOrder = () => {
     setOpen(false);
     setSelectedValue(value);
   };
+
+  const navigate = useNavigate();
 
   return (
     <Grid container>
@@ -112,34 +156,14 @@ const AddressOrder = () => {
       <Grid item xs={12} mt={10}>
         <StepperOrder step={1} />
       </Grid>
-      <Grid item xs={3} mt={10} ml={10}>
-        <h2 className="text-2xl font-bold text-[#333] p-2 border-1 border-b">
-          🏡Địa chỉ có sẵn
-        </h2>
-        <div className="shadow-lg">
-          <div className="grid grid-cols-1 gap-3 p-5">
-            <p>
-              Họ Tên:
-              <span className="text-[#333]"> Nguyễn Văn Linh</span>
-            </p>
-            <p>
-              Email:
-              <span className="text-[#333]"> nvanlinh1406@gmail.com</span>
-            </p>
-            <p className="text-[#333]">
-              <span>Lưu Đồn</span> | <span>Hồng Dũng</span> |{" "}
-              <span>Thái Thụy</span> | <span>Thái Bình</span>
-            </p>
-            <p>
-              Số điện thoại: <span className="text-[#333]">0869526280 ☎</span>
-            </p>
-            <Button variant="contained" size="medium">
-              Sử dụng
-            </Button>
-          </div>
-        </div>
+      <Grid item xs={3} mt={10} ml={10} container spacing={2}>
+        {
+          address.addresses && address.addresses.result && address.addresses.result.map((item) => (
+            <AddressCard address={item}/>
+          ))
+        }
       </Grid>
-      <Grid item xs={7} mt={10} mx={10}>
+      <Grid item xs={6} mt={10} mx={10}>
         <h2 className="text-2xl font-bold text-[#333] p-2 border-1 border-b">
           <EditIcon />
           Nhập địa chỉ giao hàng của bạn
@@ -155,6 +179,9 @@ const AddressOrder = () => {
                   type="text"
                   placeholder="First Name"
                   className="px-4 py-3.5 bg-white text-[#333] w-full text-sm border-b-2 focus:border-[#333] outline-none"
+                  name="firstName"
+                  value={productData.firstName}
+                  onChange={handleChange}
                 />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -175,6 +202,9 @@ const AddressOrder = () => {
                   type="text"
                   placeholder="Last Name"
                   className="px-4 py-3.5 bg-white text-[#333] w-full text-sm border-b-2 focus:border-[#333] outline-none"
+                  name="lastName"
+                  value={productData.lastName}
+                  onChange={handleChange}
                 />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -195,6 +225,9 @@ const AddressOrder = () => {
                   type="email"
                   placeholder="Email"
                   className="px-4 py-3.5 bg-white text-[#333] w-full text-sm border-b-2 focus:border-[#333] outline-none"
+                  name="email"
+                  value={productData.email}
+                  onChange={handleChange}
                 />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -231,6 +264,9 @@ const AddressOrder = () => {
                   type="number"
                   placeholder="Phone No."
                   className="px-4 py-3.5 bg-white text-[#333] w-full text-sm border-b-2 focus:border-[#333] outline-none"
+                  name="phone"
+                  value={productData.phone}
+                  onChange={handleChange}
                 />
                 <svg
                   fill="#bbb"
@@ -254,30 +290,25 @@ const AddressOrder = () => {
                 type="text"
                 placeholder="Address Line"
                 className="px-4 py-3.5 bg-white text-[#333] w-full text-sm border-b-2 focus:border-[#333] outline-none"
+                name="streetAddress"
+                value={productData.streetAddress}
+                onChange={handleChange}
               />
               <input
                 type="text"
                 placeholder="City"
                 className="px-4 py-3.5 bg-white text-[#333] w-full text-sm border-b-2 focus:border-[#333] outline-none"
+                name="city"
+                value={productData.city}
+                onChange={handleChange}
               />
               <input
                 type="text"
                 placeholder="State"
                 className="px-4 py-3.5 bg-white text-[#333] w-full text-sm border-b-2 focus:border-[#333] outline-none"
-              />
-            </div>
-            <div className="my-5 p-5 shadow w-[50%] grid gap-5">
-              <Button variant="contained" onClick={handleCLickOpen} className="w-[60%]">
-                Hình thức thanh toán
-              </Button>
-              <Typography variant="body2" component="div" className="text-[#333]">
-                Phương thức thanh toán:
-                <span className="text-[#DD5746] ml-5">{selectedValue}</span>
-              </Typography>
-              <SimpleDialog
-                selectedValue={selectedValue}
-                open={open}
-                onClose={handleClickClose}
+                name="state"
+                value={productData.state}
+                onChange={handleChange}
               />
             </div>
             <div className="flex gap-6 max-sm:flex-col mt-10">
@@ -290,9 +321,24 @@ const AddressOrder = () => {
               <button
                 type="button"
                 className="rounded-md px-6 py-3 w-full text-sm font-semibold bg-transparent hover:bg-gray-100 border-2 text-[#333]"
+                onClick={() => handleOrder()}
               >
-                Đặt Hàng
+                Tạo địa chỉ
               </button>
+            </div>
+            <div className="my-5 p-5 shadow w-[50%] grid gap-5">
+              <Button variant="contained" onClick={handleCLickOpen} className="w-[65%]">
+                Hình thức thanh toán
+              </Button>
+              <Typography variant="body2" component="div" className="text-[#333]">
+                Phương thức thanh toán:
+                <span className="text-[#DD5746] ml-5">{selectedValue}</span>
+              </Typography>
+              <SimpleDialog
+                selectedValue={selectedValue}
+                open={open}
+                onClose={handleClickClose}
+              />
             </div>
           </div>
         </form>

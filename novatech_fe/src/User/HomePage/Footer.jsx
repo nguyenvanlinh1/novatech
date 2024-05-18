@@ -3,7 +3,83 @@ import { Typography, IconButton } from "@material-tailwind/react";
 
 const year = new Date().getFullYear();
 
-export function Footer({ title, description, socials, menus, copyright }) {
+export function Footer({
+  title = "Material Tailwind",
+  description = "Easy to use React components for Tailwind CSS and Material Design.",
+  socials = [
+    {
+      color: "gray",
+      name: "twitter",
+      path: "https://www.twitter.com/creativetim",
+    },
+    {
+      color: "gray",
+      name: "youtube",
+      path: "https://www.youtube.com/channel/UCVyTG4sCw-rOvB9oHkzZD1w",
+    },
+    {
+      color: "gray",
+      name: "instagram",
+      path: "https://www.instagram.com/creativetimofficial/",
+    },
+    {
+      color: "black",
+      name: "github",
+      path: "https://github.com/creativetimofficial/material-tailwind",
+    },
+  ],
+  menus = [
+    {
+      name: "useful links",
+      items: [
+        { name: "About Us", path: "https://www.creative-tim.com/presentation" },
+        { name: "Blog", path: "https://www.creative-tim.com/blog" },
+        {
+          name: "Github",
+          path: "https://www.github.com/creativetimofficial/material-tailwind?ref=mtk",
+        },
+        {
+          name: "Free Products",
+          path: "https://www.creative-tim.com/templates/free?ref=mtk",
+        },
+      ],
+    },
+    {
+      name: "other resources",
+      items: [
+        {
+          name: "MIT License",
+          path: "https://github.com/creativetimofficial/material-tailwind/blob/main/LICENSE.md?ref=mtk",
+        },
+        {
+          name: "Contribute",
+          path: "https://github.com/creativetimofficial/material-tailwind/blob/main/CONTRIBUTING.md?ref=mtk",
+        },
+        {
+          name: "Change Log",
+          path: "https://github.com/creativetimofficial/material-tailwind/blob/main/CHANGELOG.md?ref=mtk",
+        },
+        {
+          name: "Contact Us",
+          path: "https://creative-tim.com/contact-us?ref=mtk",
+        },
+      ],
+    },
+  ],
+  copyright = (
+    <>
+      Copyright © {year} Nova Tech by{" "}
+      <a
+        href="https://www.facebook.com/profile.php?id=100009335038687"
+        target="_blank"
+        className="text-blue-gray-500 transition-colors hover:text-blue-500"
+      >
+        Nguyen Van Linh
+      </a>
+      .
+    </>
+  ),
+}) {
   return (
     <footer className="relative px-4 pt-8 pb-6">
       <div className="container mx-auto">
@@ -77,85 +153,6 @@ export function Footer({ title, description, socials, menus, copyright }) {
     </footer>
   );
 }
-
-Footer.defaultProps = {
-  title: "Material Tailwind",
-  description:
-    "Easy to use React components for Tailwind CSS and Material Design.",
-  socials: [
-    {
-      color: "gray",
-      name: "twitter",
-      path: "https://www.twitter.com/creativetim",
-    },
-    {
-      color: "gray",
-      name: "youtube",
-      path: "https://www.youtube.com/channel/UCVyTG4sCw-rOvB9oHkzZD1w",
-    },
-    {
-      color: "gray",
-      name: "instagram",
-      path: "https://www.instagram.com/creativetimofficial/",
-    },
-    {
-      color: "black",
-      name: "github",
-      path: "https://github.com/creativetimofficial/material-tailwind",
-    },
-  ],
-  menus: [
-    {
-      name: "useful links",
-      items: [
-        { name: "About Us", path: "https://www.creative-tim.com/presentation" },
-        { name: "Blog", path: "https://www.creative-tim.com/blog" },
-        {
-          name: "Github",
-          path: "https://www.github.com/creativetimofficial/material-tailwind?ref=mtk",
-        },
-        {
-          name: "Free Products",
-          path: "https://www.creative-tim.com/templates/free?ref=mtk",
-        },
-      ],
-    },
-    {
-      name: "other resources",
-      items: [
-        {
-          name: "MIT License",
-          path: "https://github.com/creativetimofficial/material-tailwind/blob/main/LICENSE.md?ref=mtk",
-        },
-        {
-          name: "Contribute",
-          path: "https://github.com/creativetimofficial/material-tailwind/blob/main/CONTRIBUTING.md?ref=mtk",
-        },
-        {
-          name: "Change Log",
-          path: "https://github.com/creativetimofficial/material-tailwind/blob/main/CHANGELOG.md?ref=mtk",
-        },
-        {
-          name: "Contact Us",
-          path: "https://creative-tim.com/contact-us?ref=mtk",
-        },
-      ],
-    },
-  ],
-  copyright: (
-    <>
-      Copyright © {year} Nova Tech by{" "}
-      <a
-        href="https://www.facebook.com/profile.php?id=100009335038687"
-        target="_blank"
-        className="text-blue-gray-500 transition-colors hover:text-blue-500"
-      >
-        Nguyen Van Linh
-      </a>
-      .
-    </>
-  ),
-};
 
 Footer.propTypes = {
   title: PropTypes.string,

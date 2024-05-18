@@ -21,25 +21,27 @@ import Cart from "../Cart/Cart";
 import AddressOrder from "../Order/AddressOrder";
 import PaymentOrder from "../Order/PaymentOrder";
 import Profile from "../Profile/Profile";
+import Order from "../Order/Order";
 
 export function HomePage() {
   return (
     <>
-      <Navigation />
+      {/* <Navigation /> */}
       <div className="mt-[74px]">
-        <Profile />
+        {/* <Profile /> */}
         {/* <FilterProduct/> */}
         {/* <Cart/> */}
         {/* <DetailsProduct/> */}
         {/* <AddressOrder/> */}
         {/* <PaymentOrder/> */}
-        {/* <div className="relative -z-10">
-        <MainCarosel />
-      </div>
-      <div className="mx-10 lg:px-10">
-        <HomeSectionCarosel />
-        <HomeSectionCarosel />
-      </div> */}
+        {/* <Order/> */}
+        <div className="relative -z-10">
+          <MainCarosel />
+        </div>
+        <div className="mx-10 lg:px-10">
+          <HomeSectionCarosel />
+          <HomeSectionCarosel />
+        </div>
 
         {/* <ProductCard/> */}
         {/* <Category/> */}
