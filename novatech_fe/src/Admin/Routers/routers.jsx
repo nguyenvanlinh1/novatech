@@ -13,6 +13,8 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CategoryIcon from '@mui/icons-material/Category';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { ManageUser } from "../DashBoard/ManageUser";
+import MessageAdmin from "../DashBoard/MessageAdmin";
+import RingVolumeIcon from '@mui/icons-material/RingVolume';
 
 
 const icon = {
@@ -49,9 +51,15 @@ export const routes = [
       },
       {
         icon: <InventoryIcon {...icon} />,
-        name: "Quản Lý Kho",
+        name: "Thống kê doanh số",
         path: "/inventor",
         element: <ManageInventor />,
+      },
+      {
+        icon: <RingVolumeIcon {...icon} />,
+        name: "Liên hệ khách hàng",
+        path: "/messages",
+        element: <MessageAdmin />,
       },
     ],
   },
@@ -62,7 +70,7 @@ export const routes = [
       {
         icon: <RectangleStackIcon {...icon} />,
         name: "Đăng Xuất",
-        path: "/sign-up",
+        path: "/signin",
         element: <SignUp />,
       },
     ],

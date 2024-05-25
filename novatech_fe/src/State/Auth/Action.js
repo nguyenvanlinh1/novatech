@@ -44,10 +44,28 @@ export const login = (reqData) => async (dispatch) => {
   }
 };
 
-export const getUser = () => async (dispatch) => {
+export const getUser = (jwt) => async (dispatch) => {
   dispatch({ type: GET_USER_REQUEST });
   try {
-    const data = await api.get("/users/profile");
+    const res = await fetch(`${API_BASE_URL}/users/profile`, {
+      method:"GET",
+      headers:{
+      'Authorization': `Bearer ${jwt}`,
+        'Content-Type': "application/json",
+      },
+    });
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    // Đảm bảo phản hồi có nội dung
+    const text = await res.text();
+    if (!text) {
+      throw new Error("Empty response");
+    }
+
+    // Chuyển đổi văn bản thành JSON
+    const data = JSON.parse(text);
     dispatch({ type: GET_USER_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: GET_USER_FAILURE, payload: error.message });
@@ -69,3 +87,6 @@ export const logout = () => (dispatch) => {
   localStorage.clear();
   window.location.href = 'http://localhost:5173'
 };
+
+// Xử lý callback URL sau khi người dùng xác thực thành công trên GitHu
+

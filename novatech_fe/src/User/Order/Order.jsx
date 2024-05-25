@@ -31,21 +31,31 @@ import {
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { orderHistory } from "../../State/User/Order/Action";
+import Detail from "./Detail";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const steps = ["PLACED", "PROCESSED", "CONFIRMED", "SHIPPED", "DELIVERED"];
+function getDateFromISO(isoString) {
+  const date = isoString.split("T")[0];
+  const [year, month, day] = date.split("-");
+  return `${day}-${month}-${year}`;
+}
+
+// const steps = ["PLACED", "PROCESSED", "CONFIRMED", "SHIPPED", "DELIVERED"];
 
 const Order = () => {
   const dispatch = useDispatch();
   const { uorder } = useSelector((store) => store);
-  console.log(uorder);
+  const jwt = localStorage.getItem("jwt");
 
   useEffect(() => {
-    dispatch(orderHistory());
-  }, []);
+    if (jwt) {
+      dispatch(orderHistory());
+    }
+  }, [jwt]);
+
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -66,6 +76,10 @@ const Order = () => {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const formatMoney = (data) => {
+    return data && data.toLocaleString("vi-VN");
   };
   return (
     <div className="mt-5">
@@ -121,111 +135,99 @@ const Order = () => {
                 </tr>
               </thead>
               <tbody>
-                {uorder.orders.result
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((item, key) => {
-                    const className = `py-3 px-5 ${
-                      key === uorder.orders.result.length - 1
-                        ? ""
-                        : "border-b border-blue-gray-50"
-                    }`;
+                {uorder.orders && uorder.orders.result && 
+                uorder.orders.result.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((item, key) => {
+                      const className = `py-3 px-5 ${
+                        key === item.length - 1
+                          ? ""
+                          : "border-b border-blue-gray-50"
+                      }`;
 
-                    return (
-                      <tr>
-                        <td className={className}>
-                          <AvatarGroup className="flex justify-end">
-                            {item.orderItems.map((item2) =>
-                              item2.product.images.map(
-                                ({ imageId, imageUrl }) => (
-                                  <Tooltip title={imageId}>
-                                    <Avatar
-                                      src={imageUrl}
-                                      alt={imageId}
-                                      size="xs"
-                                      className={`cursor-pointer border-2 border-white ${
-                                        key === 0 ? "" : "-ml-2.5"
-                                      }`}
-                                    />
-                                  </Tooltip>
+                      return (
+                        <tr>
+                          <td className={className}>
+                            <AvatarGroup className="flex justify-end">
+                              {item.orderItems.map((item2) =>
+                                item2.product.images.map(
+                                  ({ imageId, imageUrl }) => (
+                                    <Tooltip title={imageId}>
+                                      <Avatar
+                                        src={imageUrl}
+                                        alt={imageId}
+                                        size="xs"
+                                        className={`cursor-pointer border-2 border-white ${
+                                          key === 0 ? "" : "-ml-2.5"
+                                        }`}
+                                      />
+                                    </Tooltip>
+                                  )
                                 )
-                              )
-                            )}
-                          </AvatarGroup>
-                        </td>
-                        <td className={className}>
-                          <Typography className="text-md text-[#333]">
-                            {item.orderDate}
-                          </Typography>
-                        </td>
-                        <td>
-                          <Typography className="text-md text-[#333] text-center">
-                            {item.totalItems}
-                          </Typography>
-                        </td>
-                        <td className={className}>
-                          <Typography className="text-md text-[#DD5746]">
-                            {item.totalPrice}
-                          </Typography>
-                        </td>
-                        <td className={className}>
-                          <Chip
-                            variant="gradient"
-                            color={
-                              item.status === "PENDING"
-                                ? "red"
-                                : item.status === "CONFIRMING"
-                                ? "yellow"
-                                : item.status === "SHIPPING"
-                                ? "blue"
-                                : "green"
-                            }
-                            value={item.status}
-                            className="py-1 px-2 text-[11px] font-medium w-fit"
-                          />
-                        </td>
-                        <td className={className}>
-                          <Button
-                            variant="contained"
-                            startIcon={<RemoveRedEyeIcon />}
-                            sx={{ color: "white" }}
-                            onClick={handleClickOpen}
-                          >
-                            Chi tiết
-                          </Button>
-                          <Dialog
-                            open={open}
-                            TransitionComponent={Transition}
-                            keepMounted
-                            onClose={handleClose}
-                            aria-describedby="alert-dialog-slide-description"
-                          >
-                            <DialogTitle>{"Thông tin vận chuyển"}</DialogTitle>
-                            <div className="p-5">
-                              <Stepper activeStep={1} orientation="vertical">
-                                {steps.map((content) => (
-                                  <Step>
-                                    <StepLabel
-                                      optional={
-                                        <Typography variant="body2">
-                                          4:46p.m 13/05/2024
-                                        </Typography>
-                                      }
-                                    >
-                                      {content}
-                                    </StepLabel>
-                                  </Step>
-                                ))}
-                              </Stepper>
-                            </div>
-                            <DialogActions>
-                              <Button onClick={handleClose}>Xác nhận</Button>
-                              <Button onClick={handleClose}>Thoát</Button>
-                            </DialogActions>
-                          </Dialog>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                              )}
+                            </AvatarGroup>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-md text-[#333]">
+                              {getDateFromISO(item.orderDate)}
+                            </Typography>
+                          </td>
+                          <td>
+                            <Typography className="text-md text-[#333] text-center">
+                              {item.totalItems}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-md text-[#DD5746]">
+                              {formatMoney(item.totalDiscountedPrice)}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Chip
+                              variant="gradient"
+                              color={
+                                item.status === "PENDING"
+                                  ? "red"
+                                  : item.status === "CONFIRMED"
+                                  ? "yellow"
+                                  : item.status === "SHIPPED"
+                                  ? "blue"
+                                  : "green"
+                              }
+                              value={item.status}
+                              className="py-1 px-2 text-[11px] font-medium w-fit"
+                            />
+                          </td>
+                          <td className={className}>
+                            <Button
+                              variant="contained"
+                              startIcon={<RemoveRedEyeIcon />}
+                              sx={{ color: "white" }}
+                              onClick={handleClickOpen}
+                            >
+                              Chi tiết
+                            </Button>
+                            <Dialog
+                              open={open}
+                              TransitionComponent={Transition}
+                              keepMounted
+                              onClose={handleClose}
+                              aria-describedby="alert-dialog-slide-description"
+                            >
+                              <DialogTitle>
+                                {"Thông tin vận chuyển"}
+                              </DialogTitle>
+                              <div className="p-5">
+                                <Detail status={item.status} />
+                              </div>
+                              <DialogActions>
+                                <Button onClick={handleClose}>Xác nhận</Button>
+                                <Button onClick={handleClose}>Thoát</Button>
+                              </DialogActions>
+                            </Dialog>
+                          </td>
+                        </tr>
+                      );
+                    })}
               </tbody>
             </table>
           </CardBody>
@@ -233,7 +235,11 @@ const Order = () => {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={uorder.orders.result.length}
+              count={
+                uorder.orders &&
+                uorder.orders.result &&
+                uorder.orders.result.length
+              }
               rowsPerPage={rowsPerPage}
               labelRowsPerPage="Hàng trên mỗi trang"
               page={page}

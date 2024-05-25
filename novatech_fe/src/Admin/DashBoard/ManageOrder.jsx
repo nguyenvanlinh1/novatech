@@ -5,15 +5,18 @@ import {
   Typography,
   CardFooter,
 } from "@material-tailwind/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import orderTable from "../Data/orderTable";
 import {
   Avatar,
   AvatarGroup,
   Button,
+  FormControl,
+  InputLabel,
   Menu,
   MenuItem,
   Pagination,
+  Select,
   TablePagination,
   Tooltip,
 } from "@mui/material";
@@ -22,14 +25,16 @@ import {
   confirmOrder,
   deleteOrder,
   deliveryOrder,
+  findOrderStatus,
   getAllOrders,
   shipOrder,
 } from "../../State/Admin/Order/Action";
-
+import { CSVLink, CSVDownload } from "react-csv";
+import ExportData from "./ExportData";
 
 function getDateFromISO(isoString) {
-  const date = isoString.split('T')[0];
-  const [year, month, day] = date.split('-');
+  const date = isoString.split("T")[0];
+  const [year, month, day] = date.split("-");
   return `${day}-${month}-${year}`;
 }
 
@@ -46,38 +51,17 @@ const ManageOrder = () => {
     setPage(0);
   };
   const { aorder } = useSelector((store) => store);
-  console.log("Order", aorder);
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getAllOrders());
-  }, [aorder.shipped, aorder.confirmed, aorder.delivered, aorder.deletedOrder]);
+  }, [
+    aorder.shipped,
+    aorder.confirmed,
+    aorder.delivered,
+    aorder.deletedOrder,
+  ]);
 
   const [anchorEl, setAnchorEl] = React.useState([]);
-  const open = Boolean(anchorEl);
-
-  const filterOrdersByStatus = (orders, status) => {
-    if (!orders || !Array.isArray(orders)) {
-      return [];
-    }
-    if (status === "ALL") {
-      return orders;
-    } else {
-      return orders.filter((item) => item?.orderStatus === status);
-    }
-  };
-
-  const sortFilterOrdersByStatus = (orders, sort) => {
-    if (!orders || !Array.isArray(orders)) {
-      return [];
-    }
-    if (sort === "price_low") {
-      return orders.sort((a, b) => a?.totalPrice - b?.totalPrice);
-    } else if (sort === "price_high") {
-      return orders.sort((a, b) => b?.totalPrice - a?.totalPrice);
-    } else {
-      return orders;
-    }
-  };
 
   const handleDeleteOrder = (orderId) => {
     dispatch(deleteOrder(orderId));
@@ -109,6 +93,29 @@ const ManageOrder = () => {
     handleClose();
   };
 
+  const [dataStatus, setDataStatus] = useState({
+    status: "",
+  });
+
+  const handleFindStatus = () => {
+    dispatch(findOrderStatus(dataStatus));
+  };
+
+  const handleChange = (event) => {
+    const status = event.target.value;
+    setDataStatus((prevStatus) => ({ ...prevStatus, status }));
+  };
+
+  useEffect(() => {
+    if (dataStatus.status) {
+      handleFindStatus();
+    }
+  }, [dataStatus]);
+
+  const formatMoney = (data) => {
+    return data && data.toLocaleString("vi-VN");
+  };
+
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
       <Card>
@@ -118,6 +125,34 @@ const ManageOrder = () => {
           </Typography>
         </CardHeader>
         <CardBody className="px-0 pt-0 pb-2">
+          <div className="flex justify-between items-center p-5">
+            <div>
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 180 }}>
+                <InputLabel
+                  id="demo-simple-select-standard-label"
+                  sx={{ fontSize: 14 }}
+                >
+                  Lọc theo trạng thái
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-standard-label"
+                  id="demo-simple-select-standard"
+                  label="status"
+                  value={dataStatus.status}
+                  onChange={handleChange}
+                >
+                  <MenuItem value="PENDING">Chờ xác nhận</MenuItem>
+                  <MenuItem value="CONFIRMED">Xác nhận</MenuItem>
+                  <MenuItem value="SHIPPED">Vận chuyển</MenuItem>
+                  <MenuItem value="DELIVERED">Hoàn thành</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+            <div className="mr-5">
+              <ExportData data={aorder.orders && aorder.orders.result}/>
+              {/* <CSVDownload data={aorder.orders && aorder.orders.result} /> */}
+            </div>
+          </div>
           <table className="w-full min-w-[640px] table-auto">
             <thead>
               <tr>
@@ -145,127 +180,131 @@ const ManageOrder = () => {
               </tr>
             </thead>
             <tbody>
-              {aorder.orders && aorder.orders.result && aorder.orders.result.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((item, key) => {
-                  const index = page * rowsPerPage + key;
-                  const className = `py-3 px-5 ${
-                    key === aorder.orders.result.length
-                      ? ""
-                      : "border-b border-blue-gray-50 text-center"
-                  }`;
+              {aorder.orders &&
+                aorder.orders.result &&
+                aorder.orders.result
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((item, key) => {
+                    const index = page * rowsPerPage + key;
+                    const className = `py-3 px-5 ${
+                      key === aorder.orders.result.length
+                        ? ""
+                        : "border-b border-blue-gray-50 text-center"
+                    }`;
 
-                  return (
-                    <tr key={item.orderId}>
-                      <td className={className}>
-                        <Typography className="text-md text-[#333]">
-                          {item.orderId}
-                        </Typography>
-                      </td>
-                      <td className={className}>
-                        <AvatarGroup sx={{ justifyContent: "flex-end" }}>
-                          {item.orderItems.map((item2) =>
-                            item2.product.images.map(
-                              ({ imageId, imageUrl }) => (
-                                <Tooltip key={imageId} content={imageId}>
-                                  <Avatar
-                                    src={imageUrl}
-                                    alt={imageId}
-                                    size="xs"
-                                    className={`cursor-pointer border-2 border-white ${
-                                      key === 0 ? "" : "-ml-2.5"
-                                    }`}
-                                  />
-                                </Tooltip>
+                    return (
+                      <tr key={item.orderId}>
+                        <td className={className}>
+                          <Typography className="text-sm text-[#333]">
+                            {item.orderId}
+                          </Typography>
+                        </td>
+                        <td className={className}>
+                          <AvatarGroup
+                            max={2}
+                            sx={{ justifyContent: "flex-end" }}
+                          >
+                            {item.orderItems.map((item2) =>
+                              item2.product.images.map(
+                                ({ imageId, imageUrl }) => (
+                                  <Tooltip key={imageId} content={imageId}>
+                                    <Avatar
+                                      src={imageUrl}
+                                      alt={imageId}
+                                      size="xs"
+                                      className={`cursor-pointer border-2 border-white ${
+                                        key === 0 ? "" : "-ml-2.5"
+                                      }`}
+                                    />
+                                  </Tooltip>
+                                )
                               )
-                            )
-                          )}
-                        </AvatarGroup>
-                      </td>
-                      <td className={className}>
-                        <Typography className="text-md text-[#333]">
-                          {item.user.firstName} {item.user.lastName}
-                        </Typography>
-                        <Typography className="text-md text-[#333]">
-                          {item.user.email}
-                        </Typography>
-                      </td>
-                      <td className={className}>
-                        <Typography className="text-md text-[#333]">
-                          {getDateFromISO(item.orderDate)}
-                        </Typography>
-                      </td>
-                      <td className={className}>
-                        <Typography className="text-md text-[#333] line-through">
-                          {item.totalPrice}đ
-                        </Typography>
-                        <Typography className="text-md text-[#DD5746]">
-                          {item.totalDiscountedPrice}đ
-                        </Typography>
-                      </td>
-                      <td className={className}>
-                        <Button
-                          id="basic-button"
-                          aria-controls={`basic-menu-${item.orderId}`}
-                          aria-haspopup="true"
-                          aria-expanded={Boolean(anchorEl[index])}
-                          onClick={(e) => handleClick(e, index)}
-                        >
-                          <span
-                            className={`px-5 py-2 rounded-full ${
-                              item.status === "CONFIRMED"
-                                ? "text-[#e6e600]"
-                                : item.status === "SHIPPED"
-                                ? "text-[#00bfff]"
-                                : item.status === "PLACED"
-                                ? "text-[#DD5746]"
-                                : item.status === "DELIVERED"
-                                ? "text-[#33cc33]"
-                                : ""
-                            }`}
+                            )}
+                          </AvatarGroup>
+                        </td>
+                        <td className={className}>
+                          <Typography className="text-sm text-[#333]">
+                            {item.user.firstName} {item.user.lastName}
+                          </Typography>
+                          <Typography className="text-sm text-[#333]">
+                            {item.user.email}
+                          </Typography>
+                        </td>
+                        <td className={className}>
+                          <Typography className="text-sm text-[#333]">
+                            {getDateFromISO(item.orderDate)}
+                          </Typography>
+                        </td>
+                        <td className={className}>
+                          <Typography className="text-sm text-[#333] line-through">
+                            {formatMoney(item.totalPrice)}đ
+                          </Typography>
+                          <Typography className="text-md text-[#DD5746]">
+                            {formatMoney(item.totalDiscountedPrice)}đ
+                          </Typography>
+                        </td>
+                        <td className={className}>
+                          <Button
+                            id="basic-button"
+                            aria-controls={`basic-menu-${item.orderId}`}
+                            aria-haspopup="true"
+                            aria-expanded={Boolean(anchorEl[index])}
+                            onClick={(e) => handleClick(e, index)}
                           >
-                            {item.status}
-                          </span>
-                        </Button>
-                        <Menu
-                          id={`basic-menu-${item.orderId}`}
-                          anchorEl={anchorEl[index]}
-                          open={Boolean(anchorEl[index])}
-                          onClose={() => handleClose(index)}
-                          MenuListProps={{
-                            "aria-labelledby": "basic-button",
-                          }}
-                        >
-                          <MenuItem
-                            onClick={() => handleConfirmedOrder(item.orderId)}
+                            <span
+                              className={`px-5 py-2 rounded-full ${
+                                item.status === "CONFIRMED"
+                                  ? "text-[#e6e600]"
+                                  : item.status === "SHIPPED"
+                                  ? "text-[#00bfff]"
+                                  : item.status === "PLACED"
+                                  ? "text-[#DD5746]"
+                                  : item.status === "DELIVERED"
+                                  ? "text-[#33cc33]"
+                                  : "text-[#DD5746]"
+                              }`}
+                            >
+                              {item.status}
+                            </span>
+                          </Button>
+                          <Menu
+                            id={`basic-menu-${item.orderId}`}
+                            anchorEl={anchorEl[index]}
+                            open={Boolean(anchorEl[index])}
+                            onClose={() => handleClose(index)}
+                            MenuListProps={{
+                              "aria-labelledby": "basic-button",
+                            }}
                           >
-                            Confirmed
-                          </MenuItem>
-                          <MenuItem
-                            onClick={() => handleShipedOrder(item.orderId)}
+                            <MenuItem
+                              onClick={() => handleConfirmedOrder(item.orderId)}
+                            >
+                              Xác nhận
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() => handleShipedOrder(item.orderId)}
+                            >
+                              Vận chuyển
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() => handleDeliveredOrder(item.orderId)}
+                            >
+                              Hoàn thành
+                            </MenuItem>
+                          </Menu>
+                        </td>
+                        <td>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => handleDeleteOrder(item.orderId)}
                           >
-                            Shipped
-                          </MenuItem>
-                          <MenuItem
-                            onClick={() => handleDeliveredOrder(item.orderId)}
-                          >
-                            Delivered
-                          </MenuItem>
-                        </Menu>
-                      </td>
-                      <td>
-                        <Button
-                          variant="contained"
-                          color="error"
-                          onClick={() =>
-                            handleDeleteOrder(item.orderId)
-                          }
-                        >
-                          Xóa
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                            Xóa
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
             </tbody>
           </table>
         </CardBody>
@@ -273,7 +312,11 @@ const ManageOrder = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={aorder.orders && aorder.orders.result && aorder.orders.result.length}
+            count={
+              aorder.orders &&
+              aorder.orders.result &&
+              aorder.orders.result.length
+            }
             //count={2}
             rowsPerPage={rowsPerPage}
             labelRowsPerPage="Hàng trên mỗi trang"

@@ -19,6 +19,7 @@ import {
   createReviewByProduct,
   deleteReviewByProduct,
   getReviewByProduct,
+  updateReviewByProduct,
 } from "../../State/User/Review/Action";
 
 function getDateFromISO(isoString) {
@@ -27,7 +28,7 @@ function getDateFromISO(isoString) {
   return `${day}-${month}-${year}`;
 }
 
-const ReviewProduct = ({ productId }) => {
+const ReviewProduct = ({ productId, reviews }) => {
   const dispatch = useDispatch();
   const { review } = useSelector((store) => store);
   const [open, setOpen] = React.useState(false);
@@ -40,6 +41,16 @@ const ReviewProduct = ({ productId }) => {
     setOpen(false);
   };
 
+  const [open1, setOpen1] = React.useState(false);
+
+  const handleClickOpen1 = () => {
+    setOpen1(true);
+  };
+
+  const handleClose1 = () => {
+    setOpen1(false);
+  };
+
   const handleButtonReview = () => {
     dispatch(createReviewByProduct(productData));
     handleClose();
@@ -47,6 +58,12 @@ const ReviewProduct = ({ productId }) => {
 
   const [productData, setProductData] = useState({
     productId: productId,
+    content: "",
+    imageUrl: "",
+    rating: 0,
+  });
+
+  const [updateData, setUpdateData] = useState({
     content: "",
     imageUrl: "",
     rating: 0,
@@ -69,6 +86,23 @@ const ReviewProduct = ({ productId }) => {
     }
   };
 
+  const handleUpdate = (e) => {
+    const { name, value, files } = e.target;
+
+    if (name === "imageUrl") {
+      const file = files[0];
+      setUpdateData((prev) => ({
+        ...prev,
+        [name]: file ? URL.createObjectURL(file) : "",
+      }));
+    } else {
+      setUpdateData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
   const handleRatingChange = (event, newValue) => {
     setProductData((prev) => ({
       ...prev,
@@ -76,14 +110,33 @@ const ReviewProduct = ({ productId }) => {
     }));
   };
 
-  useEffect(() => {
-    dispatch(getReviewByProduct(productId));
-  }, []);
+  const handleRatingUpdate = (event, newValue) => {
+    setUpdateData((prev) => ({
+      ...prev,
+      rating: newValue,
+    }));
+  };
 
+  // useEffect(() => {
+  //   dispatch(getReviewByProduct(productId));
+  // }, [review.review, review.deleteReviews, review.updateReviews]);
+
+  const handleRating = (data) => {
+    const handleAvgReview =
+      data && data.reduce((arr, cur) => arr + cur.rating, 0);
+    const totalReview = data && data.length;
+    return Math.round((handleAvgReview / totalReview) * 10) / 10;
+  };
 
   const handleDeleteReview = (reviewId) => {
     dispatch(deleteReviewByProduct(reviewId));
   };
+
+  const handleUpdateReview = (reviewId, content) => {
+    dispatch(updateReviewByProduct({reviewId : reviewId, content: content}));
+    handleClose1();
+  }
+
 
   return (
     <>
@@ -96,11 +149,11 @@ const ReviewProduct = ({ productId }) => {
             justifyContent={"center"}
             alignContent={"center"}
           >
-            <p className="font-semibold text-xl text-black">4.9/5</p>
+            <p className="font-semibold text-xl text-black">
+              {handleRating(reviews)}/5
+            </p>
             <Rating value={5} defaultValue={5}></Rating>
-            {review.reviews && review.reviews.result && (
-              <p>Số lượt đánh giá: {review.reviews.result.length}</p>
-            )}
+              <p>Số lượt đánh giá: {reviews && reviews.length}</p>
           </Grid>
           <Grid item xs={8}>
             <Box className="mt-5 space-y-3">
@@ -119,8 +172,8 @@ const ReviewProduct = ({ productId }) => {
                 </Grid>
                 <Grid item xs={3}>
                   <p className="ml-3">
-                    {review.reviews && review.reviews.result
-                      ? review.reviews.result.filter(
+                    {reviews
+                      ? reviews.filter(
                           (item) => item.rating === 5
                         ).length
                       : 0}
@@ -144,8 +197,8 @@ const ReviewProduct = ({ productId }) => {
                 </Grid>
                 <Grid item xs={3}>
                   <p className="ml-3">
-                    {review.reviews && review.reviews.result
-                      ? review.reviews.result.filter(
+                    {reviews
+                      ? reviews.filter(
                           (item) => item.rating === 4
                         ).length
                       : 0}
@@ -168,8 +221,8 @@ const ReviewProduct = ({ productId }) => {
                 </Grid>
                 <Grid item xs={3}>
                   <p className="ml-3">
-                    {review.reviews && review.reviews.result
-                      ? review.reviews.result.filter(
+                    {reviews
+                      ? reviews.filter(
                           (item) => item.rating === 3
                         ).length
                       : 0}
@@ -193,8 +246,8 @@ const ReviewProduct = ({ productId }) => {
                 </Grid>
                 <Grid item xs={3}>
                   <p className="ml-3">
-                    {review.reviews && review.reviews.result
-                      ? review.reviews.result.filter(
+                    {reviews
+                      ? reviews.filter(
                           (item) => item.rating === 2
                         ).length
                       : 0}
@@ -218,8 +271,8 @@ const ReviewProduct = ({ productId }) => {
                 </Grid>
                 <Grid item xs={3}>
                   <p className="ml-3">
-                    {review.reviews && review.reviews.result
-                      ? review.reviews.result.filter(
+                    {reviews
+                      ? reviews.filter(
                           (item) => item.rating === 1
                         ).length
                       : 0}
@@ -244,7 +297,7 @@ const ReviewProduct = ({ productId }) => {
             aria-describedby="alert-dialog-description"
           >
             <DialogTitle id="alert-dialog-title">
-              "Đánh giá sản phẩm Iphone 13 pro max
+              "Đánh giá sản phẩm
             </DialogTitle>
             <DialogContent className="p-5">
               <div className="flex justify-between items-center">
@@ -291,8 +344,7 @@ const ReviewProduct = ({ productId }) => {
             <hr className="mt-2" />
           </Grid>
           <Grid item xs={12} container spacing={5}>
-            {review.reviews.result &&
-              review.reviews.result.map((item) => (
+            {reviews && reviews.map((item) => (
                 <Grid item container xs={12}>
                   <Grid item xs={1}>
                     <Avatar
@@ -306,7 +358,7 @@ const ReviewProduct = ({ productId }) => {
                     <p className="text-black">
                       <b>
                         {item.user?.firstName && item.user?.lastName
-                          ? `${item.user.firstName} ${item.user.lastName}`
+                          ? `${item.user?.firstName} ${item.user?.lastName}`
                           : "Ẩn danh"}
                       </b>{" "}
                       ⏱{getDateFromISO(item.createAt)}
@@ -315,10 +367,53 @@ const ReviewProduct = ({ productId }) => {
                     <p>{item.content}</p>
                   </Grid>
                   <Grid item xs={2}>
-                    <Button variant="text">Chỉnh sửa</Button>
+                    <Button variant="text" onClick={handleClickOpen1}>
+                      Chỉnh sửa
+                    </Button>
+                    <Dialog
+                      open={open1}
+                      onClose={handleClose1}
+                      aria-labelledby="alert-dialog-title"
+                      aria-describedby="alert-dialog-description"
+                    >
+                      <DialogTitle id="alert-dialog-title">
+                        "Đánh giá sản phẩm
+                      </DialogTitle>
+                      <DialogContent className="p-5">
+                        <div className="flex justify-between items-center">
+                          <label>Xếp hạng</label>
+                          <Rating
+                            value={updateData.rating}
+                            name="rating"
+                            onChange={handleRatingUpdate}
+                          />
+                        </div>
+                        <CssBaseline />
+                        <div className="w-full">
+                          <label>Nội dung đánh giá</label>
+                          <Textarea
+                            id="outlined-basic"
+                            variant="outlined"
+                            placeholder="Viết cái gì đó ..."
+                            name="content"
+                            value={updateData.content}
+                            onChange={handleUpdate}
+                          />
+                          <input
+                            type="file"
+                            name="imageUrl"
+                            id=""
+                            onChange={handleUpdate}
+                          />
+                        </div>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={() => handleUpdateReview(item?.reviewId, updateData)}>Cập nhật</Button>
+                        <Button onClick={handleClose1}>Thoái</Button>
+                      </DialogActions>
+                    </Dialog>
                     <Button
-                      variant="text"
-                      onClick={() => handleDeleteReview(item.reviewId)}
+                      onClick={() => handleDeleteReview(item?.reviewId)}
                     >
                       Xóa
                     </Button>

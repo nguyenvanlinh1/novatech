@@ -2,7 +2,7 @@ import React, { createContext, useContext, useMemo } from "react";
 import PropTypes from "prop-types";
 
 export const MaterialTailwind = createContext(null);
-MaterialTailwind.displayName = "MaterialTailwindContext";
+MaterialTailwind.displayName = "NovaTech";
 
 export function reducer(state, action) {
   switch (action.type) {

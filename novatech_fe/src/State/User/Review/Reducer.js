@@ -33,7 +33,7 @@ export const reviewReducer = (state = init, action) => {
       return {
         ...state,
         loading: false,
-        reviews: [...state.reviews, action.payload.review],
+        review: action.payload,
         error: null,
       };
     case UPDATE_REVIEW_SUCCESS:

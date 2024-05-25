@@ -163,7 +163,7 @@ const AddProduct = ({ open, handleClose }) => {
     thirdLevelCategory: "",
   });
 
-  console.log("Data:", productData);
+  // console.log("Data:", productData);
 
   const handleImageChange = (index, value) => {
     const newImages = [...productData.images];

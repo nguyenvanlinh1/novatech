@@ -1,7 +1,14 @@
 import React, { useEffect } from "react";
 import TablePagination from "@mui/material/TablePagination";
-import { Card, CardBody, CardFooter, Chip } from "@material-tailwind/react";
-import { Avatar, Button, CardHeader, Tooltip, Typography } from "@mui/material";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Chip,
+  Typography,
+} from "@material-tailwind/react";
+import { Avatar, Button, Tooltip } from "@mui/material";
 import userTable from "../Data/userTable";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "react-router-dom";
@@ -12,14 +19,14 @@ import { deleteUser } from "../../State/Admin/User/Action";
 export const ManageUser = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const auth = useSelector((store) => store.auth);
+  const auser = useSelector((store) => store.auth);
 
   useEffect(() => {
-    console.log("ABC")
     dispatch(getAllUser());
   }, []);
 
-  const auth = useSelector((store) => store.auth);
-  console.log(auth);
+
 
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -35,8 +42,8 @@ export const ManageUser = () => {
   const online = true;
 
   const handleDeleteUser = (userId) => {
-    dispatch(deleteUser(userId))
-  }
+    dispatch(deleteUser(userId));
+  };
 
   return (
     <div className="mt-5">
@@ -76,77 +83,81 @@ export const ManageUser = () => {
                 </tr>
               </thead>
               <tbody>
-                {auth.users && auth.users.data && auth.users.data.result
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((item, key) => {
-                    const className = `py-3 px-5 ${
-                      key === item.length
-                        ? ""
-                        : "border-b border-blue-gray-50 text-center"
-                    }`;
+                {auth.users &&
+                  auth.users.data &&
+                  auth.users.data.result
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((item, key) => {
+                      const className = `py-3 px-5 ${
+                        key === item.length
+                          ? ""
+                          : "border-b border-blue-gray-50 text-center"
+                      }`;
 
-                    return (
-                      <tr key={item.userId || ""}>
-                        <td className={className}>
-                          <Typography className="text-md text-[#333]">
-                            {item.userId || ""}
-                          </Typography>
-                        </td>
-                        <td className={className}>
-                          <Tooltip>
-                            <Avatar
-                              src={
-                                item.avatarUrl ||
-                                "https://avatar.iran.liara.run/public/21"
-                              }
-                              alt={key}
-                              size="xs"
-                              className={`cursor-pointer border-2 border-white
+                      return (
+                        <tr key={item.userId || ""}>
+                          <td className={className}>
+                            <Typography className="text-sm text-[#333]">
+                              {item.userId || ""}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Tooltip>
+                              <Avatar
+                                src={
+                                  item.avatarUrl ||
+                                  "https://avatar.iran.liara.run/public/21"
+                                }
+                                alt={key}
+                                size="xs"
+                                className={`cursor-pointer border-2 border-white
                               }`}
+                              />
+                            </Tooltip>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-sm text-[#333]">
+                              {item.lastName || ""} {item.firstName || ""}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-sm text-[#333]">
+                              {item.email}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Typography className="text-sm text-[#333]">
+                              {item.dbo || ""}
+                            </Typography>
+                          </td>
+                          <td className={className}>
+                            <Chip
+                              variant="gradient"
+                              color={online ? "green" : "blue-gray"}
+                              value={online ? "online" : "offline"}
+                              className="font-medium"
                             />
-                          </Tooltip>
-                        </td>
-                        <td className={className}>
-                          <Typography className="text-md text-[#333]">
-                            {item.lastName || ""} {item.firstName || ""}
-                          </Typography>
-                        </td>
-                        <td className={className}>
-                          <Typography className="text-md text-[#333]">
-                            {item.email}
-                          </Typography>
-                        </td>
-                        <td className={className}>
-                          <Typography className="text-md text-[#333]">
-                            {item.dbo || ""}
-                          </Typography>
-                        </td>
-                        <td className={className}>
-                          <Chip
-                            variant="gradient"
-                            color={online ? "green" : "blue-gray"}
-                            value={online ? "online" : "offline"}
-                            className="font-medium"
-                          />
-                        </td>
-                        <td className={className}>
-                          <Typography className="text-md text-[#333]">
-                            {item.roles || ""}
-                          </Typography>
-                        </td>
-                        <td className={className}>
-                          <Button
-                            variant="text"
-                            startIcon={<DeleteIcon />}
-                            sx={{ color: "red" }}
-                            onClick={() => handleDeleteUser(item.userId)}
-                          >
-                            Xóa
-                          </Button>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                          </td>
+                          <td className={className}>
+                            {item.roles.map((role) => (
+                              <Typography className="text-sm text-[#333]">
+                                {role.name}
+                              </Typography>
+                            ))}
+                          </td>
+                          <td className={className}>
+                            <Button
+                              variant="text"
+                              startIcon={<DeleteIcon />}
+                              sx={{ color: "red" }}
+                              onClick={() => handleDeleteUser(item.userId)}
+                            >
+                              Xóa
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
               </tbody>
             </table>
           </CardBody>
@@ -154,7 +165,9 @@ export const ManageUser = () => {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={auth.users && auth.users.data && auth.users.data.result.length}
+              count={
+                auth.users && auth.users.data && auth.users.data.result.length
+              }
               //count={2}
               rowsPerPage={rowsPerPage}
               labelRowsPerPage="Hàng trên mỗi trang"
@@ -168,4 +181,4 @@ export const ManageUser = () => {
       </div>
     </div>
   );
-}
+};

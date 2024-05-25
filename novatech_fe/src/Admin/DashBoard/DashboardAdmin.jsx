@@ -11,12 +11,12 @@ import ManageProduct from "./ManageProduct.jsx";
 import ManageOrder from "./ManageOrder.jsx";
 import ManageInventor from "./ManageInventor.jsx";
 import { ManageUser } from "./ManageUser.jsx";
+import MessageAdmin from "./MessageAdmin.jsx";
 
 export function DashboardAdmin() {
   const [controller, dispatch] = useMaterialTailwindController();
   const { sidenavType } = controller;
 
-  console.log(routes)
   return (
     <div className="min-h-screen bg-blue-gray-50/50">
       <Sidenav
@@ -45,6 +45,7 @@ export function DashboardAdmin() {
           <Route path="/orders" element={<ManageOrder/>}/>
           <Route path="/users" element={<ManageUser/>}/>
           <Route path="/inventor" element={<ManageInventor/>}/>
+          <Route path="/messages" element={<MessageAdmin/>}/>
         </Routes>
         {/* <div className="text-blue-gray-600">
           <Footer />

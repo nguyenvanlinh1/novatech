@@ -13,6 +13,9 @@ import {
   DELIVERED_ORDERS_FAILURE,
   DELIVERED_ORDERS_REQUEST,
   DELIVERED_ORDERS_SUCCESS,
+  FIND_ORDERS_STATUS_FAILURE,
+  FIND_ORDERS_STATUS_REQUEST,
+  FIND_ORDERS_STATUS_SUCCESS,
   GET_ORDERS_FAILURE,
   GET_ORDERS_REQUEST,
   GET_ORDERS_SUCCESS,
@@ -31,6 +34,16 @@ export const getAllOrders = () => async (dispatch) => {
     dispatch({ type: GET_ORDERS_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: GET_ORDERS_FAILURE, payload: error.message });
+  }
+};
+
+export const findOrderStatus = (reqData) => async (dispatch) => {
+  dispatch({ type: FIND_ORDERS_STATUS_REQUEST });
+  try {
+    const { data } = await axios.post(`${API_BASE_URL}/admin/order/filter`, reqData);
+    dispatch({ type: FIND_ORDERS_STATUS_SUCCESS, payload: data });
+  } catch (error) {
+    dispatch({ type: FIND_ORDERS_STATUS_FAILURE, payload: error.message });
   }
 };
 

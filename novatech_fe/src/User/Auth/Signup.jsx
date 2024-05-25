@@ -46,7 +46,7 @@ export function SignUp() {
       <div className="w-full lg:w-3/5 flex flex-col items-center justify-center">
         <div className="text-center">
           <Typography variant="h2" className="font-bold mb-4 text-black">
-            Join Us Today
+            Tham gia với chúng tôi
           </Typography>
           <Typography
             variant="paragraph"
@@ -103,12 +103,12 @@ export function SignUp() {
                 color="gray"
                 className="flex items-center justify-start font-medium"
               >
-                I agree the&nbsp;
+                Tôi đồng ý &nbsp;
                 <a
                   href="#"
                   className="font-normal text-black transition-colors hover:text-gray-900 underline"
                 >
-                  Terms and Conditions
+                  các điều khoản sử dụng
                 </a>
               </Typography>
             }
@@ -161,7 +161,7 @@ export function SignUp() {
                   </clipPath>
                 </defs>
               </svg>
-              <span>Sign in With Google</span>
+              <span>Đăng nhập với Google</span>
             </Button>
             <Button
               size="lg"
@@ -175,14 +175,14 @@ export function SignUp() {
                 width={24}
                 alt=""
               />
-              <span>Sign in With GitHub</span>
+              <span>Đăng nhập với GitHub</span>
             </Button>
           </div>
           <Typography
             variant="paragraph"
             className="text-center text-blue-gray-500 font-medium mt-4"
           >
-            Already have an account?
+            Bạn có sẵn sàng để tạo một tài khoản
             <Link
               to="/auth/signin"
               className="text-blue-500 ml-1 underline hover:text-[#DD5746]"
