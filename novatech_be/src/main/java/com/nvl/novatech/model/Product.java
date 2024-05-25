@@ -1,6 +1,7 @@
 package com.nvl.novatech.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -23,6 +24,8 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long productId;
     String name;
+
+    @Size(max = 1000)
     String description;
     double price;
     double discountedPrice;

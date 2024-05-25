@@ -7,6 +7,7 @@ import com.nvl.novatech.dto.response.UserResponse;
 import com.nvl.novatech.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
     AuthenticationResponse createUser(AuthenticationRequest userCreationRequest);
@@ -16,4 +17,7 @@ public interface UserService {
     List<UserResponse> getUsers();
     UserResponse getUser(Long userId);
     User findUserProfileByJwt(String jwt);
+    Optional<User> findUserByEmail(String email);
+    void save(User user);
+    User findUserById(Long userId);
 }

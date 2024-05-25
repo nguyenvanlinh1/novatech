@@ -7,9 +7,8 @@ import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PACKAGE)
 public class TransactionStatusDTO {
-    String status;
-    String message;
     String data;
+    String message;
 }

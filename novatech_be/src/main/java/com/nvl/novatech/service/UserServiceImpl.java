@@ -10,6 +10,7 @@ import com.nvl.novatech.exception.AppException;
 import com.nvl.novatech.exception.ErrorCode;
 import com.nvl.novatech.mapper.UserMapper;
 import com.nvl.novatech.model.Cart;
+import com.nvl.novatech.model.Role;
 import com.nvl.novatech.model.User;
 import com.nvl.novatech.repository.CartRepository;
 import com.nvl.novatech.repository.RoleRepository;
@@ -26,6 +27,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -33,11 +36,11 @@ import java.util.List;
 public class UserServiceImpl implements UserService{
 
     UserRepository userRepository;
-    RoleRepository roleRepository;
     CartService cartService;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
     CartRepository cartRepository;
+    // ChatService chatService;
 
     @NonNull
     private JwtProvider jwtProvider;
@@ -50,10 +53,14 @@ public class UserServiceImpl implements UserService{
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
+        Set<Role> roles = new HashSet<>();
+        roles.add(new Role("USER"));
+        //roles.add(roleRepository.findById("USER").orElseThrow(() -> new RuntimeException("Role USER not found")));
+        user.setRoles(roles);
         user = userRepository.save(user);
         cartService.createCart(user);
-        var role = new HashSet<String>();
-        role.add(com.nvl.novatech.enums.Role.USER.name());
+        // Long chatId = Long.valueOf(21);
+        // chatService.createChat(user, chatId);
         return userMapper.toAuthenticationResponse(user);
     }
 
@@ -68,7 +75,10 @@ public class UserServiceImpl implements UserService{
     @Override
     public void deleteUser(Long userId) {
         Cart cart = cartRepository.findCartbyUserId(userId);
-        cartRepository.delete(cart);
+        if (cart != null) {
+            cartRepository.delete(cart);
+        } else {
+        }
         userRepository.deleteById(userId);
     }
 
@@ -96,5 +106,20 @@ public class UserServiceImpl implements UserService{
         String email = jwtProvider.extractUsername(jwt);
         User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         return user;
+    }
+
+    @Override
+    public Optional<User> findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public void save(User user) {
+        userRepository.save(user);
+    }
+
+    @Override
+    public User findUserById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_EXISTED));
     }
 }

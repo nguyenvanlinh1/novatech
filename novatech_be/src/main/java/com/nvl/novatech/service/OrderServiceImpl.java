@@ -10,7 +10,7 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 
 import com.nvl.novatech.dto.request.AddressOrderRequest;
-import com.nvl.novatech.dto.response.OrderResponse;
+import com.nvl.novatech.dto.request.StatusRequest;
 import com.nvl.novatech.exception.AppException;
 import com.nvl.novatech.exception.ErrorCode;
 import com.nvl.novatech.model.Address;
@@ -26,7 +26,7 @@ import com.nvl.novatech.repository.OrderItemRepository;
 import com.nvl.novatech.repository.OrderRepository;
 import com.nvl.novatech.repository.ProductRepository;
 
-import jakarta.transaction.Transactional;
+// import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -44,7 +44,7 @@ public class OrderServiceImpl implements OrderService{
     CartRepository cartRepository;
 
     @Override
-    @Transactional
+    // @Transactional
     public Order createOrder(User user, AddressOrderRequest request) {
         Address shippAddress = addressRepository.findById(request.getAddressId()).orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_EXISTED));
         Cart cart = cartService.getCartbyUserId(user.getUserId());
@@ -148,6 +148,20 @@ public class OrderServiceImpl implements OrderService{
 
     @Override
     public void deleteOrder(Long orderId) {
+        orderRepository.deleteById(orderId);
+    }
+
+
+
+    @Override
+    public List<Order> filterStatus(StatusRequest request) {
+        return orderRepository.filterStatus(request.getStatus());
+    }
+
+
+
+    @Override
+    public void deleteOrderByUserId(Long orderId) {
         orderRepository.deleteById(orderId);
     }
     

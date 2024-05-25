@@ -1,7 +1,5 @@
 package com.nvl.novatech.dto.request;
 
-import com.nvl.novatech.model.Specification;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProductUpdateRequest {
-    int quantity;
+public class SingleChatRequest {
+    Long userId;
 }

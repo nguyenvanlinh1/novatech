@@ -18,27 +18,44 @@ import java.util.TimeZone;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nvl.novatech.config.PaymentConfig;
+import com.nvl.novatech.model.Order;
 import com.nvl.novatech.model.PaymentResDTO;
 import com.nvl.novatech.model.TransactionStatusDTO;
+import com.nvl.novatech.model.User;
+import com.nvl.novatech.service.OrderService;
+import com.nvl.novatech.service.UserService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @RestController
 @RequestMapping("/payment")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PaymentController {
 
     // @SuppressWarnings({ "unchecked", "rawtypes" })
-    @GetMapping("/create_payment")
-    public ResponseEntity<?> createPayment(HttpServletRequest req) throws ServletException, IOException {
+    OrderService orderService;
+    UserService userService;
+    @GetMapping("/create_payment/{orderId}")
+    public ResponseEntity<?> createPayment(HttpServletRequest req, @RequestHeader("Authorization") String jwt, @PathVariable Long orderId) throws ServletException, IOException {
         // long amount = Integer.parseInt(req.getParameter("amount"))*100;
         // String bankCode = req.getParameter("bankCode");
-        long amount = 1000000;
+        User user = userService.findUserProfileByJwt(jwt);
+        Order order = orderService.findOrderById(orderId);
+        double discountedPrice = order.getTotalDiscountedPrice();
+        long amount = (long) (discountedPrice * 100);
+        
 
         String vnp_TxnRef = PaymentConfig.getRandomNumber(8);
         String vnp_IpAddr = PaymentConfig.getIpAddress(req);
