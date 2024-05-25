@@ -1,4 +1,4 @@
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import {
   Navbar,
   Typography,
@@ -25,12 +25,24 @@ import {
   setOpenConfigurator,
   setOpenSidenav,
 } from "../Context/index.jsx";
+import { useDispatch } from "react-redux";
+import { Box, CircularProgress } from "@mui/material";
+import { useState } from "react";
+import { logout } from "../../State/Auth/Action.js";
 
 export function DashboardNavbar() {
+  const [loading, setLoading] = useState(false);
   const [controller, dispatch] = useMaterialTailwindController();
   const { fixedNavbar, openSidenav } = controller;
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
+  const dispatchHandler = useDispatch();
+  const handleSignin = () => {
+    setLoading(true);
+    setTimeout(() => {
+      dispatchHandler(logout());
+    }, 1000);
+  };
 
   return (
     <Navbar
@@ -83,15 +95,14 @@ export function DashboardNavbar() {
           >
             <Bars3Icon strokeWidth={3} className="h-6 w-6 text-blue-gray-500" />
           </IconButton>
-          <Link to="/auth/sign-in">
             <Button
               variant="text"
               color="blue-gray"
               className="hidden items-center gap-1 px-4 xl:flex normal-case"
+              onClick={handleSignin}
             >
               <UserCircleIcon className="h-5 w-5 text-blue-gray-500" />
             </Button>
-          </Link>
           <Menu>
             <MenuHandler>
               <IconButton variant="text" color="blue-gray">
@@ -112,14 +123,14 @@ export function DashboardNavbar() {
                     color="blue-gray"
                     className="mb-1 font-normal"
                   >
-                    <strong>New message</strong> from Laur
+                    <strong>Tin nhắn mới </strong> từ Nguyễn Văn Linh
                   </Typography>
                   <Typography
                     variant="small"
                     color="blue-gray"
                     className="flex items-center gap-1 text-xs font-normal opacity-60"
                   >
-                    <ClockIcon className="h-3.5 w-3.5" /> 13 minutes ago
+                    <ClockIcon className="h-3.5 w-3.5" /> cách đây 13 phút
                   </Typography>
                 </div>
               </MenuItem>
@@ -179,6 +190,24 @@ export function DashboardNavbar() {
           </IconButton>
         </div>
       </div>
+      {loading && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            zIndex: 10,
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
     </Navbar>
   );
 }

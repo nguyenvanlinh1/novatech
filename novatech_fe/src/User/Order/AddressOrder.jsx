@@ -1,6 +1,8 @@
 import {
+  Box,
   Breadcrumbs,
   Button,
+  CircularProgress,
   Dialog,
   DialogTitle,
   Grid,
@@ -23,62 +25,11 @@ import AddressCard from "./AddressCard";
 import { createOrder } from "../../State/User/Order/Action";
 // import { createOrder } from "../../State/User/Order/Action";
 
-const data = [
-  {
-    logo: "https://cdn-icons-png.flaticon.com/512/10751/10751558.png",
-    content: "Thanh toán khi nhận hàng",
-  },
-  {
-    logo: "https://play-lh.googleusercontent.com/dQbjuW6Jrwzavx7UCwvGzA_sleZe3-Km1KISpMLGVf1Be5N6hN6-tdKxE5RDQvOiGRg",
-    content: "Thanh toán qua momo",
-  },
-  {
-    logo: "https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-VNPAY-QR.png",
-    content: "Thanh toán qua VNPay",
-  },
-];
-
-function SimpleDialog(props) {
-  const { onClose, selectedValue, open } = props;
-
-  const handleClose = () => {
-    onClose(selectedValue);
-  };
-
-  const handleListItemClick = (value) => {
-    onClose(value);
-  };
-
-  return (
-    <Dialog onClose={handleClose} open={open}>
-      <DialogTitle>Chọn phương thức thanh toán</DialogTitle>
-      <List>
-        {data.map((item) => (
-          <ListItem>
-            <ListItemButton onClick={() => handleListItemClick(item.content)}>
-              <img src={item.logo} className="w-8 h-8 object-cover mr-5"></img>
-              <Typography variant="body2">{item.content}</Typography>
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </Dialog>
-  );
-}
-
-SimpleDialog.PropTypes = {
-  onClose: PropTypes.func.isRequired,
-  open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
-};
-
 const AddressOrder = () => {
+  
   const {address} = useSelector(store=>store);
 
   const {uorder} = useSelector(store =>store);
-
-  console.log("Address",address);
-  console.log("Order", uorder);
 
   const dispatch = useDispatch();
 
@@ -90,7 +41,6 @@ const AddressOrder = () => {
     state:"",
     phone:""
   })
-  console.log(productData)
 
   const handleChange = (e) => {
     const {name, value} = e.target;
@@ -102,28 +52,16 @@ const AddressOrder = () => {
   
   useEffect(() => {
     dispatch(getAddress());
-  }, [])
+  }, [address.address])
 
   const handleOrder = () => {
     dispatch(createAddress(productData));
     alert("Tạo địa chỉ thành công")
   }
 
-  const [open, setOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState(data[0].content);
-
-  const handleCLickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClickClose = (value) => {
-    setOpen(false);
-    setSelectedValue(value);
-  };
-
-  const navigate = useNavigate();
-
   return (
+    <div>
+
     <Grid container>
       <Grid
         item
@@ -326,25 +264,16 @@ const AddressOrder = () => {
                 Tạo địa chỉ
               </button>
             </div>
-            <div className="my-5 p-5 shadow w-[50%] grid gap-5">
-              <Button variant="contained" onClick={handleCLickOpen} className="w-[65%]">
-                Hình thức thanh toán
-              </Button>
-              <Typography variant="body2" component="div" className="text-[#333]">
-                Phương thức thanh toán:
-                <span className="text-[#DD5746] ml-5">{selectedValue}</span>
-              </Typography>
-              <SimpleDialog
-                selectedValue={selectedValue}
-                open={open}
-                onClose={handleClickClose}
-              />
-            </div>
           </div>
         </form>
       </Grid>
     </Grid>
+    </div>
   );
 };
 
 export default AddressOrder;
+
+{/* <Box sx={{ display: 'flex', justifyContent:"center"}}>
+<CircularProgress />
+</Box> */}

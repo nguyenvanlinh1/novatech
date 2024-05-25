@@ -11,6 +11,7 @@ import {
   ListItemIcon,
   Menu,
   MenuItem,
+  Tooltip,
   Typography,
   alpha,
   styled,
@@ -32,10 +33,119 @@ import "./nav.css";
 import { deepPurple } from "@mui/material/colors";
 import Logout from "@mui/icons-material/Logout";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { getUser, logout } from "../../State/Auth/Action";
 import { getCart } from "../../State/User/Cart/Action";
-import { findProductByName } from "../../State/User/Product/Action";
+import {
+  findProductByName,
+  findProductsById,
+  findProduts,
+  getProducts,
+} from "../../State/User/Product/Action";
+
+const dataCategory = [
+  {
+    firstCategory: "Phone",
+    firstContent: [
+      {
+        secondCategory: "Iphone",
+        secondContent: [
+          "Iphone 15 Series",
+          "Iphone 14 Series",
+          "Iphone 13 Series",
+          "Iphone 12 Series",
+        ],
+      },
+      {
+        secondCategory: "SamSung",
+        secondContent: ["GALAXY S", "GALAXY A", "GALAXY M"],
+      },
+      {
+        secondCategory: "Xiaomi",
+        secondContent: [
+          "Xiaomi 13 Series",
+          "Xiaomi 12 Series",
+          "Note 13 Series",
+          "Note 12 Series",
+        ],
+      },
+      {
+        secondCategory: "Oppo",
+        secondContent: ["A Series", "Reno X Series", "Find Series"],
+      },
+    ],
+  },
+  {
+    firstCategory: "Laptop",
+    firstContent: [
+      {
+        secondCategory: "Mac",
+        secondContent: ["Mac Air", "Mac pro", "Mac Mini", "IMac"],
+      },
+      {
+        secondCategory: "Asus",
+        secondContent: ["Vivo Book", "Gaming", "Expert Book", "Zenbook"],
+      },
+      {
+        secondCategory: "Lenovo",
+        secondContent: ["IDEAPAD", "ThinkPad", "ThinkBook", "V Series"],
+      },
+      {
+        secondCategory: "Dell",
+        secondContent: ["INSPIRON", "VOSTRO", "LATITUDE", "ALIENWARE"],
+      },
+    ],
+  },
+  {
+    firstCategory: "HeadPhone",
+    firstContent: [
+      {
+        secondCategory: "Bluetooth",
+        secondContent: ["Apple", "Sony", "Marshall", "SoundPEATS"],
+      },
+      {
+        secondCategory: "Chụp tai",
+        secondContent: ["Apple", "Sony", "Marshall", "SoundPEATS"],
+      },
+      {
+        secondCategory: "Nhét tai",
+        secondContent: ["Apple", "Sony", "Marshall", "SoundPEATS"],
+      },
+      {
+        secondCategory: "Có dây",
+        secondContent: ["Apple", "Sony", "Marshall", "SoundPEATS"],
+      },
+    ],
+  },
+  {
+    firstCategory: "Watch",
+    firstContent: [
+      {
+        secondCategory: "Apple Watch",
+        secondContent: [
+          "APPLE WATCH SERIES 9",
+          "APPLE WATCH SERIES 8",
+          "APPLE WATCH SERIES 7",
+          "APPLE WATCH ULTRA",
+          "APPLE WATCH SE",
+          "APPLE WATCH ULTRA 2",
+        ],
+      },
+      {
+        secondCategory: "Gramin",
+        secondContent: ["EPIX", "INSTINCT", "FENIX", "APPROACH", "VENU"],
+      },
+      {
+        secondCategory: "Xiaomi",
+        secondContent: ["GTS", "CHEETAH", "FORERUNNER", "GTR"],
+      },
+      {
+        secondCategory: "Hãng khác",
+        secondContent: ["SamSung", "XiaoMi", "Huawei"],
+      },
+    ],
+  },
+];
 
 const Search = styled("div")(({ theme }) => ({
   boxShadow:
@@ -128,32 +238,26 @@ export function Navigation() {
   const [isDropdown, setIsDropdown] = useState(false);
 
   const { auth } = useSelector((store) => store);
+  // console.log(auth)
   const { cart } = useSelector((store) => store);
   const { uproduct } = useSelector((store) => store);
   const jwt = localStorage.getItem("jwt");
-  const location = useLocation();
+  const param = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  console.log("Auth", auth);
 
-  // useEffect(() => {
-  //   if(jwt){
-  //     dispatch(getUser())
-  //   }
-  // }, [jwt])
-  // localStorage.clear();
   const handleOne = (firstItem) => {
-    navigate(`/${firstItem.id}`);
+    navigate(`/${firstItem}`);
     setIsDropdown(false);
   };
 
   const handleTwo = (secondItem) => {
-    navigate(`/${secondItem.id}`);
+    navigate(`/${secondItem}`);
     setIsDropdown(false);
   };
 
   const handleThree = (thirdItem) => {
-    navigate(`/${thirdItem.id}`);
+    navigate(`/${thirdItem}`);
     setIsDropdown(false);
   };
 
@@ -188,9 +292,7 @@ export function Navigation() {
   // Hàm kiểm tra và xóa localStorage sau 4 giờ
   function clearLocalStorageAfter4Hours() {
     const now = new Date().getTime();
-    console.log(now)
     const storedTime = localStorage.getItem("startTime");
-    console.log(storedTime)
 
     if (storedTime) {
       const elapsedTime = now - storedTime;
@@ -204,16 +306,15 @@ export function Navigation() {
       localStorage.setItem("startTime", now);
     }
   }
-  // Gọi hàm khi trang được tải
   clearLocalStorageAfter4Hours();
+  
 
-  console.log(jwt);
   useEffect(() => {
     if (jwt) {
-      dispatch(getUser());
+      dispatch(getUser(jwt));
       dispatch(getCart());
     }
-  }, [jwt, auth.jwt]);
+  }, [jwt]);
 
   const [data, setData] = useState({
     search: "",
@@ -227,24 +328,43 @@ export function Navigation() {
     }));
   };
 
+  const [productData, setProductData] = useState({
+    pageNumber: 0,
+    pageSize: 10,
+  });
+
   useEffect(() => {
     const reqData = {
       request: data.search,
     };
     dispatch(findProductByName(reqData));
+    dispatch(getProducts(productData));
   }, [data]);
+
+  const handleProduct = (productId) => {
+    setData((prev) => ({
+      ...prev,
+      search:"",
+    }))
+    navigate(`/product/${productId}`)
+  }
+
+  //dinh dang tien
+  const formatMoney = (data) => {
+    return data.toLocaleString("vi-VN")
+  }
 
   return (
     <Navbar fullWidth className="p-2 fixed top-0 right-0 z-10">
-      <div className="container mx-auto flex items-center justify-between text-blue-gray-900">
+      <div className="container flex items-center justify-between text-blue-gray-900">
         <Typography
           as="a"
-          href="#"
+          href="http://localhost:5173"
           color="blue-gray"
           className="mr-4 cursor-pointer text-lg font-bold"
           variant="h4"
         >
-          NovaTech
+          <Tooltip title="Về trang chủ">NovaTech</Tooltip>
         </Typography>
         {/* <div className="hidden lg:block">
           <NavList />
@@ -261,40 +381,54 @@ export function Navigation() {
           {isDropdown && (
             <ul
               tabIndex={0}
-              className="dropdown-content menu shadow rounded-box w-52 mt-2 cursor-pointer bg-white gap-0"
+              className="dropdown-content menu shadow rounded-box w-52 mt-2 cursor-pointer bg-[#333] gap-0"
             >
-              {categoryData.map((firstItem, index) => (
-                <li className="p-2 pr-0" key={index}>
+              {dataCategory.map((item) => (
+                <li className="p-2 pr-0" key={item}>
                   {" "}
                   <Box
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      color: "black",
+                      color: "white",
                     }}
                   >
-                    <Typography onClick={() => handleOne(firstItem)}>
-                      {firstItem.firstCategory}
+                    <Typography onClick={() => handleOne(item.firstCategory)}>
+                      {item.firstCategory}
                     </Typography>
                     <ArrowRightSharpIcon />
                   </Box>
-                  <ul className="absolute left-full top-0 p-3 shadow cursor-pointer bg-white w-40">
-                    {firstItem.firstContent.map((secondItem) => (
-                      <li className="">
+                  <div className="absolute left-[95%] bg-transparent hover:bg-transparent w-[10px] h-[60%]"></div>
+                  <ul className="absolute left-full top-0 p-3 shadow cursor-pointer bg-[#333] w-44">
+                    {item.firstContent.map((secondItem) => (
+                      <li className="flex justify-between">
                         <Box>
-                          <Typography onClick={() => handleTwo(secondItem)}>
+                          <Typography
+                            onClick={() => handleTwo(secondItem.secondCategory)}
+                            className="text-white"
+                            variant="caption text"
+                          >
                             {secondItem.secondCategory}
                           </Typography>
-                          <ArrowRightSharpIcon />
+                          <ArrowRightSharpIcon className="text-white" />
                         </Box>
-                        <ul className="absolute left-full bg-white rounded-lg">
+                        <div className="absolute left-[95%] before:content-none hover:bg-transparent w-[10px] h-full"></div>
+                        <ul className="absolute left-[100%] border-0 border-transparent bg-[#333] rounded-lg">
                           {secondItem.secondContent.map((thirdItem) => (
-                            <li className="drop-third w-52 p-2">
+                            <li className="drop-third w-60 py-1 px-4 m-0">
                               <Typography
-                                onClick={() => handleThree(thirdItem)}
+                                onClick={() =>
+                                  handleThree(
+                                    thirdItem
+                                  )
+                                }
+                                variant="caption text"
+                                className="text-white border-0 border-transparent"
                               >
-                                {thirdItem.thirdCategory}
+                                {
+                                  thirdItem
+                                }
                               </Typography>
                             </li>
                           ))}
@@ -319,37 +453,39 @@ export function Navigation() {
             name="search"
             onChange={handleChange}
             value={data.search}
+            onClose={handleCloseMenu}
           />
-          {data.search.trim() !== "" && (
+          {data.search && data.search.trim() !== "" && (
             <div className="w-[130%] p-2 bg-white absolute top-14 border-2 border-gray-500 rounded-lg">
               <p className="opacity-80 m-2">Sản phẩm gợi ý</p>
               {uproduct.searchproducts.result.length !== 0 ? (
-                uproduct.searchproducts.result.map((item) => (
+                uproduct.searchproducts.result.slice(0, 3).map((item) => (
                   <Grid
                     container
-                    spacing={2}
+                    padding={2}
                     alignItems={"center"}
                     justifyContent={"center"}
                     mt={"2px"}
-                    key={item.id} // Thêm key để tránh cảnh báo React
+                    key={item.productId} // Thêm key để tránh cảnh báo React
+                    className="hover:bg-[#e2e8f0] cursor-pointer"
+                    onClick={() => handleProduct(item.productId)}
                   >
                     <Grid item xs={3}>
                       <Avatar
                         variant="rounded"
                         src={
-                          item.imageUrl ||
-                          "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/1/2/12_3_8_2_8.jpg"
+                          item.images[0].imageUrl
                         } // Sử dụng URL ảnh thực tế của sản phẩm
                       ></Avatar>
                     </Grid>
                     <Grid item xs={8}>
-                      <Typography variant="caption">{item.name}</Typography>
+                      <Typography variant="caption"><span className="line-clamp-1">{item.name}</span></Typography>
                       <Typography variant="body2">
-                        <span className="text-[#DD5746] mr-5 line-clamp-1">
-                          {item.discountedPrice}đ
+                        <span className="text-[#DD5746] mr-5">
+                        {formatMoney(item.discountedPrice)}đ
                         </span>
                         <span className="text-[#333] line-through">
-                          {item.price}đ
+                          {formatMoney(item.price)}đ
                         </span>
                       </Typography>
                     </Grid>
@@ -383,9 +519,16 @@ export function Navigation() {
             sx={{ textAlign: "center", marginX: "16px", cursor: "pointer" }}
             onClick={() => navigate("/cart")}
           >
-            {/* <Badge badgeContent={cart.cart.result.cartItems.length} color="error">
+            <Badge
+              badgeContent={
+                cart.cart &&
+                cart.cart.result &&
+                cart.cart.result.cartItems.length
+              }
+              color="error"
+            >
               <ShoppingCartSharpIcon />
-            </Badge> */}
+            </Badge>
             <Typography variant="body2">Giỏ Hàng</Typography>
           </Box>
           <div className="dropdown dropdown-bottom">
@@ -445,7 +588,7 @@ export function Navigation() {
                 cursor: "pointer",
               }}
             >
-              {auth.user.data.result.email[0].toUpperCase()}
+              {auth.user && auth.user.result && auth.user.result.email[0].toUpperCase()}
             </Avatar>
             <Menu
               anchorEl={anchorEl}
@@ -506,14 +649,6 @@ export function Navigation() {
           </Button>
         )}
       </div>
-      {/* <Collapse open={open}>
-        <div className="mt-2 rounded-xl bg-white py-2">
-          <NavList />
-          <Button className="mb-2" fullWidth>
-            Sign in
-          </Button>
-        </div>
-      </Collapse> */}
     </Navbar>
   );
 }

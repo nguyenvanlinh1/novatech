@@ -34,7 +34,6 @@ export const addressReducer = (state = init, action) => {
         ...state,
         loading: false,
         address: action.payload,
-        addresses: [...state, action.payload.address],
         error: null,
       };
     case UPDATE_ADDRESS_SUCCESS:

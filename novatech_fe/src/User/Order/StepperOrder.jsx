@@ -7,7 +7,7 @@ const steps = ["Chọn đơn hàng", "Địa chỉ giao hàng", "Đặt hàng", 
 
 export default function StepperOrder({ step }) {
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{ width: "100%", marginBottom:3 }}>
       <Stepper activeStep={step} alternativeLabel>
         {steps.map((label) => (
           <Step key={label}>

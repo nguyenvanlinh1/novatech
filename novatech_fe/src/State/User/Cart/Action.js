@@ -16,6 +16,7 @@ import {
 
 export const addItemToCart = (reqData) => async (dispatch) => {
   dispatch({ type: ADD_ITEM_TO_CART_REQUEST });
+  console.log("Cart",reqData)
 
   try {
     const { data } = await api.post("/cart", reqData);

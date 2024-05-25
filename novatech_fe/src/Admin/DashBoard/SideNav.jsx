@@ -1,14 +1,14 @@
 import PropTypes from "prop-types";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import {
-  Button,
-  IconButton,
-  Typography,
-} from "@material-tailwind/react";
+import { Button, IconButton, Typography } from "@material-tailwind/react";
 import { setOpenSidenav, useMaterialTailwindController } from "../Context";
+import { useDispatch } from "react-redux";
+import { logout } from "../../State/Auth/Action";
 
-export function Sidenav({ brandName, routes}) {
+export function Sidenav({ brandName, routes }) {
+  const navigate = useNavigate();
+  const dispatchHandler = useDispatch();
   const [controller, dispatch] = useMaterialTailwindController();
   const { sidenavColor, sidenavType, openSidenav } = controller;
   const sidenavTypes = {
@@ -17,16 +17,20 @@ export function Sidenav({ brandName, routes}) {
     transparent: "bg-transparent",
   };
 
+  const handleSignin = () => {
+    if (location.pathname === "/auth/signin") {
+      dispatchHandler(logout());
+    }
+  };
+
   return (
     <aside
       className={`${sidenavTypes[sidenavType]} ${
         openSidenav ? "translate-x-0" : "-translate-x-80"
       } fixed inset-0 z-50 my-4 ml-4 h-[calc(100vh-32px)] w-72 rounded-xl transition-transform duration-300 xl:translate-x-0 border border-blue-gray-100`}
     >
-      <div
-        className={`relative`}
-      >
-        <Link to="/" className="py-6 px-8 text-center">
+      <div className={`relative`}>
+        <Link className="py-6 px-8 text-center">
           <Typography
             variant="h6"
             color={sidenavType === "dark" ? "white" : "blue-gray"}
@@ -74,6 +78,7 @@ export function Sidenav({ brandName, routes}) {
                       }
                       className="flex items-center gap-4 px-4 capitalize"
                       fullWidth
+                      onClick={handleSignin}
                     >
                       {icon}
                       <Typography
@@ -96,7 +101,7 @@ export function Sidenav({ brandName, routes}) {
 
 Sidenav.defaultProps = {
   brandImg: "/img/logo-ct.png",
-  brandName: "Material Tailwind React",
+  brandName: "Novatech",
 };
 
 Sidenav.propTypes = {

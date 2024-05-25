@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { removeCartItem, updateCartItem } from "../../State/User/Cart/Action";
 import { Button } from "@mui/material";
@@ -8,19 +8,41 @@ import RemoveIcon from "@mui/icons-material/Remove";
 const CartItem = ({ item }) => {
     const dispatch = useDispatch();
   const handleUpdateItem = (num) => {
-    const data = { cartItemId: item.cartItemId, quantity: item.quantity + num };
-    dispatch(updateCartItem(data));
+    if (item.quantity + num > 0) {
+      const data = { cartItemId: item.cartItemId, quantity: item.quantity + num };
+      dispatch(updateCartItem(data));
+    }
   };
 
   const handleDeleteItem = () => {
     dispatch(removeCartItem(item.cartItemId));
   };
+
+  const handleMinId = (data) => {
+    const minImage = data && data.reduce((min, item) => {
+      return item.imageId < min.imageId ? item : min;
+    });    return minImage.imageUrl;
+  }
+
+  const [imageUrl, setImageUrl] = useState(null);
+
+  useEffect(() => {
+    if (item && item.product && item.product.images) {
+      const url = handleMinId(item.product.images);
+      setImageUrl(url);
+    }
+  }, [item]);
+
+  const formatMoney = (data) => {
+    return data && data.toLocaleString("vi-VN")
+  } 
+
   return (
     <div>
       <div className="rounded-3xl border-2 border-gray-200 p-4 lg:p-8 grid grid-cols-12 mb-8 max-lg:max-w-lg max-lg:mx-auto gap-y-4 ">
         <div className="col-span-12 lg:col-span-2 img box">
           <img
-            src={item.product.images[0].imageUrl}
+            src={imageUrl}
             alt="speaker image"
             className="max-lg:w-full lg:w-[180px] "
           />
@@ -68,6 +90,7 @@ const CartItem = ({ item }) => {
                 variant="outlined"
                 className="rounded-2xl"
                 onClick={() => handleUpdateItem(-1)}
+                disabled={item.quantity <= 1}
               >
                 <RemoveIcon />
               </Button>
@@ -82,7 +105,7 @@ const CartItem = ({ item }) => {
               </Button>
             </div>
             <h6 className="text-indigo-600 font-manrope font-bold text-2xl leading-9 text-right">
-              {item.price}đ
+              {formatMoney(item.price)}đ
             </h6>
           </div>
         </div>

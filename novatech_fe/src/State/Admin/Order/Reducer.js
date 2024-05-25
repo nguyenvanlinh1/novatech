@@ -11,6 +11,9 @@ import {
   DELIVERED_ORDERS_FAILURE,
   DELIVERED_ORDERS_REQUEST,
   DELIVERED_ORDERS_SUCCESS,
+  FIND_ORDERS_STATUS_FAILURE,
+  FIND_ORDERS_STATUS_REQUEST,
+  FIND_ORDERS_STATUS_SUCCESS,
   GET_ORDERS_FAILURE,
   GET_ORDERS_REQUEST,
   GET_ORDERS_SUCCESS,
@@ -33,7 +36,9 @@ export const adminOrderReducer = (state = initialState, action) => {
     case GET_ORDERS_REQUEST:
       return { ...state, loading: true };
     case GET_ORDERS_SUCCESS:
+    case FIND_ORDERS_STATUS_SUCCESS:
       return { ...state, loading: false, orders: action.payload };
+    case FIND_ORDERS_STATUS_FAILURE:
     case GET_ORDERS_FAILURE:
       return { ...state, loading: false, error: action.payload };
     case PLACED_ORDERS_REQUEST:
@@ -41,6 +46,7 @@ export const adminOrderReducer = (state = initialState, action) => {
     case SHIPPED_ORDERS_REQUEST:
     case DELIVERED_ORDERS_REQUEST:
     case CANCELED_ORDERS_REQUEST:
+    case FIND_ORDERS_STATUS_REQUEST:
       return { ...state, loading: true };
     case PLACED_ORDERS_SUCCESS:
       return { ...state, placed: action.payload, loading: false };

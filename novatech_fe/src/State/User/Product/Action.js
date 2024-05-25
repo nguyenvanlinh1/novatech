@@ -14,7 +14,6 @@ import {
   GET_PRODUCTS_REQUEST,
   GET_PRODUCTS_SUCCESS,
 } from "./ActionType";
-import { data } from "autoprefixer";
 
 export const findProduts = (reqData) => async (dispatch) => {
   dispatch({ type: FIND_PRODUCTS_REQUEST });

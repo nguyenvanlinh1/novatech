@@ -3,19 +3,23 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { getUser, login } from "../../State/Auth/Action";
-import { TextField } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 
 export function SignIn() {
-  const [isUserFetched, setIsUserFetched] = useState(false);
   const { auth } = useSelector((store) => store);
   const jwt = localStorage.getItem("jwt");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // console.log(auth);
+
   const [data, setData] = useState({
     email: "",
     password: "",
   });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,41 +31,64 @@ export function SignIn() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLoading(true);
     dispatch(login(data));
+    // setTimeout(() => {
+    //   if (auth.error === "Request failed with status code 401") {
+    //     alert("Thông tin tài khoản không chính xác");
+    //     setLoading(false);
+    //     setError("Thông tin tài khoản không chính xác");
+    //     console.log(error);
+    //   }
+    // }, 0)
+    // setTimeout(() => {
+    //   if (auth.error === "Request failed with status code 400") {
+    //     alert("Bạn phải nhập đầy đủ thông tin để đăng nhập");
+    //     setLoading(false);
+    //     setError("Bạn phải nhập đầy đủ thông tin để đăng nhập");
+    //     console.log(error);
+    //   }
+    // }, 0)
   };
 
   useEffect(() => {
-    if (jwt && !isUserFetched) {
-      dispatch(getUser())
-        .then(() => {
-          setIsUserFetched(true);
-          navigate("/");
-        });
+    if (jwt) {
+      dispatch(getUser(jwt));
     }
-  }, [jwt, isUserFetched, dispatch, navigate]);
+  }, [jwt]);
 
-  // localStorage.clear();
-  // console.log("SSS",jwt)
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   dispatch(login(data))
-  // };
+  console.log(auth)
+  useEffect(() => {
+    if (
+      auth.user &&
+      auth.user.result.email && auth.user.result.roles.length !== 2
+    ) {
+      setTimeout(() => {
+        navigate("/");
+      }, 3000);
+    } else if(auth.user && auth.user.result.roles.length === 2) {
+      setTimeout(() => {
+        navigate("/admin");
+      }, 3000);
+    }
+  });
+  // .then(() => {
+  //   setTimeout(() => {
+  //     navigate("/");
+  //   }, 3000);
+  // });
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   dispatch(login(data));
-  //   if(jwt){
-  //     dispatch(getUser());
-  //     navigate("/")
-  //   }
-  // };
+  const handleGitHubLogin = () => {
+    window.location.href =
+      "http://localhost:6789/login/oauth2/authorization/github";
+  };
 
   return (
     <section className="m-8 flex gap-4">
       <div className="w-full lg:w-3/5 mt-24">
         <div className="text-center">
           <Typography variant="h2" className="font-bold mb-4 text-black">
-            Sign In
+            Đăng nhập
           </Typography>
           <Typography
             variant="paragraph"
@@ -71,7 +98,10 @@ export function SignIn() {
             Nhập email và mật khẩu của bạn để đăng nhập.
           </Typography>
         </div>
-        <form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2">
+        <form
+          onSubmit={handleSubmit}
+          className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2"
+        >
           <div className="mb-1 flex flex-col gap-6">
             <Typography
               variant="small"
@@ -89,7 +119,8 @@ export function SignIn() {
               }}
               name="email"
               id="email"
-              onChange={handleChange}
+              value={data.email}
+              onChange={(e) => handleChange(e)}
             />
             <Typography
               variant="small"
@@ -107,30 +138,16 @@ export function SignIn() {
               }}
               name="password"
               id="password"
-              onChange={handleChange}
+              value={data.password}
+              onChange={(e) => handleChange(e)}
             />
           </div>
-          <Checkbox
-            label={
-              <Typography
-                variant="small"
-                color="gray"
-                className="flex items-center justify-start font-medium"
-              >
-                I agree the&nbsp;
-                <a
-                  href="#"
-                  className="font-normal text-black transition-colors hover:text-gray-900 underline"
-                >
-                  Terms and Conditions
-                </a>
-              </Typography>
-            }
-            containerProps={{ className: "-ml-2.5" }}
-          />
-          <Button className="mt-6" fullWidth onClick={handleSubmit}>
+          <p className="text-[#DD5746]">{error}</p>
+          <Button type="submit" className="mt-6" fullWidth>
             Đăng Nhập
           </Button>
+        </form>
+        <form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2">
           <div className="flex items-center justify-between gap-2 mt-6">
             <Checkbox
               label={
@@ -145,7 +162,7 @@ export function SignIn() {
               containerProps={{ className: "-ml-2.5" }}
             />
             <Typography variant="small" className="font-medium text-gray-900">
-              <a href="#">Forgot Password</a>
+              <a href="#">Quên mật khẩu</a>
             </Typography>
           </div>
           <div className="space-y-4 mt-8">
@@ -198,6 +215,7 @@ export function SignIn() {
               color="white"
               className="flex items-center gap-2 justify-center shadow-md"
               fullWidth
+              onClick={handleGitHubLogin}
             >
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/GitHub_Invertocat_Logo.svg/1200px-GitHub_Invertocat_Logo.svg.png"
@@ -212,7 +230,7 @@ export function SignIn() {
             variant="paragraph"
             className="text-center text-blue-gray-500 font-medium mt-4"
           >
-            Not registered?
+            Chưa đăng ký?
             <Link
               to="/auth/signup"
               className="text-blue-500 ml-1 underline hover:text-[#DD5746]"
@@ -228,6 +246,24 @@ export function SignIn() {
           className="h-full w-full object-cover rounded-3xl"
         />
       </div>
+      {loading && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            zIndex: 10,
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
     </section>
   );
 }

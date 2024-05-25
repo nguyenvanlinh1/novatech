@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
 import { RadioGroup } from "@headlessui/react";
 import {
+  Breadcrumbs,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Grid,
+  Link,
   Paper,
   Rating,
   TableBody,
@@ -18,6 +24,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { addItemToCart } from "../../State/User/Cart/Action";
 import ReviewProduct from "./ReviewProduct";
 import ProductCard from "./ProductCard";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { getReviewByProduct } from "../../State/User/Review/Action";
 
 const products = {
   name: "Điện thoại iPhone 13 128GB",
@@ -66,23 +74,20 @@ const products = {
   details:
     'The 6-Pack includes two black, two white, and two heather gray Basic Tees. Sign up for our subscription service and be the first to get new, exciting colors, like our upcoming "Charcoal Gray" limited release.',
 };
-const reviews = { href: "#", average: 4, totalCount: 117 };
-
-function createData(name, content) {
-  return { name, content };
-}
 
 const rows = [
-  createData("Màn hình", "OLED6.1 Super Retina XDR"),
-  createData("Hệ điều hành", "iOS 15"),
-  createData("Camera sau", "2 camera 12 MP"),
-  createData("Camera trước", "12 MP"),
-  createData("Chip", "Apple A15 Bionic"),
-  createData("RAM", "4GB"),
-  createData("Dung lượng lưu trữ", "128 GB"),
-  createData("SIM", "1 Nano SIM & 1 eSIMHỗ trợ 5G"),
-  createData("Pin, Sạc", "3240 mAh20 W"),
-  createData("Hãng", "iPhone (Apple)"),
+  { id: "screenSize", label: "Kích thước màn hình" },
+  { id: "screenTechnology", label: "Công nghệ màn hình" },
+  { id: "ramCapacity", label: "Dung lượng ram" },
+  { id: "battery", label: "Thời lượng Pin" },
+  { id: "cpu", label: "CPU" },
+  { id: "material", label: "Chất liệu" },
+  { id: "operatingSystem", label: "Hệ điều hành" },
+  { id: "resolution", label: "Độ phân giải" },
+  { id: "size", label: "Kích thước" },
+  { id: "weight", label: "Trọng lượng" },
+  { id: "feature", label: "Tính năng" },
+  { id: "utilities", label: "Tiện ích" },
 ];
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -92,10 +97,22 @@ export default function DetailsProduct() {
   const dispatch = useDispatch();
   const param = useParams();
   const { uproduct } = useSelector((store) => store);
+  const { review } = useSelector((store) => store);
+  console.log("Review", review);
+
   useEffect(() => {
     const data = param.productId;
     dispatch(findProductsById(data));
   }, [param.prductId]);
+
+  useEffect(() => {
+    dispatch(getReviewByProduct({ productId: param.productId }));
+  }, [
+    param.prductId,
+    review.review,
+    review.deleteReviews,
+    review.updateReviews,
+  ]);
 
   useEffect(() => {
     if (
@@ -119,17 +136,31 @@ export default function DetailsProduct() {
     }
   }, [uproduct.product]);
 
-  console.log("Data product Id", uproduct);
-
   const handleAddToCart = () => {
-    const data = { productId: param.productId, color: selectedColor.description };
+    const data = {
+      productId: param.productId,
+      color: selectedColor.description,
+    };
     dispatch(addItemToCart(data));
     navigate("/cart");
   };
 
   const navigate = useNavigate();
   const [selectedColor, setSelectedColor] = useState(products.colors[0]);
-  console.log("Color", selectedColor);
+
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const formatMoney = (data) => {
+    return data && data.toLocaleString("vi-VN");
+  };
   return (
     <div className="bg-white mt-16">
       <div className="pt-6">
@@ -138,37 +169,28 @@ export default function DetailsProduct() {
             role="list"
             className="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8"
           >
-            {products.breadcrumbs.map((breadcrumb) => (
-              <li key={breadcrumb.id}>
-                <div className="flex items-center">
-                  <a
-                    href={breadcrumb.href}
-                    className="mr-2 text-sm font-medium text-gray-900"
-                  >
-                    {breadcrumb.name}
-                  </a>
-                  <svg
-                    width={16}
-                    height={20}
-                    viewBox="0 0 16 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                    className="h-5 w-4 text-gray-300"
-                  >
-                    <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z" />
-                  </svg>
-                </div>
-              </li>
-            ))}
-            <li className="text-sm">
-              <a
-                href={products.href}
-                aria-current="page"
-                className="font-medium text-gray-500 hover:text-gray-600"
+            <Breadcrumbs
+              separator={<ChevronRightIcon />}
+              aria-label="breadcrumb"
+              className="text-blue-500"
+            >
+              <Link underline="hover" href="/">
+                Trang chủ
+              </Link>
+              <Link
+                underline="hover"
+                href="/material-ui/getting-started/installation/"
               >
-                {products.name}
-              </a>
-            </li>
+                Sản phẩm
+              </Link>
+              <Link
+                underline="hover"
+                href="/material-ui/getting-started/installation/"
+              >
+                {uproduct.product &&
+                  uproduct.product.data.result.name.slice(0, 20)}
+              </Link>
+            </Breadcrumbs>
           </ol>
         </nav>
 
@@ -185,40 +207,16 @@ export default function DetailsProduct() {
                   className="h-full w-full object-cover object-center ml-12"
                 />
               </Grid>
-              <Grid item xs={3}>
-                <img
-                  src={
-                    uproduct.product &&
-                    uproduct.product.data.result.images[1].imageUrl
-                  }
-                  alt=""
-                  className="h-full w-full object-cover object-center ml-5"
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <img
-                  src={
-                    uproduct.product &&
-                    uproduct.product.data.result.images[0].imageUrl
-                  }
-                  alt=""
-                  className="h-full w-full object-cover object-center"
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <img
-                  src="https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/s/2/s23-ultra-xanh-3.png"
-                  alt=""
-                  className="h-full w-full object-cover object-center"
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <img
-                  src="https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/s/a/samsung_s23_ultra_-_8.png"
-                  alt=""
-                  className="h-full w-full object-cover object-center"
-                />
-              </Grid>
+              {uproduct.product &&
+                uproduct.product.data.result.images.map((item) => (
+                  <Grid item xs={3}>
+                    <img
+                      src={item.imageUrl}
+                      alt=""
+                      className="h-full w-full object-cover object-center ml-5"
+                    />
+                  </Grid>
+                ))}
             </Grid>
           </Grid>
           <Grid item xs={6}>
@@ -233,17 +231,21 @@ export default function DetailsProduct() {
             <Grid item xs={12}>
               <div className="mt-4 lg:row-span-3 lg:mt-0">
                 <p className="text-xl tracking-tight text-[#DD5746]">
-                  {uproduct.product &&
-                    uproduct.product.data.result.discountedPrice}
+                  {formatMoney(
+                    uproduct.product &&
+                      uproduct.product.data.result.discountedPrice
+                  )}
                   <span className="underline">đ</span>
                 </p>
                 <p className="text-xl tracking-tight text-gray-900">
                   <span className="line-through">
-                    {uproduct.product && uproduct.product.data.result.price}
+                    {formatMoney(
+                      uproduct.product && uproduct.product.data.result.price
+                    )}
                   </span>
                   <span className="underline mr-5">đ</span>
-                  <span>giảm giá </span>
-                  <span className="ml-2 line-through text-[#DD5746]">
+                  <span>giảm </span>
+                  <span className="ml-2 text-[#DD5746]">
                     {uproduct.product &&
                       uproduct.product.data.result.discountPercent}
                     %
@@ -252,8 +254,12 @@ export default function DetailsProduct() {
 
                 <Rating precision={2} value={5}></Rating>
                 <Typography variant="body2">
-                  {uproduct.product &&
-                    uproduct.product.data.result.reviews.length}{" "}
+                  {(review.reviews &&
+                    review.reviews.data &&
+                    review.reviews.data.result &&
+                    review.reviews.data.result.length) ||
+                    0}{" "}
+                  {"  "}
                   Đánh giá
                 </Typography>
 
@@ -348,89 +354,153 @@ export default function DetailsProduct() {
             </Grid>
 
             <div className="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pb-16 lg:pr-8 lg:pt-6">
-              <div>
-                <h3 className="sr-only">Description</h3>
-
-                <div className="space-y-6">
-                  <p className="text-base text-gray-900">
-                    {products.description}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-10">
+              <div className="mt-10 border-b border-b-[#F1F1F1] pb-5">
                 <h3 className="text-sm font-medium text-gray-900">
-                  Highlights
+                  Mô tả thêm về sản phẩm
                 </h3>
 
                 <div className="mt-4">
                   <ul role="list" className="list-disc space-y-2 pl-4 text-sm">
-                    {products.highlights.map((highlight) => (
-                      <li key={highlight} className="text-gray-400">
-                        <span className="text-gray-600">{highlight}</span>
-                      </li>
-                    ))}
+                    {uproduct.product &&
+                      uproduct.product.data &&
+                      uproduct.product.data.result.description
+                        .split(".")
+                        .map((highlight) => (
+                          <li key={highlight} className="text-gray-400">
+                            <span className="text-gray-600">{highlight}</span>
+                          </li>
+                        ))}
                   </ul>
                 </div>
               </div>
-
-              <div className="mt-10">
-                <h2 className="text-sm font-medium text-gray-900">Details</h2>
-
-                <div className="mt-4 space-y-6">
-                  <p className="text-sm text-gray-600">{products.details}</p>
-                </div>
+              <div>
+                <Grid
+                  container
+                  className="px-18"
+                  justifyContent="center"
+                  alignItems="center"
+                  direction="column"
+                  mt={5}
+                >
+                  <Grid item xs={12}>
+                    <Typography variant="h6" className="text-black">
+                      Thông số kĩ thuật
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TableContainer component={Paper}>
+                      <TableBody>
+                        {rows.slice(0, 4).map((spec) => {
+                          const value =
+                            uproduct.product &&
+                            uproduct.product.data &&
+                            uproduct.product.data.result.specification[spec.id];
+                          return (
+                            <TableRow
+                              key={spec.id}
+                              sx={{
+                                "&:last-child td, &:last-child th": {
+                                  border: 0,
+                                },
+                              }}
+                            >
+                              <TableCell component="th" scope="row">
+                                {spec.label}:
+                              </TableCell>
+                              <TableCell align="left">{value}</TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </TableContainer>
+                  </Grid>
+                  <Grid item xs={12} my={2}>
+                    <Button variant="outlined" onClick={handleClickOpen}>
+                      Xem thêm cấu hình chi tiết ▶️
+                    </Button>
+                    <Dialog
+                      open={open}
+                      onClose={handleClose}
+                      aria-labelledby="alert-dialog-title"
+                      aria-describedby="alert-dialog-description"
+                    >
+                      <DialogTitle id="alert-dialog-title">
+                        {"Chi tiết thông số kĩ thuật"}
+                      </DialogTitle>
+                      <DialogContent>
+                        <TableContainer component={Paper}>
+                          <TableBody>
+                            {rows.map((spec) => {
+                              const value =
+                                uproduct.product &&
+                                uproduct.product.data &&
+                                uproduct.product.data.result.specification[
+                                  spec.id
+                                ];
+                              [spec.id];
+                              return (
+                                <TableRow
+                                  key={spec.id}
+                                  sx={{
+                                    "&:last-child td, &:last-child th": {
+                                      border: 0,
+                                    },
+                                  }}
+                                >
+                                  <TableCell
+                                    component="th"
+                                    scope="row"
+                                    sx={{ width: "150px" }}
+                                  >
+                                    {spec.label}:
+                                  </TableCell>
+                                  <TableCell align="left">{value}</TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </TableContainer>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={handleClose}>Xác nhận</Button>
+                      </DialogActions>
+                    </Dialog>
+                    {/* <Specification
+                      open={open}
+                      handleClose={handleClose}
+                      product={
+                        uproduct.product &&
+                        uproduct.product.data &&
+                        uproduct.product.data.result.specification
+                      }
+                    /> */}
+                  </Grid>
+                </Grid>
               </div>
             </div>
           </Grid>
         </Grid>
-
-        <section>
-          <Grid
-            container
-            className="px-32"
-            justifyContent="center"
-            alignItems="center"
-            direction="column"
-          >
-            <Grid item xs={12}>
-              <Typography variant="h4" className="text-black">
-                Thông số kĩ thuật
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <TableContainer component={Paper}>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow
-                      key={row.name}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {row.name}:
-                      </TableCell>
-                      <TableCell align="left">{row.content}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </TableContainer>
-            </Grid>
-            <Grid item xs={12} my={2}>
-              <Button variant="outlined">Xem thêm cấu hình chi tiết ▶️</Button>
-            </Grid>
-          </Grid>
-        </section>
 
         <section className="px-32 mt-10">
           <Grid container>
             <Grid item container xs={12}>
               <Grid item xs={12}>
                 <h3 className="text-2xl text-black">
-                  Đánh giá & nhận xét Samsung Galaxy S23 Ultra 256GB
+                  Đánh giá & nhận xét{" "}
+                  {uproduct.product &&
+                    uproduct.product.data &&
+                    uproduct.product.data.result.name.slice(0, 20)}
                 </h3>
               </Grid>
               <Grid item xs={12}>
-                <ReviewProduct productId={param.productId} />
+                <ReviewProduct
+                  productId={param.productId}
+                  reviews={
+                    review.reviews &&
+                    review.reviews.data &&
+                    review.reviews.data.result
+                  }
+                />
               </Grid>
             </Grid>
           </Grid>
