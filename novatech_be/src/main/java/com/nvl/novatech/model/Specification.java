@@ -2,12 +2,14 @@ package com.nvl.novatech.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,10 +36,14 @@ public class Specification {
     String resolution;
     String size;
     String weight;
+
+    @Size(max = 1000)
     String feature;
+
+    @Size(max = 1000)
     String utilities;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "product_id")
     @JsonIgnore
     Product product;

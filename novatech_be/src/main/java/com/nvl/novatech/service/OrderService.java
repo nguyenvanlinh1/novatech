@@ -3,6 +3,7 @@ package com.nvl.novatech.service;
 import java.util.List;
 
 import com.nvl.novatech.dto.request.AddressOrderRequest;
+import com.nvl.novatech.dto.request.StatusRequest;
 import com.nvl.novatech.dto.response.OrderResponse;
 import com.nvl.novatech.model.Order;
 import com.nvl.novatech.model.User;
@@ -18,4 +19,6 @@ public interface OrderService {
     Order cancelOrder(Long orderId);
     List<Order> getAllOrders();
     void deleteOrder(Long orderId);
+    void deleteOrderByUserId(Long orderId);
+    List<Order> filterStatus(StatusRequest request);
 }

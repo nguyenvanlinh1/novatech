@@ -9,6 +9,23 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: Ov23liuBVNTuRGUzqRvD
+            client-secret: 609df68aec899ed3499c512168b012abbfe3a3d5
+            scope:
+              - user:email
+              - read:user
+          # google:
+          #   client-id: Ov23liuBVNTuRGUzqRvD
+          #   client-secret: 609df68aec899ed3499c512168b012abbfe3a3d5
+
+frontend:
+  url: http://localhost:5173
+ 
   # mail:
   #     host: smtp.gmail.com
   #     port: 587
@@ -19,6 +36,8 @@ spring:
   #         smtp:
   #           auth: true
   #           starttls: true
+
+
 
 server:
   port: 6789

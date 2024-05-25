@@ -15,6 +15,7 @@ public interface ProductService {
       void deleteProduct(Long productId);
 
       Page<Product> findAllProducts(Integer pageNumber, Integer pageSize);
+      List<Product> findAllProductAdmin();
       Product findProductById(Long productId);
       Page<Product> findProductByCategory(String category, Integer pageNumber, Integer pageSize);
       

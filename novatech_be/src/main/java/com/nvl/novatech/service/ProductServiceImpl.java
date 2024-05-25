@@ -19,6 +19,7 @@ import com.nvl.novatech.model.Product;
 import com.nvl.novatech.model.Specification;
 import com.nvl.novatech.repository.CategoryRepository;
 import com.nvl.novatech.repository.ProductRepository;
+import com.nvl.novatech.repository.SpecificationRepository;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class ProductServiceImpl implements ProductService{
 
     ProductRepository productRepository;
     CategoryRepository categoryRepository;
+    SpecificationRepository specificationRepository;
 
     @Override
     public Product createProduct(ProductCreationRequest request) {
@@ -80,20 +82,16 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public Product updateProduct(Long productId, ProductUpdateRequest request) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
-        product.setDiscountedPrice(request.getDiscountedPrice());
-        product.setDiscountPercent(request.getDiscountPercent());
         product.setQuantity(request.getQuantity());
-        product.setSpecification(request.getSpecification());
         return productRepository.save(product);
     }
 
     @Override
     public void deleteProduct(Long productId) {
-        Product product = findProductById(productId);
-        productRepository.delete(product);
+        // Product product = findProductById(productId);
+        // Long specificationId = product.getSpecification().getSpecificationId();
+        // specificationRepository.deleteById(specificationId);
+        productRepository.deleteById(productId);
     }
 
     @Override
@@ -140,6 +138,11 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public List<Product> findProductByName(String request) {
         return productRepository.findProductByName(request);
+    }
+
+    @Override
+    public List<Product> findAllProductAdmin() {
+        return productRepository.findAll();
     }
     
 }

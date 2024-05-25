@@ -7,5 +7,5 @@ import com.nvl.novatech.model.Specification;
 
 @Repository
 public interface SpecificationRepository extends JpaRepository<Specification, Long>{
-    
+
 }

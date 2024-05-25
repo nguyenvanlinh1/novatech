@@ -92,6 +92,13 @@ public class ProductController {
             .result(productService.findProductByName(request))
             .build();
     }
+
+    @GetMapping("/all")
+    ApiResponse<List<Product>> findAllProduct(){
+        return ApiResponse.<List<Product>>builder()
+            .result(productService.findAllProductAdmin())
+            .build();
+    }
     
 
 }

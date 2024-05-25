@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+
 @Entity
 @Setter
 @Getter
@@ -42,5 +43,9 @@ public class User {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     List<Review> reviews = new ArrayList<>();
+
+    @Column(name = "source")
+    @Enumerated(EnumType.STRING)
+    private RegistrationSource source;
 
 }
