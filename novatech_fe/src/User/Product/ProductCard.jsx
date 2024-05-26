@@ -59,12 +59,12 @@ const ProductCard = ({ product }) => {
               </Typography>
             </Box>
             <CardMedia
-              className="w-full h-[30%] object-cover"
+              className="w-full h-[200px] object-cover"
               component="img"
               image={imageUrl}
             ></CardMedia>
             <CardContent sx={{ paddingBottom: 0 }}>
-              <Typography variant="subtitle2" className="line-clamp-3">
+              <Typography variant="subtitle2" className="line-clamp-2">
                 {product.name}
               </Typography>
               <Box

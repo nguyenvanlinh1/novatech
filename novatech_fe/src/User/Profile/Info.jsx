@@ -1,13 +1,21 @@
 import { Button, Input, TextField, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateProfile } from "../../State/User/Profile/Action";
+// import { updateProfile } from "../../State/User/Profile/Action";
+import { getUser, updateProfile } from "../../State/Auth/Action";
 
 export const Info = () => {
   const dispatch = useDispatch();
   const { auth } = useSelector((store) => store);
   const [firstName, setFirstName] = useState(true);
-console.log(auth)
+  const jwt = localStorage.getItem("jwt");
+
+  // console.log("Auth", auth)
+
+  useEffect(() => {
+    dispatch(getUser(jwt));
+  }, [jwt])
+
   const handleFirstName = () => {
     setFirstName(false);
   };
@@ -32,9 +40,6 @@ console.log(auth)
     firstName: auth.user && auth.user.result.firstName,
     lastName: auth.user && auth.user.result.lastName,
     avatarUrl: auth.user  && auth.user.result.avatarUrl,
-    password:
-      auth.user &&
-      auth.user.result.password,
     dob: auth.user && auth.user.result.dob,
     phone: auth.user && auth.user.result.phone,
   });
@@ -63,7 +68,7 @@ console.log(auth)
       <div className="w-full min-h-screen md:w-2/3 lg:w-3/4">
         <div className="">
           <div className="w-full px-6 sm:max-w-xl sm:rounded-lg">
-            <Typography variant="h4" className="font-bold sm:text-xl text-black">
+            <Typography variant="h4" className="font-bold sm:text-xl text-white">
             👽 Thông tin cá nhân
             </Typography>
 
@@ -89,22 +94,19 @@ console.log(auth)
                     variant="outlined"
                     component="label"
                     onClick={() => fileInputRef.current.click()}
-                    sx={{ color: "#333" }}
+                    sx={{ color: "#fff" }}
                   >
                     Sửa
                   </Button>
                 </div>
               </div>
 
-              <div className="items-center mt-8 sm:mt-14 text-[#202142]">
+              <div className="items-center mt-8 sm:mt-14 text-[#fff]">
                 <div className="relative mb-2 space-x-0 space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0 sm:mb-6">
                   <TextField
                     label={"Họ Đệm"}
                     defaultValue={`${
-                      auth.user &&
-                      auth.user.result.lastName != null
-                        ? auth.user.result.lastName
-                        : " "
+                      auth.user && auth.user.result.lastName
                     }`}
                     //defaultValue="Linh"
                     variant="standard"
@@ -112,6 +114,33 @@ console.log(auth)
                     id="lastName"
                     name="lastName"
                     onChange={handleChange}
+                    InputProps={{
+                      style: { color: 'white' },  // Thay đổi màu của đoạn text
+                    }}
+                    InputLabelProps={{
+                      style: { color: 'white' },  // Thay đổi màu của label
+                    }}
+                    sx={{
+                      '& .MuiInput-underline:before': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân trước khi focus
+                      },
+                      '& .MuiInput-underline:hover:before': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân khi hover
+                      },
+                      '& .MuiInput-underline:after': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân sau khi focus
+                      },
+                      '& .MuiInput-input': {
+                        color: 'white',  // Thay đổi màu của giá trị mặc định và đoạn text
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: 'white',  // Thay đổi màu của label
+                      },
+                      '& .Mui-disabled': {
+                        color: 'red',  // Đổi màu của đoạn text khi bị vô hiệu hóa
+                        WebkitTextFillColor: 'red',  // Đổi màu của giá trị mặc định khi bị vô hiệu hóa (trình duyệt Webkit)
+                      },
+                    }}
                   />
                   <Button
                     variant="text"
@@ -129,10 +158,7 @@ console.log(auth)
                   <TextField
                     label={"Tên"}
                     defaultValue={`${
-                      auth.user &&
-                      auth.user.result.firstName != null
-                        ? auth.user.result.firstName
-                        : " "
+                      auth.user && auth.user.result.firstName
                     }`}
                     //defaultValue="Linh"
                     variant="standard"
@@ -140,6 +166,33 @@ console.log(auth)
                     id="firstName"
                     name="firstName"
                     onChange={handleChange}
+                    InputProps={{
+                      style: { color: 'white' },  // Thay đổi màu của đoạn text
+                    }}
+                    InputLabelProps={{
+                      style: { color: 'white' },  // Thay đổi màu của label
+                    }}
+                    sx={{
+                      '& .MuiInput-underline:before': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân trước khi focus
+                      },
+                      '& .MuiInput-underline:hover:before': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân khi hover
+                      },
+                      '& .MuiInput-underline:after': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân sau khi focus
+                      },
+                      '& .MuiInput-input': {
+                        color: 'white',  // Thay đổi màu của giá trị mặc định và đoạn text
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: 'white',  // Thay đổi màu của label
+                      },
+                      '& .Mui-disabled': {
+                        color: 'red',  // Đổi màu của đoạn text khi bị vô hiệu hóa
+                        WebkitTextFillColor: 'red',  // Đổi màu của giá trị mặc định khi bị vô hiệu hóa (trình duyệt Webkit)
+                      },
+                    }}
                   />
                   <Button
                     variant="text"
@@ -159,16 +212,40 @@ console.log(auth)
                     id="dob"
                     label={"Ngày sinh"}
                     defaultValue={`${
-                      auth.user &&
-                      auth.user.result.dob != null
-                        ? auth.user.result.dob
-                        : " "
+                      auth.user && auth.user.result.dob
                     }`}
                     //defaultValue={'14/06/2002'}
                     variant="standard"
                     disabled={dob}
                     name="dob"
                     onChange={handleChange}
+                    InputProps={{
+                      style: { color: 'white' },  // Thay đổi màu của đoạn text
+                    }}
+                    InputLabelProps={{
+                      style: { color: 'white' },  // Thay đổi màu của label
+                    }}
+                    sx={{
+                      '& .MuiInput-underline:before': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân trước khi focus
+                      },
+                      '& .MuiInput-underline:hover:before': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân khi hover
+                      },
+                      '& .MuiInput-underline:after': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân sau khi focus
+                      },
+                      '& .MuiInput-input': {
+                        color: 'white',  // Thay đổi màu của giá trị mặc định và đoạn text
+                      },
+                      '& .Mui-disabled': {
+                        color: 'red',  // Đổi màu của đoạn text khi bị vô hiệu hóa
+                        WebkitTextFillColor: 'red',  // Đổi màu của giá trị mặc định khi bị vô hiệu hóa (trình duyệt Webkit)
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: 'white',  // Thay đổi màu của label
+                      },
+                    }}
                   />
                   <Button
                     variant="text"
@@ -189,14 +266,38 @@ console.log(auth)
                     name="phone"
                     label={"Số điện thoại"}
                     defaultValue={`${
-                      auth.user &&
-                      auth.user.result.phone != null
-                        ? auth.user.result.phone
-                        : " "
+                      auth.user && auth.user.result.phone
                     }`}
                     //defaultValue={"0869526280"}
                     variant="standard"
                     onChange={handleChange}
+                    InputProps={{
+                      style: { color: 'white' },  // Thay đổi màu của đoạn text
+                    }}
+                    InputLabelProps={{
+                      style: { color: 'white' },  // Thay đổi màu của label
+                    }}
+                    sx={{
+                      '& .MuiInput-underline:before': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân trước khi focus
+                      },
+                      '& .MuiInput-underline:hover:before': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân khi hover
+                      },
+                      '& .MuiInput-underline:after': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân sau khi focus
+                      },
+                      '& .MuiInput-input': {
+                        color: 'white',  // Thay đổi màu của giá trị mặc định và đoạn text
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: 'white',  // Thay đổi màu của label
+                      },
+                      '& .Mui-disabled': {
+                        color: 'red',  // Đổi màu của đoạn text khi bị vô hiệu hóa
+                        WebkitTextFillColor: 'red',  // Đổi màu của giá trị mặc định khi bị vô hiệu hóa (trình duyệt Webkit)
+                      },
+                    }}
                   />
                   <Button
                     variant="text"
@@ -221,7 +322,22 @@ console.log(auth)
                     variant="outlined"
                     fullWidth
                     InputProps={{
+                      style: { color: 'red' },  // Thay đổi màu của đoạn text
                       readOnly: true,
+                    }}
+                    InputLabelProps={{
+                      style: { color: 'red' },  // Thay đổi màu của label
+                    }}
+                    sx={{
+                      '& .MuiInput-underline:before': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân trước khi focus
+                      },
+                      '& .MuiInput-underline:hover:before': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân khi hover
+                      },
+                      '& .MuiInput-underline:after': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân sau khi focus
+                      },
                     }}
                   />
                 </div>
@@ -233,7 +349,22 @@ console.log(auth)
                     variant="outlined"
                     fullWidth
                     InputProps={{
+                      style: { color: 'red' },  // Thay đổi màu của đoạn text
                       readOnly: true,
+                    }}
+                    InputLabelProps={{
+                      style: { color: 'red' },  // Thay đổi màu của label
+                    }}
+                    sx={{
+                      '& .MuiInput-underline:before': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân trước khi focus
+                      },
+                      '& .MuiInput-underline:hover:before': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân khi hover
+                      },
+                      '& .MuiInput-underline:after': {
+                        borderBottomColor: 'white',  // Đổi màu gạch chân sau khi focus
+                      },
                     }}
                   />
                 </div>

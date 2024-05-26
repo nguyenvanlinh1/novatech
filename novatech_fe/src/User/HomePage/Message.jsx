@@ -22,9 +22,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useDispatch, useSelector } from "react-redux";
 import { createChat, getUsersChat } from "../../State/User/Chat/Action";
 import { createMessage, getAllMessages } from "../../State/User/Message/Action";
+import notificationSound from "../../assets/Sound/notification.mp3";
 
-import SockJS from "sockjs-client/dist/sockjs";
-import { over } from "stompjs";
+// import SockJS from "sockjs-client/dist/sockjs";
+// import { over } from "stompjs";
+// import { API_BASE_URL } from "../../Config/apiConfig";
 
 const formatTimeDifference = (pastDate) => {
   const now = new Date();
@@ -71,13 +73,13 @@ const Message = () => {
   //   const [messages, setMessages] = useState([]);
 
   //   const connect = () => {
-  //     const sock = new SockJS("http://localhost:6789/ws");
+  //     const sock = new SockJS(`${API_BASE_URL}/ws`);
+  //     console.log(sock)
   //     const temp = over(sock);
 
   //     const xsrfToken = getCookie("XSRF-TOKEN");
   //     console.log("D", xsrfToken);
 
-  //     // Kiểm tra xem JWT và XSRF-TOKEN có hợp lệ không
   //     if (!jwt || !xsrfToken) {
   //       console.error("Missing JWT or XSRF-TOKEN");
   //       return;
@@ -85,8 +87,8 @@ const Message = () => {
 
   //     setStompClient(temp);
   //     const headers = {
-  //       Authorization: `Bearer ${jwt}`,
   //       "X-XSRF-TOKEN": xsrfToken,
+  //       "Authorization": `Bearer ${jwt}`,
   //     };
 
   //     temp.connect(headers, onConnect, onError);
@@ -151,14 +153,12 @@ const Message = () => {
     dispatch(createChat({ jwt, data: { userId } }));
   };
 
-  console.log("Chat", chat);
-
   useEffect(() => {
     dispatch(getUsersChat({ jwt }));
   }, [chat.createChat]);
 
   useEffect(() => {
-    if (chat.chats === null) {
+    if (chat.chats !== null) {
       dispatch(
         getAllMessages({
           chatId: chat.chats && chat.chats.result[0].chatId,
@@ -180,6 +180,8 @@ const Message = () => {
       })
     );
     setContent("");
+    const sound = new Audio(notificationSound);
+    sound.play();
   };
 
   //console.log(message)
@@ -243,7 +245,7 @@ const Message = () => {
           <CardContent className="h-80" sx={{ overflowY: "scroll" }}>
             {message.messages &&
               message.messages.result &&
-              message.messages.result.map((item, index) =>
+              message.messages.result.map((item) =>
                 item.user.userId === 21 ? (
                   <div className="chat chat-start text-xs">
                     <div className="chat-image avatar">

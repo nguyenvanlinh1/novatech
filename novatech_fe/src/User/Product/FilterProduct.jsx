@@ -14,6 +14,7 @@ import {
   Button,
   Checkbox,
   Pagination,
+  PaginationItem,
   Radio,
   TextField,
   Typography,
@@ -25,18 +26,13 @@ import HomeCard from "../HomePage/HomeCard";
 import ProductCard from "./ProductCard";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { findProduts } from "../../State/User/Product/Action";
+import { findProduts, getProducts } from "../../State/User/Product/Action";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 const sortOptions = [
   { name: "Price: Low to High", id: "price_low", current: false },
   { name: "Price: High to Low", id: "price_high", current: false },
-];
-const subCategories = [
-  { name: "Totes", href: "#" },
-  { name: "Backpacks", href: "#" },
-  { name: "Travel Bags", href: "#" },
-  { name: "Hip Bags", href: "#" },
-  { name: "Laptop Sleeves", href: "#" },
 ];
 const filters = [
   {
@@ -62,12 +58,21 @@ export default function FilterProduct() {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+  console.log(uproduct);
 
   const decodedQueryString = decodeURIComponent(location.search);
   const searchParams = new URLSearchParams(decodedQueryString);
   const discount = searchParams.get("discount");
   const sortValue = searchParams.get("sort");
   const pageNumber = searchParams.get("page") || 1;
+
+  //Phan trang
+  const handlePaginationChange = (event, value) => {
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set("page", value);
+    const query = searchParams.toString();
+    navigate({ search: `?${query}` });
+  };
 
   const handleTextFilter = (event, value) => {
     const searchParams = new URLSearchParams(location.search);
@@ -124,7 +129,7 @@ export default function FilterProduct() {
       minDiscount: discount || 0,
       sort: sortValue || "price_low",
       pageNumber: pageNumber - 1,
-      pageSize: 8,
+      pageSize: 5,
     };
     dispatch(findProduts(data));
   }, [
@@ -135,6 +140,14 @@ export default function FilterProduct() {
     sortValue,
     pageNumber,
   ]);
+
+  // useEffect(() => {
+  //   const data = {
+  //     pageNumber: pageNumber - 1,
+  //     pageSize: 2,
+  //   };
+  //   dispatch(getProducts(data));
+  // }, [pageNumber]);
 
   return (
     <div className="bg-white">
@@ -280,17 +293,46 @@ export default function FilterProduct() {
               </form>
 
               {/* Product grid */}
-              <div className="lg:col-span-3">
-                <div className="grid grid-cols-4 gap-5">
-                  {uproduct.products.result &&
-                    uproduct?.products?.result?.content.map((item) => (
-                      <ProductCard product={item} />
-                    ))}
+              {uproduct.products.result.content.length !== 0 ? (
+                <div className="lg:col-span-3">
+                  <div className="grid grid-cols-4 gap-5">
+                    {uproduct.products.result &&
+                      uproduct?.products?.result?.content.map((item) => (
+                        <ProductCard product={item} />
+                      ))}
+                  </div>
+                  <div className="flex justify-center p-5">
+                    {/* <Pagination count={10} color="primary" /> */}
+                    <Pagination
+                      sx={{
+                        p: 2,
+                        mt: "5px",
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                      count={
+                        uproduct.products && uproduct.products.result.totalPages
+                      }
+                      color="primary"
+                      renderItem={(item) => (
+                        <PaginationItem
+                          slots={{
+                            previous: ArrowBackIcon,
+                            next: ArrowForwardIcon,
+                          }}
+                          {...item}
+                          sx={{ color: "black" }}
+                        />
+                      )}
+                      onChange={handlePaginationChange}
+                    />
+                  </div>
                 </div>
-                <div className="flex justify-center p-5">
-                  <Pagination count={10} color="primary" />
+              ) : (
+                <div className="lg:col-span-3">
+                  <img src="https://eonbazar.com/images/npf.jpg" alt="" />
                 </div>
-              </div>
+              )}
             </div>
           </section>
         </main>

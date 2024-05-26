@@ -459,7 +459,9 @@ export function Navigation() {
             <div className="w-[130%] p-2 bg-white absolute top-14 border-2 border-gray-500 rounded-lg">
               <p className="opacity-80 m-2">Sản phẩm gợi ý</p>
               {uproduct.searchproducts.result.length !== 0 ? (
-                uproduct.searchproducts.result.slice(0, 3).map((item) => (
+                uproduct.searchproducts.result
+                .filter((item) => item.quantity > 0)
+                .slice(0, 3).map((item) => (
                   <Grid
                     container
                     padding={2}
@@ -625,17 +627,17 @@ export function Navigation() {
               anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
             >
               <MenuItem onClick={() => navigate("/user")}>
-                <Avatar /> Profile
+                <Avatar /> Hồ sơ cá nhân
               </MenuItem>
               <MenuItem onClick={() => navigate("/order")}>
-                <Avatar /> My orders
+                <Avatar /> Xem đơn hàng
               </MenuItem>
               <Divider />
               <MenuItem onClick={handleLogout}>
                 <ListItemIcon>
                   <Logout fontSize="small" />
                 </ListItemIcon>
-                Logout
+                Đăng Xuất
               </MenuItem>
             </Menu>
           </div>

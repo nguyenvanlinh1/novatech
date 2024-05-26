@@ -14,6 +14,9 @@ import {
   REGISTER_FAILURE,
   REGISTER_REQUEST,
   REGISTER_SUCCESS,
+  UPDATE_USER_FAILURE,
+  UPDATE_USER_REQUEST,
+  UPDATE_USER_SUCCESS,
 } from "./ActionType";
 
 export const register = (reqData) => async (dispatch) => {
@@ -88,5 +91,16 @@ export const logout = () => (dispatch) => {
   window.location.href = 'http://localhost:5173'
 };
 
-// Xử lý callback URL sau khi người dùng xác thực thành công trên GitHu
+export const updateProfile = (reqData) => async (dispatch) => {
+  // console.log("Data",reqData)
+  dispatch({ type: UPDATE_USER_REQUEST });
+  try {
+    const {data} = await api.put("/users/profile/update", reqData);
+    // console.log(data)
+    dispatch({ type: UPDATE_USER_SUCCESS, payload: data });
+  } catch (error) {
+    dispatch({ type: UPDATE_USER_FAILURE, payload: error.message });
+  }
+};
+
 

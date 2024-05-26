@@ -21,7 +21,6 @@ public class UserUpdateRequest {
     String firstName;
     String lastName;
     String avatarUrl;
-    String password;
     LocalDate dob;
     String phone;
 }

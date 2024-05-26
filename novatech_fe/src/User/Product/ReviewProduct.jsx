@@ -12,6 +12,7 @@ import {
   LinearProgress,
   Pagination,
   Rating,
+  TablePagination,
 } from "@mui/material";
 import { Textarea } from "@material-tailwind/react";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,9 +30,26 @@ function getDateFromISO(isoString) {
 }
 
 const ReviewProduct = ({ productId, reviews }) => {
+  const { auth } = useSelector((store) => store);
+
+  const userId = auth.user && auth.user.result.userId;
+  console.log(userId);
   const dispatch = useDispatch();
   const { review } = useSelector((store) => store);
   const [open, setOpen] = React.useState(false);
+
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  console.log("Reviews", reviews);
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -133,10 +151,23 @@ const ReviewProduct = ({ productId, reviews }) => {
   };
 
   const handleUpdateReview = (reviewId, content) => {
-    dispatch(updateReviewByProduct({reviewId : reviewId, content: content}));
+    dispatch(updateReviewByProduct({ reviewId: reviewId, content: content }));
     handleClose1();
-  }
+  };
 
+  const [selectedRating, setSelectedRating] = useState(null);
+
+  const handleRatingStar = (rating) => {
+    setSelectedRating(rating);
+  };
+
+  const filteredReviews = selectedRating
+    ? selectedRating === 0
+      ? reviews
+      : reviews.filter((item) => item.rating === selectedRating)
+    : reviews;
+
+  // console.log("SS",filteredReviews)
 
   return (
     <>
@@ -153,7 +184,7 @@ const ReviewProduct = ({ productId, reviews }) => {
               {handleRating(reviews)}/5
             </p>
             <Rating value={5} defaultValue={5}></Rating>
-              <p>Số lượt đánh giá: {reviews && reviews.length}</p>
+            <p>Số lượt đánh giá: {reviews && reviews.length}</p>
           </Grid>
           <Grid item xs={8}>
             <Box className="mt-5 space-y-3">
@@ -173,9 +204,7 @@ const ReviewProduct = ({ productId, reviews }) => {
                 <Grid item xs={3}>
                   <p className="ml-3">
                     {reviews
-                      ? reviews.filter(
-                          (item) => item.rating === 5
-                        ).length
+                      ? reviews.filter((item) => item.rating === 5).length
                       : 0}
                     đánh giá
                   </p>
@@ -198,9 +227,7 @@ const ReviewProduct = ({ productId, reviews }) => {
                 <Grid item xs={3}>
                   <p className="ml-3">
                     {reviews
-                      ? reviews.filter(
-                          (item) => item.rating === 4
-                        ).length
+                      ? reviews.filter((item) => item.rating === 4).length
                       : 0}
                     đánh giá
                   </p>
@@ -222,9 +249,7 @@ const ReviewProduct = ({ productId, reviews }) => {
                 <Grid item xs={3}>
                   <p className="ml-3">
                     {reviews
-                      ? reviews.filter(
-                          (item) => item.rating === 3
-                        ).length
+                      ? reviews.filter((item) => item.rating === 3).length
                       : 0}
                     đánh giá
                   </p>
@@ -247,9 +272,7 @@ const ReviewProduct = ({ productId, reviews }) => {
                 <Grid item xs={3}>
                   <p className="ml-3">
                     {reviews
-                      ? reviews.filter(
-                          (item) => item.rating === 2
-                        ).length
+                      ? reviews.filter((item) => item.rating === 2).length
                       : 0}
                     đánh giá
                   </p>
@@ -272,9 +295,7 @@ const ReviewProduct = ({ productId, reviews }) => {
                 <Grid item xs={3}>
                   <p className="ml-3">
                     {reviews
-                      ? reviews.filter(
-                          (item) => item.rating === 1
-                        ).length
+                      ? reviews.filter((item) => item.rating === 1).length
                       : 0}
                     đánh giá
                   </p>
@@ -335,97 +356,215 @@ const ReviewProduct = ({ productId, reviews }) => {
           <Grid item xs={12}>
             <p className="text-xl text-black py-5 font-bold">Lọc theo</p>
             <div className="flex gap-5">
-              <Button variant="outlined">5⭐</Button>
-              <Button variant="outlined">4⭐</Button>
-              <Button variant="outlined">3⭐</Button>
-              <Button variant="outlined">2⭐</Button>
-              <Button variant="outlined">1⭐</Button>
+              <Button variant="outlined" onClick={() => handleRatingStar(5)}>
+                5⭐
+              </Button>
+              <Button variant="outlined" onClick={() => handleRatingStar(4)}>
+                4⭐
+              </Button>
+              <Button variant="outlined" onClick={() => handleRatingStar(3)}>
+                3⭐
+              </Button>
+              <Button variant="outlined" onClick={() => handleRatingStar(2)}>
+                2⭐
+              </Button>
+              <Button variant="outlined" onClick={() => handleRatingStar(1)}>
+                1⭐
+              </Button>
+              <Button variant="outlined" onClick={() => handleRatingStar(0)}>
+                ALL⭐
+              </Button>
             </div>
             <hr className="mt-2" />
           </Grid>
           <Grid item xs={12} container spacing={5}>
-            {reviews && reviews.map((item) => (
-                <Grid item container xs={12}>
-                  <Grid item xs={1}>
-                    <Avatar
-                      src={
-                        item.user.avatarUrl ||
-                        "https://avatar.iran.liara.run/public/10"
-                      }
-                    ></Avatar>
-                  </Grid>
-                  <Grid item xs={8}>
-                    <p className="text-black">
-                      <b>
-                        {item.user?.firstName && item.user?.lastName
-                          ? `${item.user?.firstName} ${item.user?.lastName}`
-                          : "Ẩn danh"}
-                      </b>{" "}
-                      ⏱{getDateFromISO(item.createAt)}
-                    </p>
-                    <Rating defaultValue={5} value={item.rating}></Rating>
-                    <p>{item.content}</p>
-                  </Grid>
-                  <Grid item xs={2}>
-                    <Button variant="text" onClick={handleClickOpen1}>
-                      Chỉnh sửa
-                    </Button>
-                    <Dialog
-                      open={open1}
-                      onClose={handleClose1}
-                      aria-labelledby="alert-dialog-title"
-                      aria-describedby="alert-dialog-description"
-                    >
-                      <DialogTitle id="alert-dialog-title">
-                        "Đánh giá sản phẩm
-                      </DialogTitle>
-                      <DialogContent className="p-5">
-                        <div className="flex justify-between items-center">
-                          <label>Xếp hạng</label>
-                          <Rating
-                            value={updateData.rating}
-                            name="rating"
-                            onChange={handleRatingUpdate}
-                          />
-                        </div>
-                        <CssBaseline />
-                        <div className="w-full">
-                          <label>Nội dung đánh giá</label>
-                          <Textarea
-                            id="outlined-basic"
-                            variant="outlined"
-                            placeholder="Viết cái gì đó ..."
-                            name="content"
-                            value={updateData.content}
-                            onChange={handleUpdate}
-                          />
-                          <input
-                            type="file"
-                            name="imageUrl"
-                            id=""
-                            onChange={handleUpdate}
-                          />
-                        </div>
-                      </DialogContent>
-                      <DialogActions>
-                        <Button onClick={() => handleUpdateReview(item?.reviewId, updateData)}>Cập nhật</Button>
-                        <Button onClick={handleClose1}>Thoái</Button>
-                      </DialogActions>
-                    </Dialog>
-                    <Button
-                      onClick={() => handleDeleteReview(item?.reviewId)}
-                    >
-                      Xóa
-                    </Button>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <hr />
-                  </Grid>
-                </Grid>
-              ))}
+            {filteredReviews &&
+              filteredReviews
+                .sort((a, b) => b.reviewId - a.reviewId)
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((item) =>
+                  item.user.userId === userId ? (
+                    <Grid item container xs={12}>
+                      <Grid item xs={1}>
+                        <Avatar
+                          src={
+                            item.user.avatarUrl ||
+                            "https://avatar.iran.liara.run/public/10"
+                          }
+                        ></Avatar>
+                      </Grid>
+                      <Grid item xs={8}>
+                        <p className="text-black">
+                          <b>
+                            {item.user?.firstName && item.user?.lastName
+                              ? `${item.user?.firstName} ${item.user?.lastName}`
+                              : "Ẩn danh"}
+                          </b>{" "}
+                          ⏱{getDateFromISO(item.createAt)}
+                        </p>
+                        <Rating defaultValue={5} value={item.rating}></Rating>
+                        <p>{item.content}</p>
+                      </Grid>
+                      <Grid item xs={2}>
+                        <Button variant="text" onClick={handleClickOpen1}>
+                          Chỉnh sửa
+                        </Button>
+                        <Dialog
+                          open={open1}
+                          onClose={handleClose1}
+                          aria-labelledby="alert-dialog-title"
+                          aria-describedby="alert-dialog-description"
+                        >
+                          <DialogTitle id="alert-dialog-title">
+                            "Đánh giá sản phẩm
+                          </DialogTitle>
+                          <DialogContent className="p-5">
+                            <div className="flex justify-between items-center">
+                              <label>Xếp hạng</label>
+                              <Rating
+                                value={updateData.rating}
+                                name="rating"
+                                onChange={handleRatingUpdate}
+                              />
+                            </div>
+                            <CssBaseline />
+                            <div className="w-full">
+                              <label>Nội dung đánh giá</label>
+                              <Textarea
+                                id="outlined-basic"
+                                variant="outlined"
+                                placeholder="Viết cái gì đó ..."
+                                name="content"
+                                value={updateData.content}
+                                onChange={handleUpdate}
+                              />
+                              <input
+                                type="file"
+                                name="imageUrl"
+                                id=""
+                                onChange={handleUpdate}
+                              />
+                            </div>
+                          </DialogContent>
+                          <DialogActions>
+                            <Button
+                              onClick={() =>
+                                handleUpdateReview(item?.reviewId, updateData)
+                              }
+                            >
+                              Cập nhật
+                            </Button>
+                            <Button onClick={handleClose1}>Thoái</Button>
+                          </DialogActions>
+                        </Dialog>
+                        <Button
+                          onClick={() => handleDeleteReview(item?.reviewId)}
+                        >
+                          Xóa
+                        </Button>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <hr />
+                      </Grid>
+                    </Grid>
+                  ) : (
+                    <Grid item container xs={12}>
+                      <Grid item xs={1}>
+                        <Avatar
+                          src={
+                            item.user.avatarUrl ||
+                            "https://avatar.iran.liara.run/public/10"
+                          }
+                        ></Avatar>
+                      </Grid>
+                      <Grid item xs={8}>
+                        <p className="text-black">
+                          <b>
+                            {item.user?.firstName && item.user?.lastName
+                              ? `${item.user?.firstName} ${item.user?.lastName}`
+                              : "Ẩn danh"}
+                          </b>{" "}
+                          ⏱{getDateFromISO(item.createAt)}
+                        </p>
+                        <Rating defaultValue={5} value={item.rating}></Rating>
+                        <p>{item.content}</p>
+                      </Grid>
+                      {/* <Grid item xs={2}>
+                        <Button variant="text" onClick={handleClickOpen1}>
+                          Chỉnh sửa
+                        </Button>
+                        <Dialog
+                          open={open1}
+                          onClose={handleClose1}
+                          aria-labelledby="alert-dialog-title"
+                          aria-describedby="alert-dialog-description"
+                        >
+                          <DialogTitle id="alert-dialog-title">
+                            "Đánh giá sản phẩm
+                          </DialogTitle>
+                          <DialogContent className="p-5">
+                            <div className="flex justify-between items-center">
+                              <label>Xếp hạng</label>
+                              <Rating
+                                value={updateData.rating}
+                                name="rating"
+                                onChange={handleRatingUpdate}
+                              />
+                            </div>
+                            <CssBaseline />
+                            <div className="w-full">
+                              <label>Nội dung đánh giá</label>
+                              <Textarea
+                                id="outlined-basic"
+                                variant="outlined"
+                                placeholder="Viết cái gì đó ..."
+                                name="content"
+                                value={updateData.content}
+                                onChange={handleUpdate}
+                              />
+                              <input
+                                type="file"
+                                name="imageUrl"
+                                id=""
+                                onChange={handleUpdate}
+                              />
+                            </div>
+                          </DialogContent>
+                          <DialogActions>
+                            <Button
+                              onClick={() =>
+                                handleUpdateReview(item?.reviewId, updateData)
+                              }
+                            >
+                              Cập nhật
+                            </Button>
+                            <Button onClick={handleClose1}>Thoái</Button>
+                          </DialogActions>
+                        </Dialog>
+                        <Button
+                          onClick={() => handleDeleteReview(item?.reviewId)}
+                        >
+                          Xóa
+                        </Button>
+                      </Grid> */}
+                      <Grid item xs={12}>
+                        <hr />
+                      </Grid>
+                    </Grid>
+                  )
+                )}
           </Grid>
           <Grid item container xs={12} justifyContent={"center"}>
-            <Pagination count={10} color="secondary" />
+            <TablePagination
+              rowsPerPageOptions={[3, 6, 10]}
+              component="div"
+              count={reviews && reviews.length}
+              rowsPerPage={rowsPerPage}
+              labelRowsPerPage="Hàng trên mỗi trang"
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
           </Grid>
         </Grid>
       </Grid>

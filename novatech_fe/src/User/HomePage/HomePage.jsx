@@ -41,6 +41,7 @@ export function HomePage() {
         <div className="mx-10 lg:px-10">
           <HomeSectionCarosel />
           <HomeSectionCarosel />
+          <HomeSectionCarosel />
         </div>
 
         {/* <ProductCard/> */}

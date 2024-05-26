@@ -10,7 +10,6 @@ import com.nvl.novatech.model.Message;
 
 public class RealTimeChat {
 
-    @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
     
     @MessageMapping("/message")
