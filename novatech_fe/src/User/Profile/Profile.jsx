@@ -5,22 +5,22 @@ import { NavLink, Route, Router, Routes } from "react-router-dom";
 
 const Profile = ({routes}) => {
   return (
-    <div>
+    <div className="fixed left-28">
       {routes.map(({ layout, pages }, key) => (
-        <ul key={key} className="mb-4 flex flex-col gap-1">
+        <ul key={key} className="mb-4">
           {pages.map(({ icon, name, path }) => (
             <li key={name}>
               <NavLink to={`/${layout}/${path}`}>
                 {({ isActive }) => (
                   <Button
-                    variant={isActive ? "gradient" : "text"}
-                    className="flex gap-3 px-2 capitalize"
+                    variant="gradient"
+                    className="px-2 capitalize hover:shadow-md"
                     fullWidth
                   >
                     {icon}
                     <Typography
-                      color="black"
-                      className="font-medium capitalize p-2 bg-[#fff] hover:shadow-md"
+                      color="#fff"
+                      className="font-medium capitalize p-2"
                     >
                       {name}
                     </Typography>

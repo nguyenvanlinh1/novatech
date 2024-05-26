@@ -49,9 +49,10 @@ export const findProductsById = (reqData) => async (dispatch) => {
 
 export const getProducts = (reqData) => async (dispatch) => {
   dispatch({ type: GET_PRODUCTS_REQUEST });
+  console.log(reqData)
   const { pageNumber, pageSize } = reqData;
   try {
-    const data = await axios.get(
+    const {data} = await axios.get(
       `${API_BASE_URL}/products?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
     dispatch({ type: GET_PRODUCTS_SUCCESS, payload: data });

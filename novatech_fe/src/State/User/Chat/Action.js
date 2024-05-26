@@ -14,7 +14,7 @@ export const createChat = (chatData) => async (dispatch) => {
         })
 
         const data = await res.json();
-        console.log("Cr Chat", data)
+        // console.log("Cr Chat", data)
         dispatch({type:CREATE_CHAT, payload:data})
     } catch (error) {
         console.log("Error", error)

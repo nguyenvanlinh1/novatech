@@ -34,7 +34,7 @@ public class SecurityConfig {
             "/products/{productId}/adc", "/products/category",
             "/admin/order/{orderId}", "/admin/order", "/admin/order/{orderId}/place", "/admin/order/{orderId}/ship",
             "/admin/order/{orderId}/confirm", "/admin/order/{orderId}/delivery", "/admin/order/{orderId}/cancel",
-            "/products/search", "/messages/all",
+            "/products/search", "/messages/all", "/ws"
     };
 
     @Value("${jwt.signerKey}")

@@ -10,8 +10,19 @@ import Address from "./Address";
 import Support from "./Support";
 
 const ProfileMain = () => {
+  const background = "https://cdn.pixabay.com/photo/2016/10/22/01/54/wood-1759566_1280.jpg"
   return (
-    <Grid container mt={14}>
+    <Grid
+      container
+      mt={10}
+      spacing={2}
+      sx={{
+        backgroundImage: `url(${background})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        minHeight: "100vh",
+      }}
+    >
       <Grid item xs={4}>
         <Profile routes={routes} />
       </Grid>
