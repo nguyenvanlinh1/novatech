@@ -1,7 +1,6 @@
 package com.nvl.novatech.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -131,6 +130,7 @@ public class OrderServiceImpl implements OrderService{
     public Order deliveredOrder(Long orderId) {
         Order order = findOrderById(orderId);
         order.setStatus("DELIVERED");
+        order.setPayment(true);
         return orderRepository.save(order);
     }
 
@@ -163,6 +163,15 @@ public class OrderServiceImpl implements OrderService{
     @Override
     public void deleteOrderByUserId(Long orderId) {
         orderRepository.deleteById(orderId);
+    }
+
+
+
+    @Override
+    public void deleteOldOrder() {
+        LocalDateTime times = LocalDateTime.now().minusMonths(1);
+        List<Order> orders = orderRepository.findOldOrders(times);
+        orderRepository.deleteAll(orders);
     }
     
 }

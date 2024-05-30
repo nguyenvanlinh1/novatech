@@ -8,10 +8,8 @@ import com.nvl.novatech.dto.request.ApiResponse;
 import com.nvl.novatech.dto.request.AuthenticationRequest;
 import com.nvl.novatech.dto.request.IntrospectTokenRequest;
 import com.nvl.novatech.dto.request.LogoutRequest;
-import com.nvl.novatech.dto.request.UserCreationRequest;
 import com.nvl.novatech.dto.response.AuthenticationResponse;
 import com.nvl.novatech.dto.response.IntrospectTokenResponse;
-import com.nvl.novatech.dto.response.UserResponse;
 import com.nvl.novatech.service.AuthenticationService;
 import com.nvl.novatech.service.UserService;
 

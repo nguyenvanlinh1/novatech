@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 // import { updateProfile } from "../../State/User/Profile/Action";
 import { getUser, updateProfile } from "../../State/Auth/Action";
+import { toast } from "react-toastify";
 
 export const Info = () => {
   const dispatch = useDispatch();
@@ -10,7 +11,7 @@ export const Info = () => {
   const [firstName, setFirstName] = useState(true);
   const jwt = localStorage.getItem("jwt");
 
-  // console.log("Auth", auth)
+  console.log("Auth", auth)
 
   useEffect(() => {
     dispatch(getUser(jwt));
@@ -59,8 +60,9 @@ export const Info = () => {
     setLastName(true);
     setDob(true);
     setPhone(true);
-    // toast.success('🦄 Cập nhật thoog tin thành công!');
+    // toast.success("Cập nhật thành công!!!")
   };
+  console.log("Data", data)
 
   const fileInputRef = React.createRef();
   return (
@@ -105,7 +107,7 @@ export const Info = () => {
                 <div className="relative mb-2 space-x-0 space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0 sm:mb-6">
                   <TextField
                     label={"Họ Đệm"}
-                    defaultValue={`${
+                    value={`${
                       auth.user && auth.user.result.lastName
                     }`}
                     //defaultValue="Linh"
@@ -157,7 +159,7 @@ export const Info = () => {
                 <div className="relative mb-2 space-x-0 space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0 sm:mb-6">
                   <TextField
                     label={"Tên"}
-                    defaultValue={`${
+                    value={`${
                       auth.user && auth.user.result.firstName
                     }`}
                     //defaultValue="Linh"
@@ -211,7 +213,7 @@ export const Info = () => {
                   <TextField
                     id="dob"
                     label={"Ngày sinh"}
-                    defaultValue={`${
+                    value={`${
                       auth.user && auth.user.result.dob
                     }`}
                     //defaultValue={'14/06/2002'}
@@ -265,7 +267,7 @@ export const Info = () => {
                     id="phone"
                     name="phone"
                     label={"Số điện thoại"}
-                    defaultValue={`${
+                    value={`${
                       auth.user && auth.user.result.phone
                     }`}
                     //defaultValue={"0869526280"}
@@ -315,7 +317,7 @@ export const Info = () => {
                   <TextField
                     id="email"
                     label="Email"
-                    defaultValue={`${
+                    value={`${
                       auth.user && auth.user.result.email
                     }`}
                     //defaultValue={"nvanlinh1406@gmail.com"}

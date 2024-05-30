@@ -11,8 +11,6 @@ export function SignIn() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // console.log(auth);
-
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -29,26 +27,20 @@ export function SignIn() {
     }));
   };
 
+  console.log("Auth", auth)
+  console.log("Data", data)
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
+    if (!data.email) {
+      setError("Email không được để trống");
+      return;
+    } else if (!data.password) {
+      setError("Vui lòng nhập mật khẩu");
+      return;
+    }
     dispatch(login(data));
-    // setTimeout(() => {
-    //   if (auth.error === "Request failed with status code 401") {
-    //     alert("Thông tin tài khoản không chính xác");
-    //     setLoading(false);
-    //     setError("Thông tin tài khoản không chính xác");
-    //     console.log(error);
-    //   }
-    // }, 0)
-    // setTimeout(() => {
-    //   if (auth.error === "Request failed with status code 400") {
-    //     alert("Bạn phải nhập đầy đủ thông tin để đăng nhập");
-    //     setLoading(false);
-    //     setError("Bạn phải nhập đầy đủ thông tin để đăng nhập");
-    //     console.log(error);
-    //   }
-    // }, 0)
+    setLoading(true)
   };
 
   useEffect(() => {
@@ -57,31 +49,25 @@ export function SignIn() {
     }
   }, [jwt]);
 
-  console.log(auth)
   useEffect(() => {
+    if (auth.error === "Request failed with status code 401") {
+      setError("Thông tin email hoặc mật khẩu không chính xác");
+      setLoading(false);
+    }
     if (
       auth.user &&
-      auth.user.result.email && auth.user.result.roles.length !== 2
+      auth.user.result.email &&
+      auth.user.result.roles.length !== 2
     ) {
       setTimeout(() => {
         navigate("/");
       }, 3000);
-    } else if(auth.user && auth.user.result.roles.length === 2) {
+    } else if (auth.user && auth.user.result.roles.length === 2) {
       setTimeout(() => {
         navigate("/admin");
       }, 3000);
     }
   });
-  // .then(() => {
-  //   setTimeout(() => {
-  //     navigate("/");
-  //   }, 3000);
-  // });
-
-  const handleGitHubLogin = () => {
-    window.location.href =
-      "http://localhost:6789/login/oauth2/authorization/github";
-  };
 
   return (
     <section className="m-8 flex gap-4">
@@ -148,23 +134,6 @@ export function SignIn() {
           </Button>
         </form>
         <form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2">
-          <div className="flex items-center justify-between gap-2 mt-6">
-            <Checkbox
-              label={
-                <Typography
-                  variant="small"
-                  color="gray"
-                  className="flex items-center justify-start font-medium"
-                >
-                  Subscribe me to newsletter
-                </Typography>
-              }
-              containerProps={{ className: "-ml-2.5" }}
-            />
-            <Typography variant="small" className="font-medium text-gray-900">
-              <a href="#">Quên mật khẩu</a>
-            </Typography>
-          </div>
           <div className="space-y-4 mt-8">
             <Button
               size="lg"
@@ -215,7 +184,7 @@ export function SignIn() {
               color="white"
               className="flex items-center gap-2 justify-center shadow-md"
               fullWidth
-              onClick={handleGitHubLogin}
+              // onClick={handleGitHubLogin}
             >
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/GitHub_Invertocat_Logo.svg/1200px-GitHub_Invertocat_Logo.svg.png"

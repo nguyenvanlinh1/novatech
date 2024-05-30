@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import SignIn from "../User/Auth/Signin";
 import SignUp from "../User/Auth/Signup";
@@ -11,7 +11,6 @@ import FilterProduct from "../User/Product/FilterProduct";
 import AddressOrder from "../User/Order/AddressOrder";
 import PaymentOrder from "../User/Order/PaymentOrder";
 import PaymentReturn from "../User/Order/PaymentReturn";
-import { ToastContainer, Zoom } from "react-toastify";
 import { useSelector } from "react-redux";
 import Message from "../User/HomePage/Message";
 import OrderReturn from "../User/Order/OrderReturn";
@@ -20,8 +19,10 @@ import History from "../User/Profile/History";
 import ProfileMain from "../User/Profile/ProfileMain";
 import Support from "../User/Profile/Support";
 import Address from "../User/Profile/Address";
+import { Box, CircularProgress } from "@mui/material";
 
 const UserRouters = () => {
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
   const auth = useSelector((store) => store);
   const shouldDisplayNavigation = () => {
@@ -34,7 +35,7 @@ const UserRouters = () => {
   const jwt = localStorage.getItem("jwt");
   return (
     <div className="relative">
-      {shouldDisplayNavigation() && <Navigation />}
+      {shouldDisplayNavigation() && <Navigation setLoading={setLoading} />}
       <Routes>
         <Route path="/auth/signin" element={<SignIn />}></Route>
         <Route path="/auth/signup" element={<SignUp />}></Route>
@@ -60,19 +61,23 @@ const UserRouters = () => {
           <Message />
         </div>
       ) : null}
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-        transition={Zoom}
-      />
+      {loading && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            zIndex: 30,
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
     </div>
   );
 };

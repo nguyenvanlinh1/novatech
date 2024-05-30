@@ -41,6 +41,8 @@ public class Order {
 
     String status;
 
+    boolean isPayment = false;
+
     LocalDateTime orderDate;
     LocalDateTime deliveryDate;
 

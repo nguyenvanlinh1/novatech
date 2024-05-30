@@ -23,7 +23,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllUser } from "../../State/Auth/Action";
 import { getUsersChat } from "../../State/User/Chat/Action";
-import { createMessage, getAllMessages, getMessages } from "../../State/User/Message/Action";
+import notificationSound from "../../assets/Sound/notification.mp3";
+import {
+  createMessage,
+  getAllMessages,
+  getMessages,
+} from "../../State/User/Message/Action";
 
 const formatTimeDifference = (pastDate) => {
   const now = new Date();
@@ -45,10 +50,8 @@ const formatTimeDifference = (pastDate) => {
 
 const MessageAdmin = () => {
   const { message } = useSelector((store) => store);
-  console.log("Mess", message);
   const { auth } = useSelector((store) => store);
   const { chat } = useSelector((store) => store);
-  console.log("Chat", chat);
   const dispatch = useDispatch();
   const jwt = localStorage.getItem("jwt");
   const [anchorEl, setAnchorEl] = useState(null);
@@ -59,15 +62,41 @@ const MessageAdmin = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [content, setContent] = useState("");
+  const handleChange = (e) => {
+    setContent(e.target.value);
+  };
   const fileInputRef = useRef();
 
+  const [imageUrl, setImageUrl] = useState("");
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImageUrl(url);
+    }
+  };
+
+  // const handleFileChange = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onload = (event) => {
+  //       setImageUrl(event.target.result);
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
+
+  // const handleImage = (imageUrl) => {
+  //   const file =
+  // }
 
   useEffect(() => {
     dispatch(getUsersChat({ jwt }));
   }, [chat.createChat]);
 
   useEffect(() => {
-      dispatch(getMessages());
+    dispatch(getMessages());
   }, [message.newMessage]);
 
   useEffect(() => {
@@ -76,17 +105,20 @@ const MessageAdmin = () => {
 
   const handleCreateNewMessage = () => {
     dispatch(
-      createMessage({ 
-        jwt, 
-        data: { chatId: selectedChatId, content: content }
+      createMessage({
+        jwt,
+        data: {
+          chatId: selectedChatId,
+          content: content,
+          imageUrl: imageUrl,
+        },
       })
     );
+    setContent("");
+    setImageUrl("");
+    const sound = new Audio(notificationSound);
+    sound.play();
   };
-
-  const handleChange = (e) => {
-    setContent(e.target.value);
-  }
-
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -100,7 +132,7 @@ const MessageAdmin = () => {
     setSelectedAvatar(avatarIndex);
     setAnchorEl1(event.currentTarget);
     setSelectedUserId(userId);
-    setSelectedChatId(chatId)
+    setSelectedChatId(chatId);
   };
 
   const handleClose1 = () => {
@@ -112,7 +144,10 @@ const MessageAdmin = () => {
   };
 
   const filteredMessages =
-    message.allMessage && message.allMessage.data.result.filter((item) => item.chat.chatId === selectedChatId);
+    message.allMessage &&
+    message.allMessage.data.result.filter(
+      (item) => item.chat.chatId === selectedChatId
+    );
 
   return (
     <div className="relative">
@@ -160,7 +195,12 @@ const MessageAdmin = () => {
                     <Avatar
                       src={`https://avatar.iran.liara.run/public/${getRandomNumber()}`}
                       onClick={(event) =>
-                        handleAvatarClick(event, index, item.userId, userChats[0].chatId)
+                        handleAvatarClick(
+                          event,
+                          index,
+                          item.userId,
+                          userChats[0].chatId
+                        )
                       }
                       className="cursor-pointer"
                     />
@@ -178,7 +218,7 @@ const MessageAdmin = () => {
           open={open1}
           onClose={handleClose1}
           anchorReference="anchorPosition"
-          anchorPosition={{top: 100, left: 400}}
+          anchorPosition={{ top: 100, left: 400 }}
           transformOrigin={{
             vertical: "top",
             horizontal: "left",
@@ -203,7 +243,7 @@ const MessageAdmin = () => {
                 </Button>
               }
             />
-            <CardContent className="h-[400px]" sx={{overflowY: "scroll"}}>
+            <CardContent className="h-[400px]" sx={{ overflowY: "scroll" }}>
               {filteredMessages &&
                 filteredMessages.map((item, index) => (
                   <div key={index} className="space-y-4">
@@ -224,6 +264,12 @@ const MessageAdmin = () => {
                           </time>
                         </div>
                         <div className="chat-bubble">{item.content}</div>
+                        {item.imageUrl && (
+                          <img
+                            className="rounded-lg shadow w-32 h-32 mt-2 object-cover"
+                            src={item.imageUrl}
+                          ></img>
+                        )}
                       </div>
                     ) : (
                       <div className="chat chat-end text-xs">
@@ -242,6 +288,14 @@ const MessageAdmin = () => {
                           </time>
                         </div>
                         <div className="chat-bubble">{item.content}</div>
+                        <div>
+                          {item.imageUrl && (
+                            <img
+                              className="rounded-lg shadow w-32 h-32 mt-2 object-cover"
+                              src={item.imageUrl}
+                            ></img>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -272,10 +326,15 @@ const MessageAdmin = () => {
                     type="file"
                     inputRef={fileInputRef}
                     style={{ display: "none" }}
+                    onChange={handleFileChange}
                   />
                 </Grid>
                 <Grid item xs={1}>
-                  <Button onClick={handleCreateNewMessage} variant="text" endIcon={<SendIcon />}></Button>
+                  <Button
+                    onClick={handleCreateNewMessage}
+                    variant="text"
+                    endIcon={<SendIcon />}
+                  ></Button>
                 </Grid>
               </Grid>
             </CardActions>

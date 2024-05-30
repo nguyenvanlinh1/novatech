@@ -22,6 +22,7 @@ public class UserResponse {
     String phone;
     String password;
     LocalDate dob;
+    boolean isOnline;
 
     Set<RoleResponse> roles;
 }

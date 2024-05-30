@@ -14,10 +14,11 @@ public interface UserService {
     UserResponse getInfo();
     void deleteUser(Long userId);
     UserResponse updateUser(Long userId, UserUpdateRequest request);
-    List<UserResponse> getUsers();
+    List<User> getUsers();
     UserResponse getUser(Long userId);
     User findUserProfileByJwt(String jwt);
     Optional<User> findUserByEmail(String email);
     void save(User user);
     User findUserById(Long userId);
+    User setStatus(Long userId);
 }

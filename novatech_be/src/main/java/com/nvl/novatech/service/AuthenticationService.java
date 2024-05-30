@@ -42,17 +42,15 @@ import lombok.experimental.NonFinal;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
-    
+
     UserRepository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
-
 
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String signerKey;
 
-
-    public IntrospectTokenResponse introspect(IntrospectTokenRequest request) throws ParseException, JOSEException{
+    public IntrospectTokenResponse introspect(IntrospectTokenRequest request) throws ParseException, JOSEException {
         var token = request.getToken();
 
         boolean isValid = true;
@@ -63,34 +61,34 @@ public class AuthenticationService {
         }
 
         return IntrospectTokenResponse.builder()
-            .valid(isValid)
-            .build();
+                .valid(isValid)
+                .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request){
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
         var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow( () -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
-        if(!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
+        if (!authenticated)
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+        user.setOnline(true);
+        userRepository.save(user);
 
         var token = generateToken(user);
 
         return AuthenticationResponse.builder()
-                    .token(token)
-                    .authenticated(true)
-                    .build();
+                .token(token)
+                .authenticated(true)
+                .build();
 
     }
 
-    
-
-
-
-    public void logout(LogoutRequest request) throws ParseException, JOSEException{
+    public void logout(LogoutRequest request) throws ParseException, JOSEException {
         var signToken = verifyToken(request.getToken());
         String jit = signToken.getJWTClaimsSet().getJWTID();
 
@@ -104,35 +102,33 @@ public class AuthenticationService {
         invalidatedTokenRepository.save(invalidatedToken);
     }
 
-    private SignedJWT verifyToken(String token) throws ParseException, JOSEException{
+    private SignedJWT verifyToken(String token) throws ParseException, JOSEException {
         JWSVerifier verifier = new MACVerifier(signerKey.getBytes());
         SignedJWT signedJWT = SignedJWT.parse(token);
         Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
         var verified = signedJWT.verify(verifier);
 
-        if(!(verified && expiryTime.after(new Date())))
+        if (!(verified && expiryTime.after(new Date())))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
-        
-        if(invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
-            throw new AppException(ErrorCode.UNAUTHENTICATED);    
-        
+
+        if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+
         return signedJWT;
     }
 
-    private String generateToken(User user){
+    private String generateToken(User user) {
 
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                                        .subject(user.getEmail())
-                                        .issuer("nvl202.com")
-                                        .issueTime(new Date())
-                                        .expirationTime(new Date(Instant.now().plus(6, ChronoUnit.HOURS).toEpochMilli()))
-                                        .jwtID(UUID.randomUUID().toString())
-                                        .claim("scope", "USER")
-                                        .build();
-
-
+                .subject(user.getEmail())
+                .issuer("nvl202.com")
+                .issueTime(new Date())
+                .expirationTime(new Date(Instant.now().plus(6, ChronoUnit.HOURS).toEpochMilli()))
+                .jwtID(UUID.randomUUID().toString())
+                .claim("scope", "USER")
+                .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
 

@@ -1,5 +1,7 @@
 package com.nvl.novatech.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.nvl.novatech.dto.request.CartItemRequest;
@@ -11,6 +13,7 @@ import com.nvl.novatech.model.Product;
 import com.nvl.novatech.model.User;
 import com.nvl.novatech.repository.CartRepository;
 import com.nvl.novatech.repository.ProductRepository;
+import com.nvl.novatech.repository.UserRepository;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,26 +27,40 @@ public class CartServiceImpl implements CartService{
     CartRepository cartRepository;
     ProductRepository productRepository;
     CartItemService cartItemService;
+    UserRepository userRepository;
 
     @Override
     public Cart getCartbyUserId(Long userId) {
         Cart cart = cartRepository.findCartbyUserId(userId);
-        double totalPrice = 0;
-        double totalItem = 0;
-        double totalDiscountedPrice = 0;
-        
-        for (CartItem cartItem : cart.getCartItems()) {
-            totalItem = totalItem + cartItem.getQuantity();
-            totalPrice = totalPrice + cartItem.getPrice();
-            totalDiscountedPrice = totalDiscountedPrice + cartItem.getDiscountedPrice();
+        if(cart != null){
+            double totalPrice = 0;
+            double totalItem = 0;
+            double totalDiscountedPrice = 0;
+            
+            for (CartItem cartItem : cart.getCartItems()) {
+                totalItem = totalItem + cartItem.getQuantity();
+                totalPrice = totalPrice + cartItem.getPrice();
+                totalDiscountedPrice = totalDiscountedPrice + cartItem.getDiscountedPrice();
+            }
+    
+            cart.setTotalItem(totalItem);
+            cart.setTotalPrice(totalPrice);
+            cart.setTotalDiscountedPrice(totalDiscountedPrice);
+            cart.setTotalRemaining(totalPrice-totalDiscountedPrice);
+    
+            return cartRepository.save(cart);
         }
-
-        cart.setTotalItem(totalItem);
-        cart.setTotalPrice(totalPrice);
-        cart.setTotalDiscountedPrice(totalDiscountedPrice);
-        cart.setTotalRemaining(totalPrice-totalDiscountedPrice);
-
-        return cartRepository.save(cart);
+        else {
+            Cart newCart = new Cart();
+            Optional<User> user = userRepository.findById(userId);
+            newCart.setUser(user.get());
+            newCart.setTotalItem(0);
+            newCart.setTotalPrice(0);
+            newCart.setTotalDiscountedPrice(0);
+            newCart.setTotalRemaining(0);
+    
+            return cartRepository.save(newCart);
+        }
     }
 
     @Override

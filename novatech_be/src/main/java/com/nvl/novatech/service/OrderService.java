@@ -21,4 +21,5 @@ public interface OrderService {
     void deleteOrder(Long orderId);
     void deleteOrderByUserId(Long orderId);
     List<Order> filterStatus(StatusRequest request);
+    void deleteOldOrder();
 }

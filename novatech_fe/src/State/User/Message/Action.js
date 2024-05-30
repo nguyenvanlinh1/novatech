@@ -3,6 +3,7 @@ import { API_BASE_URL } from "../../../Config/apiConfig";
 import { CREATE_NEW_MESSAGE, GET_ALL_MESSAGE, GET_ALL_MESSAGE_CHAT_ID } from "./ActionType";
 
 export const createMessage = (messageData) => async (dispatch) => {
+  // console.log("Message", messageData)
   try {
     const res = await fetch(`${API_BASE_URL}/messages/create`, {
       method: "POST",

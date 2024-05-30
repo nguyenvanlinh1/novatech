@@ -25,10 +25,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nvl.novatech.config.PaymentConfig;
+import com.nvl.novatech.exception.AppException;
+import com.nvl.novatech.exception.ErrorCode;
 import com.nvl.novatech.model.Order;
 import com.nvl.novatech.model.PaymentResDTO;
 import com.nvl.novatech.model.TransactionStatusDTO;
 import com.nvl.novatech.model.User;
+import com.nvl.novatech.repository.OrderRepository;
 import com.nvl.novatech.service.OrderService;
 import com.nvl.novatech.service.UserService;
 
@@ -45,14 +48,15 @@ import lombok.experimental.FieldDefaults;
 public class PaymentController {
 
     // @SuppressWarnings({ "unchecked", "rawtypes" })
-    OrderService orderService;
     UserService userService;
+    OrderRepository orderRepository;
+
     @GetMapping("/create_payment/{orderId}")
     public ResponseEntity<?> createPayment(HttpServletRequest req, @RequestHeader("Authorization") String jwt, @PathVariable Long orderId) throws ServletException, IOException {
         // long amount = Integer.parseInt(req.getParameter("amount"))*100;
         // String bankCode = req.getParameter("bankCode");
         User user = userService.findUserProfileByJwt(jwt);
-        Order order = orderService.findOrderById(orderId);
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXISTED));
         double discountedPrice = order.getTotalDiscountedPrice();
         long amount = (long) (discountedPrice * 100);
         
@@ -116,6 +120,8 @@ public class PaymentController {
         paymentResDTO.setMessage("Successfully");
         paymentResDTO.setURL(paymentUrl);
 
+        order.setPayment(true);
+        orderRepository.save(order);
         return ResponseEntity.status(HttpStatus.OK).body(paymentResDTO);
     }
 

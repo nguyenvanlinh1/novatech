@@ -18,8 +18,9 @@ const ProductCard = ({ product }) => {
   const handleMinId = (data) => {
     const minImage = data.reduce((min, item) => {
       return item.imageId < min.imageId ? item : min;
-    });    return minImage.imageUrl;
-  }
+    });
+    return minImage.imageUrl;
+  };
 
   const [imageUrl, setImageUrl] = useState(null);
 
@@ -31,8 +32,9 @@ const ProductCard = ({ product }) => {
   }, [product]);
 
   const formatMoney = (data) => {
-    return data.toLocaleString("vi-VN")
-  } 
+    return data.toLocaleString("vi-VN");
+  };
+
   return (
     <>
       {product.quantity !== 0 ? (
@@ -165,12 +167,12 @@ const ProductCard = ({ product }) => {
               </Typography>
             </Box>
             <CardMedia
-              className="w-full h-[30%] object-cover"
+              className="w-full h-[200px] object-cover"
               component="img"
               image={imageUrl}
             ></CardMedia>
             <CardContent sx={{ paddingBottom: 0 }}>
-              <Typography variant="subtitle2" className="line-clamp-2">
+              <Typography variant="subtitle2" className="line-clamp-1">
                 {product.name}
               </Typography>
               <Typography className="text-[#DD5746]">
@@ -208,11 +210,11 @@ const ProductCard = ({ product }) => {
                 }}
               >
                 <Typography variant="body2" className="text-[#DD5746]">
-                  {product.discountedPrice}
+                  {formatMoney(product.discountedPrice)}
                   <span className="text-[#DD5746] underline">đ</span>
                 </Typography>
                 <Typography variant="body2" className="line-through">
-                  {product.price}
+                  {formatMoney(product.price)}
                   <span className="underline">đ</span>
                 </Typography>
               </Box>

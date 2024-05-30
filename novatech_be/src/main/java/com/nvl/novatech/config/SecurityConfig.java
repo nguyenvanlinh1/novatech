@@ -1,6 +1,5 @@
 package com.nvl.novatech.config;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
@@ -16,7 +15,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -34,7 +32,7 @@ public class SecurityConfig {
             "/products/{productId}/adc", "/products/category",
             "/admin/order/{orderId}", "/admin/order", "/admin/order/{orderId}/place", "/admin/order/{orderId}/ship",
             "/admin/order/{orderId}/confirm", "/admin/order/{orderId}/delivery", "/admin/order/{orderId}/cancel",
-            "/products/search", "/messages/all", "/ws"
+            "/products/search", "/messages/all",
     };
 
     @Value("${jwt.signerKey}")
@@ -46,19 +44,13 @@ public class SecurityConfig {
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
 
-    // @Autowired
-    // private CustomOAuth2UserService customOAuth2UserService;
-
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                 .requestMatchers(HttpMethod.PUT, PUBLIC_ENDPOINTS).permitAll()
                 .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
                 .requestMatchers(HttpMethod.DELETE, PUBLIC_ENDPOINTS).permitAll()
-                .anyRequest().authenticated())
-                .oauth2Login(oauth2 ->{
-
-                });
+                .anyRequest().authenticated());
 
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)));
 
@@ -68,7 +60,7 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration cfg = new CorsConfiguration();
                         cfg.setAllowedOrigins(Arrays.asList(
-                                "http://localhost:5173", "http://localhost:6789"));
+                                "http://localhost:5173"));
                         cfg.setAllowedMethods(Collections.singletonList("*"));
                         cfg.setAllowCredentials(true);
                         cfg.setAllowedHeaders(Collections.singletonList("*"));

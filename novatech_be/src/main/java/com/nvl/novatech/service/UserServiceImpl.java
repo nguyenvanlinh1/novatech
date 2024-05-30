@@ -2,7 +2,6 @@ package com.nvl.novatech.service;
 
 import com.nvl.novatech.config.JwtProvider;
 import com.nvl.novatech.dto.request.AuthenticationRequest;
-import com.nvl.novatech.dto.request.UserCreationRequest;
 import com.nvl.novatech.dto.request.UserUpdateRequest;
 import com.nvl.novatech.dto.response.AuthenticationResponse;
 import com.nvl.novatech.dto.response.UserResponse;
@@ -13,13 +12,11 @@ import com.nvl.novatech.model.Cart;
 import com.nvl.novatech.model.Role;
 import com.nvl.novatech.model.User;
 import com.nvl.novatech.repository.CartRepository;
-import com.nvl.novatech.repository.RoleRepository;
 import com.nvl.novatech.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -83,8 +80,9 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public List<UserResponse> getUsers() {
-        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+    public List<User> getUsers() {
+        // return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+        return userRepository.findAll();
     }
 
     @Override
@@ -120,5 +118,12 @@ public class UserServiceImpl implements UserService{
     @Override
     public User findUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_EXISTED));
+    }
+
+    @Override
+    public User setStatus(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        user.setOnline(false);
+        return userRepository.save(user);
     }
 }

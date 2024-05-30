@@ -30,6 +30,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long messageId;
     String content;
+    String imageUrl;
     LocalDateTime timestamp;
     
     @ManyToOne
