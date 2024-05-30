@@ -51,8 +51,24 @@ const Message = () => {
   const { message } = useSelector((store) => store);
   // console.log("Mes", message);
   // console.log("Chat", chat);
-  // const [currentChat, setCurrentChat] = useState(null);
+
   const [content, setContent] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+
+  const handleContentChange = (e) => {
+    setContent(e.target.value);
+  };
+
+  // console.log("ABC",imageUrl);
+  
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImageUrl(url);
+    }
+  };
+  
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -67,6 +83,9 @@ const Message = () => {
 
   // Tạo tham chiếu để kích hoạt input file
   const fileInputRef = React.createRef();
+
+  // console.log(imageUrl)
+  // console.log(content)
 
   //   const [stompClient, setStompClient] = useState();
   //   const [isconnect, setIsConnect] = useState(false);
@@ -168,25 +187,19 @@ const Message = () => {
     }
   }, [chat.chats && chat.chats.result, message.newMessage]);
 
-  const handleContent = (e) => {
-    setContent(e.target.value);
-  };
-
   const handleCreateNewMessage = () => {
     dispatch(
       createMessage({
         jwt,
-        data: { chatId: chat.chats.result[0].chatId, content: content },
+        data: {chatId: chat.chats.result[0].chatId, content: content, imageUrl: imageUrl },
       })
     );
     setContent("");
+    setImageUrl("");
     const sound = new Audio(notificationSound);
     sound.play();
   };
 
-  //console.log(message)
-
-  const handleCreateChat = (userId) => {};
 
   return (
     <div className="relative">
@@ -247,7 +260,7 @@ const Message = () => {
               message.messages.result &&
               message.messages.result.map((item) =>
                 item.user.userId === 21 ? (
-                  <div className="chat chat-start text-xs">
+                  <div key={item.user.userId} className="chat chat-start text-xs">
                     <div className="chat-image avatar">
                       <div className="w-10 rounded-full">
                         <img
@@ -263,9 +276,12 @@ const Message = () => {
                       </time>
                     </div>
                     <div className="chat-bubble">{item.content}</div>
+                    {
+                      item.imageUrl && <img className="rounded-lg shadow w-20 h-20 mt-2 object-cover" src={item.imageUrl}></img>
+                    }
                   </div>
                 ) : (
-                  <div className="chat chat-end text-xs">
+                  <div key={item.user.userId} className="chat chat-end text-xs">
                     <div className="chat-image avatar">
                       <div className="w-10 rounded-full">
                         <img
@@ -281,6 +297,9 @@ const Message = () => {
                       </time>
                     </div>
                     <div className="chat-bubble">{item.content}</div>
+                    {
+                      item.imageUrl && <img className="rounded-lg shadow w-20 h-20 mt-2 object-cover" src={item.imageUrl}></img>
+                    }
                   </div>
                 )
               )}
@@ -296,10 +315,7 @@ const Message = () => {
                   sx={{ width: "200px" }}
                   name="content"
                   value={content}
-                  onChange={handleContent}
-
-                  // value={input}
-                  // onChange={(e) => setInput(e.target.value)}
+                  onChange={handleContentChange}
                 />
               </Grid>
               <Grid item xs={2}>
@@ -315,6 +331,7 @@ const Message = () => {
                   type="file"
                   inputRef={fileInputRef}
                   style={{ display: "none" }}
+                  onChange={handleFileChange}
                 />
               </Grid>
               <Grid item xs={2}>

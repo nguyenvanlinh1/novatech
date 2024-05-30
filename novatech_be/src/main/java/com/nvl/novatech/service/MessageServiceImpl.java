@@ -34,6 +34,7 @@ public class MessageServiceImpl  implements MessageService{
         message.setChat(chat);
         message.setUser(user);
         message.setContent(request.getContent());
+        message.setImageUrl(request.getImageUrl());
         message.setTimestamp(LocalDateTime.now());
 
         return messageRepository.save(message);

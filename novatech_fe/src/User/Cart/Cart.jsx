@@ -16,10 +16,11 @@ import CartItem from "./CartItem";
 
 const Cart = () => {
   const { cart } = useSelector((store) => store);
+  console.log(cart)
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getCart());
-  }, [cart.updateCartItem, cart.deleteCartItem, cart.cartItems, cart.cart]);
+  }, [cart.updateCartItem, cart.deleteCartItem, cart.cartItems]);
   const formatMoney = (data) => {
     return data && data.toLocaleString("vi-VN")
   } 

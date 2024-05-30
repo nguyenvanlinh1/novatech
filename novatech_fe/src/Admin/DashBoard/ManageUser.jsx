@@ -19,9 +19,8 @@ import { deleteUser } from "../../State/Admin/User/Action";
 export const ManageUser = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const auth = useSelector((store) => store.auth);
-  const auser = useSelector((store) => store.auth);
-
+  const {auth} = useSelector((store) => store);
+  // console.log(auth)
   useEffect(() => {
     dispatch(getAllUser());
   }, []);
@@ -127,14 +126,14 @@ export const ManageUser = () => {
                           </td>
                           <td className={className}>
                             <Typography className="text-sm text-[#333]">
-                              {item.dbo || ""}
+                              {item.dob || ""}
                             </Typography>
                           </td>
                           <td className={className}>
                             <Chip
                               variant="gradient"
-                              color={online ? "green" : "blue-gray"}
-                              value={online ? "online" : "offline"}
+                              color={item.online ? "green" : "red"}
+                              value={item.online ? "online" : "offline"}
                               className="font-medium"
                             />
                           </td>

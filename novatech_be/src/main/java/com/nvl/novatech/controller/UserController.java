@@ -31,8 +31,8 @@ public class UserController {
     UserService userService;
 
     @GetMapping
-    ApiResponse<List<UserResponse>> getAllUser(){
-        return ApiResponse.<List<UserResponse>>builder()
+    ApiResponse<List<User>> getAllUser(){
+        return ApiResponse.<List<User>>builder()
             .result(userService.getUsers())
             .build();
     }
@@ -53,6 +53,15 @@ public class UserController {
             .build();
     }
 
+    @PutMapping("/profile/update/status")
+    ApiResponse<User> updateStatus(@RequestHeader("Authorization") String jwt){
+        User user = userService.findUserProfileByJwt(jwt);
+        
+        return ApiResponse.<User>builder()
+            .result(userService.setStatus(user.getUserId()))
+            .build();
+    }
+
     @DeleteMapping("/{userId}")
     ApiResponse<String> deleteUser(@PathVariable Long userId){
         userService.deleteUser(userId);
@@ -60,4 +69,6 @@ public class UserController {
             .result("Delete user successfully")
             .build();
     }
+
+
 }

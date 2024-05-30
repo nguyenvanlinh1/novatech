@@ -31,6 +31,8 @@ public class User {
 
     LocalDate dob;
     String phone;
+
+    boolean isOnline = false;
     
     @ManyToMany
     Set<Role> roles;
@@ -44,8 +46,8 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     List<Review> reviews = new ArrayList<>();
 
-    @Column(name = "source")
-    @Enumerated(EnumType.STRING)
-    private RegistrationSource source;
+    // @Column(name = "source")
+    // @Enumerated(EnumType.STRING)
+    // private RegistrationSource source;
 
 }

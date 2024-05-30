@@ -224,23 +224,23 @@ const ManageInventor = () => {
     handleTotalPriceMonth.reduce((acc, cur) => acc + cur.totalItems, 0);
 
   // Đưa ra tổng sản phẩm, tổng tiền trong 1 năm
-  const curYear = curDate.getFullYear();
-  const handleTotalPriceYear =
-    aorder.orders &&
-    aorder.orders.result &&
-    aorder.orders.result.filter(
-      (item) => getYearFromDate(item.orderDate) === curYear
-    );
-  const totalPriceYear =
-    handleTotalPriceYear &&
-    handleTotalPriceYear.reduce(
-      (acc, cur) => acc + cur.totalDiscountedPrice,
-      0
-    );
-  // Tong san pham ca nam
-  const totalItemYear =
-    handleTotalPriceYear &&
-    handleTotalPriceYear.reduce((acc, cur) => acc + cur.totalItems, 0);
+  // const curYear = curDate.getFullYear();
+  // const handleTotalPriceYear =
+  //   aorder.orders &&
+  //   aorder.orders.result &&
+  //   aorder.orders.result.filter(
+  //     (item) => getYearFromDate(item.orderDate) === curYear
+  //   );
+  // const totalPriceYear =
+  //   handleTotalPriceYear &&
+  //   handleTotalPriceYear.reduce(
+  //     (acc, cur) => acc + cur.totalDiscountedPrice,
+  //     0
+  //   );
+  // // Tong san pham ca nam
+  // const totalItemYear =
+  //   handleTotalPriceYear &&
+  //   handleTotalPriceYear.reduce((acc, cur) => acc + cur.totalItems, 0);
 
   //// Đưa ra top 5 sản phẩm được bán nhiều nhất
   // Tạo một object để lưu số lượng bán của mỗi sản phẩm
@@ -304,7 +304,6 @@ const ManageInventor = () => {
   }
 
   const top5Person = findTop5Customers(handleTotalPriceMonth);
-  console.log(top5Person)
 
 
 
@@ -579,7 +578,7 @@ const ManageInventor = () => {
   return (
     <div>
       <Grid container spacing={2} mt={2}>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Card className="border border-blue-gray-100 shadow-sm">
             <CardHeader
               variant="gradient"
@@ -610,7 +609,7 @@ const ManageInventor = () => {
             </CardBody>
           </Card>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Card className="border border-blue-gray-100 shadow-sm">
             <CardHeader
               variant="gradient"
@@ -641,7 +640,7 @@ const ManageInventor = () => {
             </CardBody>
           </Card>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Card className="border border-blue-gray-100 shadow-sm">
             <CardHeader
               variant="gradient"
@@ -672,7 +671,7 @@ const ManageInventor = () => {
             </CardBody>
           </Card>
         </Grid>
-        <Grid item xs={3}>
+        {/* <Grid item xs={3}>
           <Card className="border border-blue-gray-100 shadow-sm">
             <CardHeader
               variant="gradient"
@@ -702,7 +701,7 @@ const ManageInventor = () => {
               </Typography>
             </CardBody>
           </Card>
-        </Grid>
+        </Grid> */}
         <Grid item xs={8}>
           <Card>
             <CardHeader

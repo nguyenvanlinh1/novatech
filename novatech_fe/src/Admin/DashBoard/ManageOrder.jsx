@@ -4,6 +4,7 @@ import {
   CardHeader,
   Typography,
   CardFooter,
+  Chip,
 } from "@material-tailwind/react";
 import React, { useEffect, useState } from "react";
 import orderTable from "../Data/orderTable";
@@ -51,15 +52,12 @@ const ManageOrder = () => {
     setPage(0);
   };
   const { aorder } = useSelector((store) => store);
+  console.log("Order",aorder);
+
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getAllOrders());
-  }, [
-    aorder.shipped,
-    aorder.confirmed,
-    aorder.delivered,
-    aorder.deletedOrder,
-  ]);
+  }, [aorder.shipped, aorder.confirmed, aorder.delivered, aorder.deletedOrder]);
 
   const [anchorEl, setAnchorEl] = React.useState([]);
 
@@ -95,22 +93,43 @@ const ManageOrder = () => {
 
   const [dataStatus, setDataStatus] = useState({
     status: "",
+    isPayment: null,
   });
 
-  const handleFindStatus = () => {
-    dispatch(findOrderStatus(dataStatus));
-  };
+  // const handleFindStatus = () => {
+  //   dispatch(findOrderStatus(dataStatus));
+  // };
 
   const handleChange = (event) => {
-    const status = event.target.value;
-    setDataStatus((prevStatus) => ({ ...prevStatus, status }));
+    const { name, value } = event.target;
+    setDataStatus((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const result = filteredOrders.map(item => {
+    const {orderId, orderDate, address: { addressId }, user: { userId }, status, payment, totalItems, totalDiscountedPrice } = item;
+    return {orderId, orderDate, addressId, userId, status, payment, totalItems, totalDiscountedPrice };
+  });
+  console.log(result)
 
   useEffect(() => {
-    if (dataStatus.status) {
-      handleFindStatus();
+    if (dataStatus.status !== "" || dataStatus.isPayment !== null) {
+      const filtered =
+        aorder.orders &&
+        aorder.orders.result.filter(
+          (item) =>
+            (dataStatus.status === "" || item.status === dataStatus.status) &&
+            (dataStatus.isPayment === "" ||
+              item.payment === dataStatus.isPayment)
+        );
+      setFilteredOrders(filtered);
+    } else {
+      // If both status and isPayment are empty, display all orders
+      setFilteredOrders(aorder.orders.result);
     }
-  }, [dataStatus]);
+  }, [dataStatus.status, dataStatus.isPayment, aorder.orders.result]);
 
   const formatMoney = (data) => {
     return data && data.toLocaleString("vi-VN");
@@ -132,6 +151,25 @@ const ManageOrder = () => {
                   id="demo-simple-select-standard-label"
                   sx={{ fontSize: 14 }}
                 >
+                  Lọc theo tình trạng
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-standard-label"
+                  id="demo-simple-select-standard"
+                  label="status"
+                  value={dataStatus.isPayment}
+                  onChange={handleChange}
+                  name="isPayment"
+                >
+                  <MenuItem value={false}>Chưa thanh toán</MenuItem>
+                  <MenuItem value={true}>Đã thanh toán</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 180 }}>
+                <InputLabel
+                  id="demo-simple-select-standard-label"
+                  sx={{ fontSize: 14 }}
+                >
                   Lọc theo trạng thái
                 </InputLabel>
                 <Select
@@ -140,6 +178,7 @@ const ManageOrder = () => {
                   label="status"
                   value={dataStatus.status}
                   onChange={handleChange}
+                  name="status"
                 >
                   <MenuItem value="PENDING">Chờ xác nhận</MenuItem>
                   <MenuItem value="CONFIRMED">Xác nhận</MenuItem>
@@ -149,7 +188,7 @@ const ManageOrder = () => {
               </FormControl>
             </div>
             <div className="mr-5">
-              <ExportData data={aorder.orders && aorder.orders.result}/>
+              <ExportData data={result} />
               {/* <CSVDownload data={aorder.orders && aorder.orders.result} /> */}
             </div>
           </div>
@@ -162,6 +201,7 @@ const ManageOrder = () => {
                   "Người đặt",
                   "Ngày đặt",
                   "Tổng tiền",
+                  "Tình trạng",
                   "Trạng thái",
                   "",
                 ].map((el) => (
@@ -180,131 +220,141 @@ const ManageOrder = () => {
               </tr>
             </thead>
             <tbody>
-              {aorder.orders &&
-                aorder.orders.result &&
-                aorder.orders.result
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((item, key) => {
-                    const index = page * rowsPerPage + key;
-                    const className = `py-3 px-5 ${
-                      key === aorder.orders.result.length
-                        ? ""
-                        : "border-b border-blue-gray-50 text-center"
-                    }`;
+              {filteredOrders && filteredOrders
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                // .filter((item) => item.status === dataStatus.status)
+                .sort((a, b) => new Date(b.orderId) - new Date(a.orderId))
+                .map((item, key) => {
+                  const index = page * rowsPerPage + key;
+                  const className = `py-3 px-5 ${
+                    key === aorder.orders.result.length
+                      ? ""
+                      : "border-b border-blue-gray-50 text-center"
+                  }`;
 
-                    return (
-                      <tr key={item.orderId}>
-                        <td className={className}>
-                          <Typography className="text-sm text-[#333]">
-                            {item.orderId}
-                          </Typography>
-                        </td>
-                        <td className={className}>
-                          <AvatarGroup
-                            max={2}
-                            sx={{ justifyContent: "flex-end" }}
-                          >
-                            {item.orderItems.map((item2) =>
-                              item2.product.images.map(
-                                ({ imageId, imageUrl }) => (
-                                  <Tooltip key={imageId} content={imageId}>
-                                    <Avatar
-                                      src={imageUrl}
-                                      alt={imageId}
-                                      size="xs"
-                                      className={`cursor-pointer border-2 border-white ${
-                                        key === 0 ? "" : "-ml-2.5"
-                                      }`}
-                                    />
-                                  </Tooltip>
-                                )
+                  return (
+                    <tr key={item.orderId}>
+                      <td className={className}>
+                        <Typography className="text-sm text-[#333]">
+                          {item.orderId}
+                        </Typography>
+                      </td>
+                      <td className={className}>
+                        <AvatarGroup
+                          max={2}
+                          sx={{ justifyContent: "flex-end" }}
+                        >
+                          {item.orderItems.map((item2) =>
+                            item2.product.images.map(
+                              ({ imageId, imageUrl }) => (
+                                <Tooltip key={imageId} content={imageId}>
+                                  <Avatar
+                                    src={imageUrl}
+                                    alt={imageId}
+                                    size="xs"
+                                    className={`cursor-pointer border-2 border-white ${
+                                      key === 0 ? "" : "-ml-2.5"
+                                    }`}
+                                  />
+                                </Tooltip>
                               )
-                            )}
-                          </AvatarGroup>
-                        </td>
-                        <td className={className}>
-                          <Typography className="text-sm text-[#333]">
-                            {item.user.firstName} {item.user.lastName}
-                          </Typography>
-                          <Typography className="text-sm text-[#333]">
-                            {item.user.email}
-                          </Typography>
-                        </td>
-                        <td className={className}>
-                          <Typography className="text-sm text-[#333]">
-                            {getDateFromISO(item.orderDate)}
-                          </Typography>
-                        </td>
-                        <td className={className}>
-                          <Typography className="text-sm text-[#333] line-through">
-                            {formatMoney(item.totalPrice)}đ
-                          </Typography>
-                          <Typography className="text-md text-[#DD5746]">
-                            {formatMoney(item.totalDiscountedPrice)}đ
-                          </Typography>
-                        </td>
-                        <td className={className}>
-                          <Button
-                            id="basic-button"
-                            aria-controls={`basic-menu-${item.orderId}`}
-                            aria-haspopup="true"
-                            aria-expanded={Boolean(anchorEl[index])}
-                            onClick={(e) => handleClick(e, index)}
+                            )
+                          )}
+                        </AvatarGroup>
+                      </td>
+                      <td className={className}>
+                        <Typography className="text-sm text-[#333]">
+                          {item.user.firstName} {item.user.lastName}
+                        </Typography>
+                        <Typography className="text-sm text-[#333]">
+                          {item.user.email}
+                        </Typography>
+                      </td>
+                      <td className={className}>
+                        <Typography className="text-sm text-[#333]">
+                          {getDateFromISO(item.orderDate)}
+                        </Typography>
+                      </td>
+                      <td className={className}>
+                        <Typography className="text-sm text-[#333] line-through">
+                          {formatMoney(item.totalPrice)}đ
+                        </Typography>
+                        <Typography className="text-md text-[#DD5746]">
+                          {formatMoney(item.totalDiscountedPrice)}đ
+                        </Typography>
+                      </td>
+                      <td className={className}>
+                        <Chip
+                          variant="gradient"
+                          color={item.payment ? "green" : "red"}
+                          value={
+                            item.payment ? "Đã thanh toán" : "Chưa thanh toán"
+                          }
+                          className="font-medium"
+                        />
+                      </td>
+                      <td className={className}>
+                        <Button
+                          id="basic-button"
+                          aria-controls={`basic-menu-${item.orderId}`}
+                          aria-haspopup="true"
+                          aria-expanded={Boolean(anchorEl[index])}
+                          onClick={(e) => handleClick(e, index)}
+                        >
+                          <span
+                            className={`px-5 py-2 rounded-full ${
+                              item.status === "CONFIRMED"
+                                ? "text-[#e6e600]"
+                                : item.status === "SHIPPED"
+                                ? "text-[#00bfff]"
+                                : item.status === "PLACED"
+                                ? "text-[#DD5746]"
+                                : item.status === "DELIVERED"
+                                ? "text-[#33cc33]"
+                                : "text-[#DD5746]"
+                            }`}
                           >
-                            <span
-                              className={`px-5 py-2 rounded-full ${
-                                item.status === "CONFIRMED"
-                                  ? "text-[#e6e600]"
-                                  : item.status === "SHIPPED"
-                                  ? "text-[#00bfff]"
-                                  : item.status === "PLACED"
-                                  ? "text-[#DD5746]"
-                                  : item.status === "DELIVERED"
-                                  ? "text-[#33cc33]"
-                                  : "text-[#DD5746]"
-                              }`}
-                            >
-                              {item.status}
-                            </span>
-                          </Button>
-                          <Menu
-                            id={`basic-menu-${item.orderId}`}
-                            anchorEl={anchorEl[index]}
-                            open={Boolean(anchorEl[index])}
-                            onClose={() => handleClose(index)}
-                            MenuListProps={{
-                              "aria-labelledby": "basic-button",
-                            }}
+                            {item.status}
+                          </span>
+                        </Button>
+                        <Menu
+                          id={`basic-menu-${item.orderId}`}
+                          anchorEl={anchorEl[index]}
+                          open={Boolean(anchorEl[index])}
+                          onClose={() => handleClose(index)}
+                          MenuListProps={{
+                            "aria-labelledby": "basic-button",
+                          }}
+                        >
+                          <MenuItem
+                            onClick={() => handleConfirmedOrder(item.orderId)}
                           >
-                            <MenuItem
-                              onClick={() => handleConfirmedOrder(item.orderId)}
-                            >
-                              Xác nhận
-                            </MenuItem>
-                            <MenuItem
-                              onClick={() => handleShipedOrder(item.orderId)}
-                            >
-                              Vận chuyển
-                            </MenuItem>
-                            <MenuItem
-                              onClick={() => handleDeliveredOrder(item.orderId)}
-                            >
-                              Hoàn thành
-                            </MenuItem>
-                          </Menu>
-                        </td>
-                        <td>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            onClick={() => handleDeleteOrder(item.orderId)}
+                            Xác nhận
+                          </MenuItem>
+                          <MenuItem
+                            onClick={() => handleShipedOrder(item.orderId)}
                           >
-                            Xóa
-                          </Button>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                            Vận chuyển
+                          </MenuItem>
+                          <MenuItem
+                            onClick={() => handleDeliveredOrder(item.orderId)}
+                          >
+                            Hoàn thành
+                          </MenuItem>
+                        </Menu>
+                      </td>
+                      <td>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          onClick={() => handleDeleteOrder(item.orderId)}
+                        >
+                          Xóa
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </table>
         </CardBody>

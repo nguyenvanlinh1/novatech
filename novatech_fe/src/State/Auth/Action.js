@@ -14,6 +14,9 @@ import {
   REGISTER_FAILURE,
   REGISTER_REQUEST,
   REGISTER_SUCCESS,
+  UPDATE_STATUS_FAILURE,
+  UPDATE_STATUS_REQUEST,
+  UPDATE_STATUS_SUCCESS,
   UPDATE_USER_FAILURE,
   UPDATE_USER_REQUEST,
   UPDATE_USER_SUCCESS,
@@ -91,15 +94,27 @@ export const logout = () => (dispatch) => {
   window.location.href = 'http://localhost:5173'
 };
 
-export const updateProfile = (reqData) => async (dispatch) => {
+export const updateProfile = () => async (dispatch) => {
   // console.log("Data",reqData)
   dispatch({ type: UPDATE_USER_REQUEST });
   try {
-    const {data} = await api.put("/users/profile/update", reqData);
+    const {data} = await api.put("/users/profile/update");
     // console.log(data)
     dispatch({ type: UPDATE_USER_SUCCESS, payload: data });
+    // toast.success('🦄 Cập nhật thông tin thành công!');
   } catch (error) {
     dispatch({ type: UPDATE_USER_FAILURE, payload: error.message });
+  }
+};
+
+export const updateStatus = () => async (dispatch) => {
+  dispatch({ type: UPDATE_STATUS_REQUEST });
+  try {
+    const {data} = await api.put("/users/profile/update/status");
+    console.log("Data",data)
+    dispatch({ type: UPDATE_STATUS_SUCCESS, payload: data });
+  } catch (error) {
+    dispatch({ type: UPDATE_STATUS_FAILURE, payload: error.message });
   }
 };
 

@@ -16,4 +16,5 @@ public class SendMessageRequest {
     Long userId;
     Long chatId;
     String content;
+    String imageUrl;
 }

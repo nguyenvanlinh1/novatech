@@ -44,6 +44,7 @@ public class ApplicationInitConfig {
                         .avatarUrl("https://avatar.iran.liara.run/public/49")
                         .email("admin@gmail.com")
                         .password(passwordEncoder.encode("admin"))
+                        .isOnline(true)
                         .roles(roles)
                         .build();
         

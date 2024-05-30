@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navbar, Collapse, Button } from "@material-tailwind/react";
+import { Navbar, Button } from "@material-tailwind/react";
 
 import InputBase from "@mui/material/InputBase";
 import {
@@ -26,7 +26,6 @@ import TabletMacSharpIcon from "@mui/icons-material/TabletMacSharp";
 import WatchSharpIcon from "@mui/icons-material/WatchSharp";
 import HeadsetSharpIcon from "@mui/icons-material/HeadsetSharp";
 import CategorySharpIcon from "@mui/icons-material/CategorySharp";
-import { categoryData } from "../HomePage/categoryData";
 import ArrowRightSharpIcon from "@mui/icons-material/ArrowRightSharp";
 import LocalPhoneSharpIcon from "@mui/icons-material/LocalPhoneSharp";
 import "./nav.css";
@@ -34,7 +33,7 @@ import { deepPurple } from "@mui/material/colors";
 import Logout from "@mui/icons-material/Logout";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { getUser, logout } from "../../State/Auth/Action";
+import { getUser, logout, updateStatus } from "../../State/Auth/Action";
 import { getCart } from "../../State/User/Cart/Action";
 import {
   findProductByName,
@@ -234,7 +233,7 @@ function NavList() {
   );
 }
 
-export function Navigation() {
+export function Navigation({setLoading}) {
   const [isDropdown, setIsDropdown] = useState(false);
 
   const { auth } = useSelector((store) => store);
@@ -286,8 +285,12 @@ export function Navigation() {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(updateStatus());
     handleCloseMenu();
+    setLoading(true);
+    setTimeout(() => {
+      dispatch(logout());
+    }, 2000);
   };
   // Hàm kiểm tra và xóa localStorage sau 4 giờ
   function clearLocalStorageAfter4Hours() {
@@ -307,7 +310,6 @@ export function Navigation() {
     }
   }
   clearLocalStorageAfter4Hours();
-  
 
   useEffect(() => {
     if (jwt) {
@@ -344,15 +346,15 @@ export function Navigation() {
   const handleProduct = (productId) => {
     setData((prev) => ({
       ...prev,
-      search:"",
-    }))
-    navigate(`/product/${productId}`)
-  }
+      search: "",
+    }));
+    navigate(`/product/${productId}`);
+  };
 
   //dinh dang tien
   const formatMoney = (data) => {
-    return data.toLocaleString("vi-VN")
-  }
+    return data.toLocaleString("vi-VN");
+  };
 
   return (
     <Navbar fullWidth className="p-2 fixed top-0 right-0 z-10">
@@ -418,17 +420,11 @@ export function Navigation() {
                           {secondItem.secondContent.map((thirdItem) => (
                             <li className="drop-third w-60 py-1 px-4 m-0">
                               <Typography
-                                onClick={() =>
-                                  handleThree(
-                                    thirdItem
-                                  )
-                                }
+                                onClick={() => handleThree(thirdItem)}
                                 variant="caption text"
                                 className="text-white border-0 border-transparent"
                               >
-                                {
-                                  thirdItem
-                                }
+                                {thirdItem}
                               </Typography>
                             </li>
                           ))}
@@ -460,39 +456,40 @@ export function Navigation() {
               <p className="opacity-80 m-2">Sản phẩm gợi ý</p>
               {uproduct.searchproducts.result.length !== 0 ? (
                 uproduct.searchproducts.result
-                .filter((item) => item.quantity > 0)
-                .slice(0, 3).map((item) => (
-                  <Grid
-                    container
-                    padding={2}
-                    alignItems={"center"}
-                    justifyContent={"center"}
-                    mt={"2px"}
-                    key={item.productId} // Thêm key để tránh cảnh báo React
-                    className="hover:bg-[#e2e8f0] cursor-pointer"
-                    onClick={() => handleProduct(item.productId)}
-                  >
-                    <Grid item xs={3}>
-                      <Avatar
-                        variant="rounded"
-                        src={
-                          item.images[0].imageUrl
-                        } // Sử dụng URL ảnh thực tế của sản phẩm
-                      ></Avatar>
+                  .filter((item) => item.quantity > 0)
+                  .slice(0, 3)
+                  .map((item) => (
+                    <Grid
+                      container
+                      padding={2}
+                      alignItems={"center"}
+                      justifyContent={"center"}
+                      mt={"2px"}
+                      key={item.productId} // Thêm key để tránh cảnh báo React
+                      className="hover:bg-[#e2e8f0] cursor-pointer"
+                      onClick={() => handleProduct(item.productId)}
+                    >
+                      <Grid item xs={3}>
+                        <Avatar
+                          variant="rounded"
+                          src={item.images[0].imageUrl} // Sử dụng URL ảnh thực tế của sản phẩm
+                        ></Avatar>
+                      </Grid>
+                      <Grid item xs={8}>
+                        <Typography variant="caption">
+                          <span className="line-clamp-1">{item.name}</span>
+                        </Typography>
+                        <Typography variant="body2">
+                          <span className="text-[#DD5746] mr-5">
+                            {formatMoney(item.discountedPrice)}đ
+                          </span>
+                          <span className="text-[#333] line-through">
+                            {formatMoney(item.price)}đ
+                          </span>
+                        </Typography>
+                      </Grid>
                     </Grid>
-                    <Grid item xs={8}>
-                      <Typography variant="caption"><span className="line-clamp-1">{item.name}</span></Typography>
-                      <Typography variant="body2">
-                        <span className="text-[#DD5746] mr-5">
-                        {formatMoney(item.discountedPrice)}đ
-                        </span>
-                        <span className="text-[#333] line-through">
-                          {formatMoney(item.price)}đ
-                        </span>
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                ))
+                  ))
               ) : (
                 <p className="text-[#DD5746]">
                   Hiện tại không có sản phẩm 😢 😢 😢
@@ -590,7 +587,9 @@ export function Navigation() {
                 cursor: "pointer",
               }}
             >
-              {auth.user && auth.user.result && auth.user.result.email[0].toUpperCase()}
+              {auth.user &&
+                auth.user.result &&
+                auth.user.result.email[0].toUpperCase()}
             </Avatar>
             <Menu
               anchorEl={anchorEl}
