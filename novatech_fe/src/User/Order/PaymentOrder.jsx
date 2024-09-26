@@ -79,6 +79,7 @@ SimpleDialog.PropTypes = {
 
 const PaymentOrder = () => {
   const { payment } = useSelector((store) => store);
+  console.log(payment)
   const { uorder } = useSelector((store) => store);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -89,11 +90,10 @@ const PaymentOrder = () => {
 
   const [open, setOpen] = useState(false);
   const handlePayment = (orderId) => {
-    dispatch(createPayment(orderId));
-
     if (selectedValue.id === 0) {
       navigate("/order_return");
     } else if (selectedValue.id === 2) {
+      dispatch(createPayment(orderId));
       setTimeout(() => {
         window.location.href = `${payment.payment.url}`;
       }, 1000);

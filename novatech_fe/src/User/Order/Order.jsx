@@ -5,6 +5,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import EastIcon from "@mui/icons-material/East";
 import SearchIcon from "@mui/icons-material/Search";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import CancelIcon from "@mui/icons-material/Cancel";
 import {
   Card,
   CardBody,
@@ -30,7 +31,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { orderHistory } from "../../State/User/Order/Action";
+import { deleteOrderById, orderHistory } from "../../State/User/Order/Action";
 import Detail from "./Detail";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -54,8 +55,7 @@ const Order = () => {
     if (jwt) {
       dispatch(orderHistory());
     }
-  }, [jwt]);
-
+  }, [jwt, uorder.deleteOrder]);
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -78,9 +78,14 @@ const Order = () => {
     setOpen(false);
   };
 
+  const handleDeleteOrder = (orderId) => {
+    dispatch(deleteOrderById(orderId))
+  };
+
   const formatMoney = (data) => {
     return data && data.toLocaleString("vi-VN");
   };
+
   return (
     <div className="mt-5">
       <div className="flex justify-between p-5">
@@ -119,6 +124,7 @@ const Order = () => {
                     "Tổng tiền (đ)",
                     "Trạng Thái",
                     "",
+                    "",
                   ].map((el) => (
                     <th
                       key={el}
@@ -135,8 +141,10 @@ const Order = () => {
                 </tr>
               </thead>
               <tbody>
-                {uorder.orders && uorder.orders.result && 
-                uorder.orders.result.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                {uorder.orders &&
+                  uorder.orders.result &&
+                  uorder.orders.result
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((item, key) => {
                       const className = `py-3 px-5 ${
                         key === item.length - 1
@@ -225,6 +233,20 @@ const Order = () => {
                               </DialogActions>
                             </Dialog>
                           </td>
+                          {item.status === "PENDING" ? (
+                            <td className={className}>
+                              <Button
+                                variant="text"
+                                startIcon={<CancelIcon />}
+                                sx={{ color: "red" }}
+                                onClick={() => handleDeleteOrder(item.orderId)}
+                              >
+                                Hủy đơn
+                              </Button>
+                            </td>
+                          ) : (
+                            ""
+                          )}
                         </tr>
                       );
                     })}

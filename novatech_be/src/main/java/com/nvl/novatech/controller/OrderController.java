@@ -39,7 +39,7 @@ public class OrderController {
     ApiResponse<Order> createOrder(@RequestHeader("Authorization") String jwt, @RequestBody AddressOrderRequest request){
         User user = userService.findUserProfileByJwt(jwt);
         
-        sendEmail("novatech.shopmobile1@gmail.com", "Order", "Thank you for your order");
+        sendEmail("novatech.technology1@gmail.com", "Order", "Thank you for your order");
         
         return ApiResponse.<Order>builder()
         .result(orderService.createOrder(user, request))
@@ -51,7 +51,7 @@ public class OrderController {
         User user = userService.findUserProfileByJwt(jwt);
         orderService.deleteOrderByUserId(orderId);
         
-        sendEmail("novatech.shopmobile1@gmail.com", "Delete Order", "Delete Order Successfully");
+        sendEmail("novatech.technology1@gmail.com", "Delete Order", "Delete Order Successfully");
         
         return ApiResponse.<String>builder()
         .result("Delete Order Successfully")
@@ -69,14 +69,12 @@ public class OrderController {
     public void sendEmail(String to, String subject, String content) {
         try {
             SimpleMailMessage mailMessage = new SimpleMailMessage();
-            mailMessage.setFrom("novatech.shopmobile1@gmail.com"); // Email người gửi cố định
+            mailMessage.setFrom("nvanlinh1406@gmail.com"); // Email người gửi cố định
             mailMessage.setTo(to);
             mailMessage.setSubject(subject);
             mailMessage.setText(content);
             mailSender.send(mailMessage);
-            System.out.println("Email sent successfully to " + to);
         } catch (Exception e) {
-            System.err.println("Error sending email: " + e.getMessage());
             e.printStackTrace();
         }
     }

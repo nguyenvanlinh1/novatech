@@ -111,7 +111,7 @@ export const updateStatus = () => async (dispatch) => {
   dispatch({ type: UPDATE_STATUS_REQUEST });
   try {
     const {data} = await api.put("/users/profile/update/status");
-    console.log("Data",data)
+    // console.log("Data",data)
     dispatch({ type: UPDATE_STATUS_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: UPDATE_STATUS_FAILURE, payload: error.message });

@@ -1,0 +1,35 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:8.0.37-debian
+    environment:
+      MYSQL_ROOT_PASSWORD: Nvanlinh1!@#
+      MYSQL_DATABASE: novatech
+    ports:
+      - "3336:3306"
+    networks:
+      - novatech_network
+  backend:
+    build: ./novatech_be
+    ports:
+      - "6789:6789"
+    networks:
+      - novatech_network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/novatech
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=Nvanlinh1!@#
+    depends_on:
+      - mysql
+  
+  frontend:
+    build: ./novatech_fe
+    networks:
+      - novatech_network
+    ports:
+      - "3000:80"
+
+networks:
+  novatech_network:
+    driver: bridge
+    

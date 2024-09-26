@@ -108,11 +108,11 @@ const ManageOrder = () => {
     }));
   };
   const [filteredOrders, setFilteredOrders] = useState([]);
-  const result = filteredOrders.map(item => {
+  const result = filteredOrders && filteredOrders.map(item => {
     const {orderId, orderDate, address: { addressId }, user: { userId }, status, payment, totalItems, totalDiscountedPrice } = item;
     return {orderId, orderDate, addressId, userId, status, payment, totalItems, totalDiscountedPrice };
   });
-  console.log(result)
+  // console.log(result)
 
   useEffect(() => {
     if (dataStatus.status !== "" || dataStatus.isPayment !== null) {

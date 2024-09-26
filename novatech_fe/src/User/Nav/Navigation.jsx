@@ -302,6 +302,7 @@ export function Navigation({setLoading}) {
       const fourHours = 4 * 60 * 60 * 1000;
 
       if (elapsedTime > fourHours) {
+        dispatch(updateStatus());
         localStorage.clear();
         localStorage.setItem("startTime", now);
       }
@@ -310,6 +311,7 @@ export function Navigation({setLoading}) {
     }
   }
   clearLocalStorageAfter4Hours();
+  // localStorage.clear();
 
   useEffect(() => {
     if (jwt) {

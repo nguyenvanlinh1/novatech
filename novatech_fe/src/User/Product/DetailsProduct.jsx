@@ -145,8 +145,10 @@ export default function DetailsProduct() {
     navigate("/cart");
   };
 
+
   const navigate = useNavigate();
   const [selectedColor, setSelectedColor] = useState(products.colors[0]);
+  console.log(selectedColor);
 
   const [open, setOpen] = useState(false);
 

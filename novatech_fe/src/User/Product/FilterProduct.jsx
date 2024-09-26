@@ -129,7 +129,7 @@ export default function FilterProduct() {
       minDiscount: discount || 0,
       sort: sortValue || "price_low",
       pageNumber: pageNumber - 1,
-      pageSize: 5,
+      pageSize: 4,
     };
     dispatch(findProduts(data));
   }, [
