@@ -17,10 +17,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -28,7 +32,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = { "/users", "/users/{userId}",
-            "/auth/signin", "/auth/signup", "/auth/introspect", "/auth/logout", "/products", "/products/{productId}",
+            "/auth/signin", "/auth/signup", "/auth/introspect", "/auth/logout", "/auth/outbound/authentication", "/products", "/products/{productId}",
             "/products/{productId}/adc", "/products/category",
             "/admin/order/{orderId}", "/admin/order", "/admin/order/{orderId}/place", "/admin/order/{orderId}/ship",
             "/admin/order/{orderId}/confirm", "/admin/order/{orderId}/delivery", "/admin/order/{orderId}/cancel",
@@ -52,24 +56,24 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, PUBLIC_ENDPOINTS).permitAll()
                 .anyRequest().authenticated());
 
-        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)));
+        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
+                .decoder(customJwtDecoder)
+                .jwtAuthenticationConverter(jwtAuthenticationConverter())
+        ).authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
 
-        http.csrf(AbstractHttpConfigurer::disable)
-                .cors().configurationSource(new CorsConfigurationSource() {
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                        CorsConfiguration cfg = new CorsConfiguration();
-                        cfg.setAllowedOrigins(Arrays.asList(
-                                "http://localhost:5173"));
-                        cfg.setAllowedMethods(Collections.singletonList("*"));
-                        cfg.setAllowCredentials(true);
-                        cfg.setAllowedHeaders(Collections.singletonList("*"));
-                        cfg.setExposedHeaders(Arrays.asList("Authorization"));
-                        cfg.setMaxAge(3600L);
-                        return cfg;
-                    }
-                });
+        http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
+    }
+
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
     }
 
     @Bean
@@ -94,5 +98,14 @@ public class SecurityConfig {
 
         mailSender.setJavaMailProperties(javaMailProperties);
         return mailSender;
+    }
+
+    @Bean
+    JwtAuthenticationConverter jwtAuthenticationConverter(){
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
     }
 }

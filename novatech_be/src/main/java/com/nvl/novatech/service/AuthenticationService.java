@@ -4,9 +4,18 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
+import com.nvl.novatech.dto.request.ExchangeTokenRequest;
+import com.nvl.novatech.model.Role;
+import com.nvl.novatech.repository.httpclient.OutboundIdentityClient;
+import com.nvl.novatech.repository.httpclient.OutboundUserClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,12 +52,30 @@ import lombok.experimental.NonFinal;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
     UserRepository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
+    OutboundUserClient outboundUserClient;
+    OutboundIdentityClient outboundIdentityClient;
+    CartService cartService;
 
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String signerKey;
+
+    @NonFinal
+    @Value("${outbound.identity.client-id}")
+    protected  String CLIENT_ID;
+
+    @NonFinal
+    @Value("${outbound.identity.client-secret}")
+    protected String CLIENT_SECRET;
+
+    @NonFinal
+    @Value("${outbound.identity.redirect-uri}")
+    protected String REDIRECT_URI;
+
+    protected final String GRANT_TYPE = "authorization_code";
 
     public IntrospectTokenResponse introspect(IntrospectTokenRequest request) throws ParseException, JOSEException {
         var token = request.getToken();
@@ -63,6 +90,49 @@ public class AuthenticationService {
         return IntrospectTokenResponse.builder()
                 .valid(isValid)
                 .build();
+    }
+
+    public AuthenticationResponse outboundAuthenticate(String code) {
+        var response = outboundIdentityClient.exchangeToken(ExchangeTokenRequest.builder()
+                        .code(code)
+                        .clientId(CLIENT_ID)
+                        .clientSecret(CLIENT_SECRET)
+                        .redirectUri(REDIRECT_URI)
+                        .grantType(GRANT_TYPE)
+                        .build());
+
+        var userInfo = outboundUserClient.getUserInfo("json", response.getAccessToken());
+        log.info("User {}", userInfo);
+        log.info("Res {}", response);
+        Set<Role> roles = new HashSet<>();
+        roles.add(new Role("USER"));
+
+//        var user = userRepository.findByEmail(userInfo.getEmail())
+//                .orElseGet(() -> userRepository.save(User.builder()
+//                                .firstName(userInfo.getGivenName())
+//                                .lastName(userInfo.getFamilyName())
+//                                .email(userInfo.getEmail())
+//                                .roles(roles)
+//                                .isOnline(true)
+//                        .build()));
+        var user = userRepository.findByEmail(userInfo.getEmail()).orElse(null);
+        if(user == null){
+            var newUser = userRepository.save(User.builder()
+                                .firstName(userInfo.getGivenName())
+                                .lastName(userInfo.getFamilyName())
+                                .email(userInfo.getEmail())
+                                .roles(roles)
+                                .isOnline(true)
+                    .build());
+            cartService.createCart(newUser);
+            var token = generateToken(newUser);
+            return AuthenticationResponse.builder().token(token).build();
+        }
+
+        var token = generateToken(user);
+        log.info("Token {}", token);
+
+        return AuthenticationResponse.builder().token(token).build();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {

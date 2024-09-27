@@ -41,6 +41,7 @@ import {
   findProduts,
   getProducts,
 } from "../../State/User/Product/Action";
+import { getToken } from "../../State/Auth/Outbound/localStorageService";
 
 const dataCategory = [
   {
@@ -234,6 +235,7 @@ function NavList() {
 }
 
 export function Navigation({setLoading}) {
+
   const [isDropdown, setIsDropdown] = useState(false);
 
   const { auth } = useSelector((store) => store);
@@ -299,7 +301,7 @@ export function Navigation({setLoading}) {
 
     if (storedTime) {
       const elapsedTime = now - storedTime;
-      const fourHours = 4 * 60 * 60 * 1000;
+      const fourHours = 1 * 60 * 60 * 1000;
 
       if (elapsedTime > fourHours) {
         dispatch(updateStatus());
@@ -311,14 +313,18 @@ export function Navigation({setLoading}) {
     }
   }
   clearLocalStorageAfter4Hours();
-  // localStorage.clear();
 
   useEffect(() => {
-    if (jwt) {
+    const accessToken = getToken();
+    if (accessToken) {
+      dispatch(getUser(accessToken));
+      dispatch(getCart());
+    }
+    else if(jwt){
       dispatch(getUser(jwt));
       dispatch(getCart());
     }
-  }, [jwt]);
+  }, [navigate]);
 
   const [data, setData] = useState({
     search: "",
@@ -368,7 +374,7 @@ export function Navigation({setLoading}) {
           className="mr-4 cursor-pointer text-lg font-bold"
           variant="h4"
         >
-          <Tooltip title="Về trang chủ">NovaTech</Tooltip>
+          <Tooltip title="Về trang chủ"><span>NovaTech</span></Tooltip>
         </Typography>
         {/* <div className="hidden lg:block">
           <NavList />

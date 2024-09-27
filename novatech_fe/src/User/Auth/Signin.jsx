@@ -4,8 +4,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { getUser, login } from "../../State/Auth/Action";
 import { Box, CircularProgress } from "@mui/material";
+import { OauthConfig } from "../../State/Auth/Outbound/configuration";
+import { getToken } from "../../State/Auth/Outbound/localStorageService";
 
 export function SignIn() {
+  const handleContinueWithGoogle = () => {
+    const callbackUrl = OauthConfig.redirectUri;
+    const authUrl = OauthConfig.authUri;
+    const googleClientId = OauthConfig.clientId;
+
+    const targetUrl = `${authUrl}?redirect_uri=${encodeURIComponent(
+      callbackUrl
+    )}&response_type=code&client_id=${googleClientId}&scope=openid%20email%20profile`;
+
+    window.location.href = targetUrl;
+  };
+
   const { auth } = useSelector((store) => store);
   const jwt = localStorage.getItem("jwt");
   const navigate = useNavigate();
@@ -27,9 +41,6 @@ export function SignIn() {
     }));
   };
 
-  console.log("Auth", auth)
-  console.log("Data", data)
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!data.email) {
@@ -40,14 +51,18 @@ export function SignIn() {
       return;
     }
     dispatch(login(data));
-    setLoading(true)
+    setLoading(true);
   };
 
   useEffect(() => {
+    const accessToken = getToken();
+    if(accessToken){
+      dispatch(getUser(accessToken));
+    }
     if (jwt) {
       dispatch(getUser(jwt));
     }
-  }, [jwt]);
+  }, [navigate, jwt]);
 
   useEffect(() => {
     if (auth.error === "Request failed with status code 401") {
@@ -140,6 +155,7 @@ export function SignIn() {
               color="white"
               className="flex items-center gap-2 justify-center shadow-md"
               fullWidth
+              onClick={handleContinueWithGoogle}
             >
               <svg
                 width="17"

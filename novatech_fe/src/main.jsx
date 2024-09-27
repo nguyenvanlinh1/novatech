@@ -9,7 +9,6 @@ import { MaterialTailwindControllerProvider } from "./Admin/Context/index.jsx";
 import { store } from "./State/state.js";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
     <BrowserRouter>
       <Provider store={store}>
         <ThemeProvider>
@@ -19,5 +18,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </ThemeProvider>
       </Provider>
     </BrowserRouter>
-  </React.StrictMode>
 );

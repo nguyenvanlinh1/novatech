@@ -1,7 +1,6 @@
 package com.nvl.novatech.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.nimbusds.jose.JOSEException;
 import com.nvl.novatech.dto.request.ApiResponse;
@@ -20,9 +19,6 @@ import lombok.experimental.FieldDefaults;
 
 import java.text.ParseException;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
 
 @RestController
 @RequestMapping("/auth")
@@ -34,6 +30,14 @@ public class AuthenticationController {
     UserService userService;
 
 
+    @PostMapping("/outbound/authentication")
+    ApiResponse<AuthenticationResponse> outboundAuthenticate(@RequestParam("code") String code){
+        var result = authenticationService.outboundAuthenticate(code);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(result)
+                .build();
+    }
+
     @PostMapping("/signin")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
         var result = authenticationService.authenticate(request);
@@ -42,6 +46,7 @@ public class AuthenticationController {
             .result(result)
             .build();
     }
+
 
     @PostMapping("/introspect")
     ApiResponse<IntrospectTokenResponse> introspectToken(@RequestBody IntrospectTokenRequest request) throws ParseException, JOSEException{

@@ -48,6 +48,7 @@ const formatTimeDifference = (pastDate) => {
 
 const Message = () => {
   const { chat } = useSelector((store) => store);
+  console.log("Chat", chat)
   const { message } = useSelector((store) => store);
   // console.log("Mes", message);
   // console.log("Chat", chat);
@@ -80,6 +81,7 @@ const Message = () => {
   };
 
   const jwt = localStorage.getItem("jwt");
+  console.log(jwt)
 
   // Tạo tham chiếu để kích hoạt input file
   const fileInputRef = React.createRef();
@@ -176,16 +178,16 @@ const Message = () => {
     dispatch(getUsersChat({ jwt }));
   }, [chat.createChat]);
 
-  useEffect(() => {
-    if (chat.chats !== null) {
-      dispatch(
-        getAllMessages({
-          chatId: chat.chats && chat.chats.result[0].chatId,
-          jwt,
-        })
-      );
-    }
-  }, [chat.chats && chat.chats.result, message.newMessage]);
+  // useEffect(() => {
+  //   if (chat.chats !== null) {
+  //     dispatch(
+  //       getAllMessages({
+  //         chatId: chat.chats && chat.chats.result[0].chatId,
+  //         jwt,
+  //       })
+  //     );
+  //   }
+  // }, [chat.chats && chat.chats.result, message.newMessage]);
 
   const handleCreateNewMessage = () => {
     dispatch(

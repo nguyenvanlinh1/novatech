@@ -17,15 +17,6 @@ EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
 
-# FROM node:alpine3.20 AS product
-
-# WORKDIR /app
-
-# COPY --from=build /build/dist /app/dist
-# EXPOSE 5173
-
-# CMD [ "npm", "start" ]
-
 
 
 

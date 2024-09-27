@@ -20,6 +20,7 @@ import ProfileMain from "../User/Profile/ProfileMain";
 import Support from "../User/Profile/Support";
 import Address from "../User/Profile/Address";
 import { Box, CircularProgress } from "@mui/material";
+import Authenticate from "../User/Auth/Authenticate";
 
 const UserRouters = () => {
   const [loading, setLoading] = useState(false);
@@ -37,6 +38,7 @@ const UserRouters = () => {
     <div className="relative">
       {shouldDisplayNavigation() && <Navigation setLoading={setLoading} />}
       <Routes>
+        <Route path="/authenticate" element={<Authenticate/>}/>
         <Route path="/auth/signin" element={<SignIn />}></Route>
         <Route path="/auth/signup" element={<SignUp />}></Route>
         <Route path="/" element={<HomePage />}></Route>

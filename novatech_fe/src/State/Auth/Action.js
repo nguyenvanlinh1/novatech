@@ -21,6 +21,7 @@ import {
   UPDATE_USER_REQUEST,
   UPDATE_USER_SUCCESS,
 } from "./ActionType";
+import { getToken } from "./Outbound/localStorageService";
 
 export const register = (reqData) => async (dispatch) => {
   dispatch({ type: REGISTER_REQUEST });
@@ -54,10 +55,10 @@ export const getUser = (jwt) => async (dispatch) => {
   dispatch({ type: GET_USER_REQUEST });
   try {
     const res = await fetch(`${API_BASE_URL}/users/profile`, {
-      method:"GET",
-      headers:{
-      'Authorization': `Bearer ${jwt}`,
-        'Content-Type': "application/json",
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+        "Content-Type": "application/json",
       },
     });
     if (!res.ok) {
@@ -91,14 +92,14 @@ export const getAllUser = () => async (dispatch) => {
 export const logout = () => (dispatch) => {
   dispatch({ type: LOGOUT, payload: null });
   localStorage.clear();
-  window.location.href = 'http://localhost:5173'
+  window.location.href = "http://localhost:5173";
 };
 
 export const updateProfile = () => async (dispatch) => {
   // console.log("Data",reqData)
   dispatch({ type: UPDATE_USER_REQUEST });
   try {
-    const {data} = await api.put("/users/profile/update");
+    const { data } = await api.put("/users/profile/update");
     // console.log(data)
     dispatch({ type: UPDATE_USER_SUCCESS, payload: data });
     // toast.success('🦄 Cập nhật thông tin thành công!');
@@ -110,12 +111,10 @@ export const updateProfile = () => async (dispatch) => {
 export const updateStatus = () => async (dispatch) => {
   dispatch({ type: UPDATE_STATUS_REQUEST });
   try {
-    const {data} = await api.put("/users/profile/update/status");
+    const { data } = await api.put("/users/profile/update/status");
     // console.log("Data",data)
     dispatch({ type: UPDATE_STATUS_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: UPDATE_STATUS_FAILURE, payload: error.message });
   }
 };
-
-
