@@ -2,6 +2,9 @@ package com.nvl.novatech.controller;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,12 +29,17 @@ import lombok.experimental.FieldDefaults;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+//@Slf4j
 public class UserController {
     
     UserService userService;
 
     @GetMapping
     ApiResponse<List<User>> getAllUser(){
+//        var authentication = SecurityContextHolder.getContext().getAuthentication();
+//        log.info("User {}", authentication.getName());
+//        authentication.getAuthorities().forEach((s) -> log.info(s.getAuthority()));
+
         return ApiResponse.<List<User>>builder()
             .result(userService.getUsers())
             .build();

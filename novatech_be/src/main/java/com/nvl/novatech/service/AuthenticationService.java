@@ -3,15 +3,13 @@ package com.nvl.novatech.service;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import com.nvl.novatech.dto.request.ExchangeTokenRequest;
 import com.nvl.novatech.model.Role;
 import com.nvl.novatech.repository.httpclient.OutboundIdentityClient;
 import com.nvl.novatech.repository.httpclient.OutboundUserClient;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,13 +44,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class AuthenticationService {
 
-    private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
     UserRepository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
     OutboundUserClient outboundUserClient;
@@ -197,7 +196,7 @@ public class AuthenticationService {
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(6, ChronoUnit.HOURS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
-                .claim("scope", "USER")
+                .claim("scope", buildScope(user))
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -210,6 +209,13 @@ public class AuthenticationService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String buildScope(User user){
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if(!CollectionUtils.isEmpty(user.getRoles()))
+            user.getRoles().forEach(s -> stringJoiner.add(s.getName()));
+        return stringJoiner.toString();
     }
 
 }

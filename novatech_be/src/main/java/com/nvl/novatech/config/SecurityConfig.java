@@ -31,12 +31,27 @@ import org.springframework.web.filter.CorsFilter;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = { "/users", "/users/{userId}",
-            "/auth/signin", "/auth/signup", "/auth/introspect", "/auth/logout", "/auth/outbound/authentication", "/products", "/products/{productId}",
-            "/products/{productId}/adc", "/products/category",
-            "/admin/order/{orderId}", "/admin/order", "/admin/order/{orderId}/place", "/admin/order/{orderId}/ship",
+    private final String[] PUBLIC_ENDPOINTS = {
+            "/auth/signin", "/auth/signup", "/auth/introspect", "/auth/logout", "/auth/outbound/authentication",
+    };
+
+    private final String[] PUBLIC_GET_USER = {
+            "/products", "/products/{productId}", "/reviews/{productId}", "/products/category", "/products/search",
+            "/products/{productId}/adc"
+    };
+
+    private final String[] PRIAVATE_GET_ADMIN = {
+            "/admin/order", "/users"
+    };
+    private final String[] PRIAVATE_PUT_ADMIN = {
+            "/products/{productId}", "/admin/order/{orderId}/place", "/admin/order/{orderId}/ship",
             "/admin/order/{orderId}/confirm", "/admin/order/{orderId}/delivery", "/admin/order/{orderId}/cancel",
-            "/products/search", "/messages/all",
+    };
+    private final String[] PRIAVATE_POST_ADMIN = {
+            "/products", "/admin/order/filter"
+    };
+    private final String[] PRIAVATE_DELETE_ADMIN = {
+            "/admin/order/{orderId}", "/products/{productId}", "/users/{userId}"
     };
 
     @Value("${jwt.signerKey}")
@@ -51,9 +66,12 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                .requestMatchers(HttpMethod.PUT, PUBLIC_ENDPOINTS).permitAll()
-                .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS).permitAll()
-                .requestMatchers(HttpMethod.DELETE, PUBLIC_ENDPOINTS).permitAll()
+                .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                .requestMatchers(HttpMethod.GET, PUBLIC_GET_USER).permitAll()
+                .requestMatchers(HttpMethod.GET, PRIAVATE_GET_ADMIN).hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, PRIAVATE_PUT_ADMIN).hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, PRIAVATE_POST_ADMIN).hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, PRIAVATE_DELETE_ADMIN).hasRole("ADMIN")
                 .anyRequest().authenticated());
 
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
@@ -103,7 +121,7 @@ public class SecurityConfig {
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter(){
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
