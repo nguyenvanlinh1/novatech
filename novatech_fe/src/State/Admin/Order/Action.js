@@ -1,5 +1,4 @@
-import axios from "axios";
-import { API_BASE_URL } from "../../../Config/apiConfig";
+import { api } from "../../../Config/apiConfig";
 import {
   CANCELED_ORDERS_FAILURE,
   CANCELED_ORDERS_REQUEST,
@@ -30,7 +29,7 @@ import {
 export const getAllOrders = () => async (dispatch) => {
   dispatch({ type: GET_ORDERS_REQUEST });
   try {
-    const { data } = await axios.get(`${API_BASE_URL}/admin/order`);
+    const { data } = await api.get(`/admin/order`);
     dispatch({ type: GET_ORDERS_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: GET_ORDERS_FAILURE, payload: error.message });
@@ -40,7 +39,7 @@ export const getAllOrders = () => async (dispatch) => {
 export const findOrderStatus = (reqData) => async (dispatch) => {
   dispatch({ type: FIND_ORDERS_STATUS_REQUEST });
   try {
-    const { data } = await axios.post(`${API_BASE_URL}/admin/order/filter`, reqData);
+    const { data } = await api.post(`/admin/order/filter`, reqData);
     dispatch({ type: FIND_ORDERS_STATUS_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: FIND_ORDERS_STATUS_FAILURE, payload: error.message });
@@ -50,7 +49,7 @@ export const findOrderStatus = (reqData) => async (dispatch) => {
 export const placeOrder = (orderId) => async (dispatch) => {
     dispatch({ type: PLACED_ORDERS_REQUEST });
     try {
-      const { data } = await axios.put(`${API_BASE_URL}/admin/order/${orderId}/place`);
+      const { data } = await api.put(`$/admin/order/${orderId}/place`);
       dispatch({ type: PLACED_ORDERS_SUCCESS, payload: data });
     } catch (error) {
       dispatch({ type: PLACED_ORDERS_FAILURE, payload: error.message });
@@ -61,7 +60,7 @@ export const placeOrder = (orderId) => async (dispatch) => {
 export const confirmOrder = (orderId) => async (dispatch) => {
   dispatch({ type: CONFIRMED_ORDERS_REQUEST });
   try {
-    const { data } = await axios.put(`${API_BASE_URL}/admin/order/${orderId}/confirm`);
+    const { data } = await api.put(`$/admin/order/${orderId}/confirm`);
     dispatch({ type: CONFIRMED_ORDERS_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: CONFIRMED_ORDERS_FAILURE, payload: error.message });
@@ -71,7 +70,7 @@ export const confirmOrder = (orderId) => async (dispatch) => {
 export const shipOrder = (orderId) => async (dispatch) => {
   dispatch({ type: SHIPPED_ORDERS_REQUEST });
   try {
-    const { data } = await axios.put(`${API_BASE_URL}/admin/order/${orderId}/ship`);
+    const { data } = await api.put(`/admin/order/${orderId}/ship`);
     dispatch({ type: SHIPPED_ORDERS_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: SHIPPED_ORDERS_FAILURE, payload: error.message });
@@ -81,7 +80,7 @@ export const shipOrder = (orderId) => async (dispatch) => {
 export const deliveryOrder = (orderId) => async (dispatch) => {
   dispatch({ type: DELIVERED_ORDERS_REQUEST });
   try {
-    const { data } = await axios.put(`${API_BASE_URL}/admin/order/${orderId}/delivery`);
+    const { data } = await api.put(`/admin/order/${orderId}/delivery`);
     dispatch({ type: DELIVERED_ORDERS_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: DELIVERED_ORDERS_FAILURE, payload: error.message });
@@ -91,7 +90,7 @@ export const deliveryOrder = (orderId) => async (dispatch) => {
 export const cancelOrder = (orderId) => async (dispatch) => {
   dispatch({ type: CANCELED_ORDERS_REQUEST });
   try {
-    const { data } = await axios.put(`${API_BASE_URL}/admin/order/${orderId}/cancel`);
+    const { data } = await api.put(`/admin/order/${orderId}/cancel`);
     dispatch({ type: CANCELED_ORDERS_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: CANCELED_ORDERS_FAILURE, payload: error.message });
@@ -101,7 +100,7 @@ export const cancelOrder = (orderId) => async (dispatch) => {
 export const deleteOrder = (orderId) => async (dispatch) => {
   dispatch({ type: DELETE_ORDERS_REQUEST });
   try {
-    const { data } = await axios.delete(`${API_BASE_URL}/admin/order/${orderId}`);
+    const { data } = await api.delete(`$/admin/order/${orderId}`);
     dispatch({ type: DELETE_ORDERS_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: DELETE_ORDERS_FAILURE, payload: error.message });

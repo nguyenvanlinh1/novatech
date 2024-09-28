@@ -2,7 +2,7 @@ import { API_BASE_URL } from "../../../Config/apiConfig"
 import { CREATE_CHAT, GET_ALL_CHAT } from "./ActionType";
 
 export const createChat = (chatData) => async (dispatch) => {
-
+    console.log("Chat data", chatData)
     try {
         const res = await fetch(`${API_BASE_URL}/chats/single`, {
             method:"POST",
@@ -34,7 +34,7 @@ export const getUsersChat = (chatData) => async (dispatch) => {
         })
 
         const data = await res.json();
-        // console.log("user chat:", data)
+        console.log("user chat:", data)
         dispatch({type:GET_ALL_CHAT, payload:data})
     } catch (error) {
         console.log("Error", error)

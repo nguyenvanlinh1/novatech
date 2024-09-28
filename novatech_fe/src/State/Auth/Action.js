@@ -21,7 +21,6 @@ import {
   UPDATE_USER_REQUEST,
   UPDATE_USER_SUCCESS,
 } from "./ActionType";
-import { getToken } from "./Outbound/localStorageService";
 
 export const register = (reqData) => async (dispatch) => {
   dispatch({ type: REGISTER_REQUEST });
@@ -82,7 +81,7 @@ export const getUser = (jwt) => async (dispatch) => {
 export const getAllUser = () => async (dispatch) => {
   dispatch({ type: GET_ALL_USER_REQUEST });
   try {
-    const data = await axios.get(`${API_BASE_URL}/users`);
+    const data = await api.get(`/users`);
     dispatch({ type: GET_ALL_USER_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: GET_ALL_USER_FAILURE, payload: error.message });

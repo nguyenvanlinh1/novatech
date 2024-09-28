@@ -83,7 +83,6 @@ export const ManageProduct = () => {
     setOpen(false);
   };
   const handleOpenUpdate = (productId) => {
-    console.log(productId)
     setOpenUpdate(true);
     setCurrentProductId(productId);
   };

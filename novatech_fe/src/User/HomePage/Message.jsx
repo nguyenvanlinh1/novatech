@@ -48,9 +48,8 @@ const formatTimeDifference = (pastDate) => {
 
 const Message = () => {
   const { chat } = useSelector((store) => store);
-  console.log("Chat", chat)
   const { message } = useSelector((store) => store);
-  // console.log("Mes", message);
+  console.log("Mes", message);
   // console.log("Chat", chat);
 
   const [content, setContent] = useState("");
@@ -59,8 +58,6 @@ const Message = () => {
   const handleContentChange = (e) => {
     setContent(e.target.value);
   };
-
-  // console.log("ABC",imageUrl);
   
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -81,7 +78,6 @@ const Message = () => {
   };
 
   const jwt = localStorage.getItem("jwt");
-  console.log(jwt)
 
   // Tạo tham chiếu để kích hoạt input file
   const fileInputRef = React.createRef();
@@ -178,16 +174,16 @@ const Message = () => {
     dispatch(getUsersChat({ jwt }));
   }, [chat.createChat]);
 
-  // useEffect(() => {
-  //   if (chat.chats !== null) {
-  //     dispatch(
-  //       getAllMessages({
-  //         chatId: chat.chats && chat.chats.result[0].chatId,
-  //         jwt,
-  //       })
-  //     );
-  //   }
-  // }, [chat.chats && chat.chats.result, message.newMessage]);
+  useEffect(() => {
+    if (chat.chats !== null) {
+      dispatch(
+        getAllMessages({
+          chatId: chat.chats && chat.chats.result[0].chatId,
+          jwt,
+        })
+      );
+    }
+  }, [chat.chats && chat.chats.result, message.newMessage]);
 
   const handleCreateNewMessage = () => {
     dispatch(
@@ -205,7 +201,7 @@ const Message = () => {
 
   return (
     <div className="relative">
-      <div onClick={() => handleClickOnChatCard(21)}>
+      <div onClick={() => handleClickOnChatCard(1)}>
         <Avatar
           id="demo-positioned-button"
           aria-controls={open ? "demo-positioned-menu" : undefined}
@@ -259,9 +255,8 @@ const Message = () => {
 
           <CardContent className="h-80" sx={{ overflowY: "scroll" }}>
             {message.messages &&
-              message.messages.result &&
-              message.messages.result.map((item) =>
-                item.user.userId === 21 ? (
+              message.messages?.result.map((item) =>
+                item.user.userId === 1 ? (
                   <div key={item.user.userId} className="chat chat-start text-xs">
                     <div className="chat-image avatar">
                       <div className="w-10 rounded-full">
